@@ -1,7 +1,9 @@
 # ATELIER—1111
 
-An A1111-style workbench for frontier image models. Local-first, single user,
-your own OpenRouter key. No auth, no credits, no hosting of weights.
+BYOK image and video generation for OpenRouter. Runs on your machine with your
+own key, and every result is saved to disk with its prompt and cost.
+
+![Atelier-1111 with a gallery of images from six models](docs/screenshot.webp)
 
 Instrument-grade UI: six colours, zero radius, a 4px lattice, no shadows or
 gradients, and one accent that only ever means *live*.

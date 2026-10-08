@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "type": "module",
-  "description": "A1111-style workbench for frontier image models, via OpenRouter.",
+  "description": "BYOK image and video generation for OpenRouter, running on your own machine.",
   "scripts": {
     "start": "node --env-file-if-exists=.env scripts/start.mjs",
     "dev": "concurrently -n API,WEB -c yellow,cyan \"npm:dev:api\" \"npm:dev:web\"",
