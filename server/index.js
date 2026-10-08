@@ -1,0 +1,80 @@
+import express from 'express'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { IMAGE_DIR, ROOT } from './paths.js'
+import { api } from './routes/index.js'
+import { reconcileOrphans } from './reconcile.js'
+import { describe } from './settings.js'
+import { localOnly } from './localonly.js'
+
+/**
+ * Two ways to run:
+ *
+ *   --app   one process on APP_PORT (5180) serving the built UI and the API —
+ *           what the desktop launcher and `npm start` use.
+ *   (none)  API only on API_PORT (8788), behind the Vite dev server.
+ */
+const APP = process.argv.includes('--app')
+const PORT = APP
+  ? Number(process.env.APP_PORT) || 5180
+  : Number(process.env.API_PORT) || 8788
+const DIST = join(ROOT, 'dist')
+
+const app = express()
+app.disable('x-powered-by')
+app.use(localOnly)
+app.use(express.json({ limit: '64mb' })) // reference images arrive as data URLs
+app.use('/api', api)
+// Vector models return SVG, which is script-capable when opened directly (an
+// <img> tag is inert, a browser tab is not). Served locked down and never
+// content-sniffed, so the extension written by the queue is the only authority.
+app.use(
+  '/files',
+  express.static(IMAGE_DIR, {
+    maxAge: '1y',
+    immutable: true,
+    setHeaders(res) {
+      res.setHeader('X-Content-Type-Options', 'nosniff')
+      res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+    },
+  })
+)
+
+if (APP) {
+  if (!existsSync(join(DIST, 'index.html'))) {
+    console.error('[atelier-1111] no build found — run `npm start`, which builds first.')
+    process.exit(1)
+  }
+  // Hashed assets never change under their name; the page itself always revalidates.
+  app.use(
+    express.static(DIST, {
+      index: false,
+      setHeaders(res, path) {
+        res.setHeader(
+          'Cache-Control',
+          path.includes(`${join('dist', 'assets')}`) ? 'public, max-age=31536000, immutable' : 'no-cache'
+        )
+      },
+    })
+  )
+  app.get('*', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache')
+    res.sendFile(join(DIST, 'index.html'))
+  })
+}
+
+// Nothing survives a restart on its own: settle what was in flight first.
+// A video that recorded an upstream id is still generating, and is recoverable
+// rather than lost; finished work is already on disk.
+reconcileOrphans()
+
+app.listen(PORT, '127.0.0.1', () => {
+  const { configured, source } = describe()
+  console.log(`[atelier-1111] ${APP ? 'app' : 'api'} on http://127.0.0.1:${PORT}`)
+  console.log(`[atelier-1111] gallery at ${IMAGE_DIR}`)
+  console.log(
+    configured
+      ? `[atelier-1111] api key loaded from ${source}`
+      : '[atelier-1111] no api key — add one in Settings'
+  )
+})

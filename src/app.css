@@ -1,0 +1,710 @@
+/* Layout for ATELIER-1111. Everything on the 4px lattice. */
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Top plate ────────────────────────────────────────────────────────── */
+
+.topbar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: var(--rule);
+  background: var(--bleach);
+}
+
+/* The wordmark is a solid block — the one inverted slab in the chrome. */
+.topbar__mark {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--u4);
+  background: var(--carbon);
+  color: var(--bleach);
+  font-family: var(--display);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.topbar__cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--u2) var(--u4);
+  border-left: var(--rule);
+  min-width: 0;
+}
+
+.topbar__spacer { flex: 1; }
+
+/* ── Modality tabs · the active one is inverted ───────────────────────── */
+
+.tabs {
+  display: flex;
+  align-self: stretch;
+}
+
+.tab {
+  border: 0;
+  border-right: var(--rule);
+  background: var(--bleach);
+  color: var(--carbon);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 var(--u5);
+  cursor: pointer;
+  transition: background var(--step), color var(--step);
+}
+.tab:hover:not([aria-pressed='true']) { background: var(--concrete); }
+.tab[aria-pressed='true'] {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+
+/* Topbar cells that are also controls */
+.topbar__cell--action {
+  border-top: 0;
+  border-bottom: 0;
+  border-right: 0;
+  align-items: flex-start;
+  text-align: left;
+  font: inherit;
+  color: var(--carbon);
+  background: var(--bleach);
+  cursor: pointer;
+  transition: background var(--step), color var(--step);
+}
+.topbar__cell--action:hover {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.topbar__cell--action:hover .dim { color: var(--concrete); }
+
+/* ── Main split ───────────────────────────────────────────────────────── */
+
+.main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  min-height: 0;
+}
+
+.control {
+  overflow-y: auto;
+  border-right: var(--rule);
+  background: var(--stock);
+  padding: var(--u4) var(--u4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--u4);
+}
+
+/* Generate is docked to the foot of the column so it is never scrolled away.
+   margin-top: auto keeps it at the bottom when the column is short. */
+.commit-dock {
+  position: sticky;
+  bottom: 0;
+  margin: auto calc(-1 * var(--u4)) 0;
+  padding: var(--u4);
+  background: var(--stock);
+  border-top: var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--u2);
+}
+
+.workspace {
+  overflow-y: auto;
+  background: var(--stock);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Readout band ─────────────────────────────────────────────────────── */
+
+.readout-band {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u3);
+  padding: var(--u5) var(--u5) var(--u4);
+  border-bottom: var(--rule);
+  background: var(--bleach);
+  min-width: 0;
+}
+
+.readout-band .plate-title {
+  overflow-wrap: anywhere;
+}
+
+.readout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u2) var(--u6);
+}
+
+.meta-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--u2);
+  border-left: var(--rule-ash);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* ── Gallery ──────────────────────────────────────────────────────────── */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--u6);
+  padding: var(--u6) var(--u5);
+  align-content: start;
+}
+
+.tile {
+  border: var(--rule);
+  background: var(--bleach);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.tile__frame {
+  background: var(--bleach);
+  border-bottom: var(--rule);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Hover inverts the caption bar — selection by inversion, not by hue. */
+.tile:hover .tile__meta {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.tile:hover .tile__meta .dim { color: var(--concrete); }
+
+/* ── Pending tile · the place a result will take ──────────────────────── */
+
+/* Signal marks it as live work — the one job signal is allowed. */
+.tile--pending {
+  border-color: var(--signal);
+  cursor: default;
+}
+.tile--pending .tile__frame {
+  background: var(--stock);
+  border-bottom-color: var(--signal);
+}
+.tile--pending:hover .tile__meta {
+  background: var(--bleach);
+  color: var(--carbon);
+}
+.tile--pending:hover .tile__meta .dim { color: var(--ash); }
+
+/* A partial frame is the real image, part-drawn — shown at full opacity so it
+   is not mistaken for a finished plate that rendered badly. */
+.tile__partial {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Nothing to show yet: a bar that steps across the frame, never eases. */
+.tile__wait {
+  display: block;
+  width: 64px;
+  height: 12px;
+  border: var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.tile__wait::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 16px;
+  background: var(--signal);
+  animation: sweep 1.2s steps(6, end) infinite;
+}
+
+/* ── Tile actions · revealed on hover, reachable by keyboard ──────────── */
+
+.tile__actions {
+  position: absolute;
+  top: var(--u2);
+  right: var(--u2);
+  display: flex;
+  gap: var(--u);
+  visibility: hidden;
+}
+.tile:hover .tile__actions,
+.tile__actions:focus-within {
+  visibility: visible;
+}
+
+.tile__act {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--rule);
+  background: var(--bleach);
+  color: var(--carbon);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--step), color var(--step);
+}
+.tile__act:hover {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+/* Armed delete inverts and spells itself — the state is read, not inferred. */
+.tile__act[data-armed] {
+  width: auto;
+  padding: 0 var(--u2);
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.tile__act-word {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+/* A video is a replaced element like an image and needs the same fitting — left
+   to itself it lays out at its intrinsic size and overflows the square frame. */
+.tile__frame img,
+.tile__frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.tile__meta {
+  padding: var(--u2) var(--u3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Reference tray ───────────────────────────────────────────────────── */
+
+.reftray {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--u2);
+}
+
+.refslot {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: var(--rule);
+  background: var(--bleach);
+  overflow: hidden;
+}
+.refslot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.refslot__kill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  background: var(--carbon);
+  color: var(--bleach);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+}
+.refslot__kill:hover { background: var(--bleach); color: var(--carbon); }
+
+.refslot--add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stock);
+  border: 2px dashed var(--carbon);
+  color: var(--carbon);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 22px;
+  transition: background var(--step), color var(--step);
+}
+.refslot--add:hover { background: var(--carbon); color: var(--bleach); border-style: solid; }
+
+/* ── Param toggles ────────────────────────────────────────────────────── */
+
+.param {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--u);
+}
+
+.param__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--u2);
+}
+
+.send-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u);
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color var(--step);
+}
+.send-toggle:hover,
+.send-toggle[aria-pressed='true'] { color: var(--carbon); }
+
+/* ── Aspect glyphs · the control states the shape it selects ──────────── */
+
+.seg--glyph .seg__opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--u);
+  padding: var(--u2) 2px var(--u2);
+  min-height: 48px;
+}
+
+/* Inherits currentColor, so it inverts with the pressed state like the label. */
+.ratio-glyph {
+  display: block;
+  border: 1px solid currentColor;
+  flex: none;
+}
+
+/* ── Observed verdicts · typographic, never coloured ──────────────────── */
+
+/* Both are dead ends and are disabled in the markup — struck through when the
+   provider refused it, dotted when it accepted and did something else. */
+.seg__opt[data-verdict='rejected'] {
+  text-decoration: line-through;
+  color: var(--ash);
+}
+.seg__opt[data-verdict='ignored'] {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  color: var(--ash);
+}
+.seg__opt[data-verdict='rejected']:disabled,
+.seg__opt[data-verdict='ignored']:disabled {
+  background: var(--concrete);
+  cursor: not-allowed;
+}
+
+/* Reasoned, not measured — dimmed and bracketed, but still selectable, because
+   the request that would settle it is a free 400. */
+.seg__opt[data-verdict='expected'] {
+  color: var(--ash);
+}
+.seg__opt[data-verdict='expected']:not(:disabled) span:last-child::before {
+  content: '(';
+}
+.seg__opt[data-verdict='expected']:not(:disabled) span:last-child::after {
+  content: ')';
+}
+
+/* A parameter measured to offer no choice on this model. The control is gone,
+   but the row stays — a silently deleted field reads as a missing feature. */
+.param--fixed {
+  border-left: var(--rule);
+  padding-left: var(--u2);
+}
+.param--fixed .param__verdict {
+  margin-top: 2px;
+}
+
+.param__verdict {
+  margin-top: var(--u);
+  line-height: 1.4;
+}
+/* Departure Mono ships Regular only — emphasis comes from case and spacing,
+   never from a synthesised bold. */
+.param__verdict-tag {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+
+/* ── Motion · stepped, never eased ────────────────────────────────────── */
+
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(500%); }
+}
+
+/* Committing is live but not actionable: signal on carbon, distinct from both
+   the solid-signal idle button and a plain dead disabled one. */
+.btn--commit[data-busy='true'],
+.btn--commit[data-busy='true']:disabled {
+  background-color: var(--carbon);
+  color: var(--signal);
+  border-color: var(--carbon);
+  cursor: progress;
+}
+
+.commit-wait {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 8px;
+  border: 1px solid currentColor;
+  overflow: hidden;
+  flex: none;
+}
+.commit-wait::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 25%;
+  background: currentColor;
+  animation: sweep 1.2s steps(6, end) infinite;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .tile__wait::after,
+  .commit-wait::after { animation: none; width: 100%; }
+}
+
+/* ── Detail overlay · solid, never translucent ────────────────────────── */
+
+.detail {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--stock);
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+/* Inverted bar, like every plate head. */
+.detail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--u4);
+  padding: var(--u2) var(--u5);
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.detail__head .dim { color: var(--concrete); }
+.detail__head .btn {
+  background: var(--carbon);
+  color: var(--bleach);
+  border-color: var(--bleach);
+}
+.detail__head .btn:hover:not(:disabled) {
+  background: var(--bleach);
+  color: var(--carbon);
+}
+
+.detail__split {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  min-height: 0;
+}
+
+.detail__stage {
+  background: var(--concrete);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--u6);
+  overflow: auto;
+}
+.detail__stage img,
+.detail__stage video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  border: var(--rule);
+  background: var(--bleach);
+}
+
+.detail__side {
+  border-left: var(--rule);
+  background: var(--bleach);
+  padding: var(--u5);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--u4);
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--u2);
+  padding: var(--u) 0;
+  border-bottom: var(--rule-ash);
+  align-items: baseline;
+}
+
+.kv__v {
+  font-family: var(--mono);
+  font-size: 11px;
+  word-break: break-word;
+}
+
+/* Failure is spelled, never coloured — signal stays reserved for live.
+   A notice is a ruled box; a failure inverts, the loudest thing the page
+   can say in monochrome. */
+.banner {
+  padding: var(--u3);
+  border: var(--rule);
+  border-left-width: 8px;
+  background: var(--bleach);
+  color: var(--carbon);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.banner--err {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.banner--ok {
+  border-left-width: 2px;
+}
+/* An error you can close: the whole banner is the button. */
+.banner--dismiss {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--u3);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.banner--dismiss > :first-child {
+  max-height: 7.5em;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+
+/* Irreversible: inverted, so it never looks like the Cancel beside it. */
+.btn--danger,
+.btn--danger:hover:not(:disabled) {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+
+/* A parameter that has never worked on anything here. */
+.param__flag {
+  margin-left: var(--u2);
+  padding: 0 var(--u);
+  border: 1px dashed currentColor;
+  color: var(--ash);
+  cursor: help;
+}
+
+/* ── Settings ──────────────────────────────────────────────────────── */
+
+.settings {
+  display: grid;
+  grid-template-columns: minmax(320px, 440px) 1fr;
+  gap: var(--u12);
+  padding: var(--u8) var(--u5);
+  overflow-y: auto;
+  align-content: start;
+}
+
+.settings__col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .settings { grid-template-columns: 1fr; gap: var(--u6); }
+}
+
+/* ── Empty gallery ─────────────────────────────────────────────────── */
+
+.specimen {
+  padding: var(--u8) var(--u5);
+}
+
+.keyform {
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+}
+.keyform a {
+  align-self: flex-start;
+  color: var(--ash);
+}
+.keyform a:hover { color: var(--carbon); }
+
+.proc {
+  border: var(--rule);
+  background: var(--bleach);
+}
+.proc__row {
+  font-family: var(--prose);
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--u3);
+  padding: var(--u3);
+  border-bottom: var(--rule-ash);
+}
+.proc__row:last-child { border-bottom: 0; }
+.proc__n {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--carbon);
+}
+/* Readiness marks report state — spelled by the row, so never coloured. */
+.proc--state .proc__n { color: var(--ash); }
+
+/* Label left, value right — a readout row, not a numbered step. */
+.proc--state .proc__row {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--u4);
+}
+.proc--state .proc__row > :last-child { text-align: right; }
