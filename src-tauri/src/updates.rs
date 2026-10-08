@@ -16,7 +16,14 @@ async fn latest(app: &AppHandle) -> Result<Option<Update>, String> {
         .map_err(|e| e.to_string())?
         .check()
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| match e {
+            // The feed URL answers 404 until the first release exists, which
+            // the plugin reports as an invalid release file.
+            tauri_plugin_updater::Error::ReleaseNotFound => {
+                "No release has been published yet.".to_string()
+            }
+            e => e.to_string(),
+        })
 }
 
 /// What is installed, and what the release feed offers, if anything newer.
