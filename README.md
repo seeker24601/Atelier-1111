@@ -148,3 +148,9 @@ on save, after being written, so a verification outage can't lock you out.
 - Wildcards / dynamic prompts — `a {red|blue} cloak`
 - Inpaint mask canvas
 - Saved presets and styles
+
+## License
+
+MIT — see `LICENSE`. Bundled fonts keep their own licences: Departure Mono
+(`public/fonts/OFL.txt`) and Archivo (via `@fontsource-variable/archivo`) are
+both under the SIL Open Font License 1.1.

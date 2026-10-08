@@ -2,6 +2,7 @@
   "name": "atelier-1111",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "A1111-style workbench for frontier image models, via OpenRouter.",
   "scripts": {
