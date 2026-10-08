@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   ATELIER-1111 — instrument-grade, monochrome, brutal
+
+   Six colours. Five of them are greys; the sixth is SIGNAL, and it only
+   ever means *live* — a job running, the one action that spends money,
+   the element under the keyboard. Nothing else is coloured. State is
+   spelled out in words, never colour-coded.
+
+   Zero radius. Everything on a 4px lattice. No shadows, no gradients,
+   no translucency. Structure is drawn with heavy carbon rules; emphasis
+   is inversion, not hue. Motion is stepped, never eased.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Departure Mono';
+  src:
+    url('/fonts/DepartureMono-Regular.woff2') format('woff2'),
+    url('/fonts/DepartureMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ── The six ────────────────────────────────────────────────────────── */
+  --carbon: #0b0b0b;    /* ink, rules, inverted bars          */
+  --stock: #ecece8;     /* the page                           */
+  --bleach: #ffffff;    /* plates, fields, frames             */
+  --concrete: #d2d2cc;  /* hover fill, dead controls          */
+  --ash: #6b6b66;       /* secondary text, unset marks        */
+  --signal: #ff4d00;    /* live — and nothing else            */
+  /* Text on signal. Never flips, so the live colour reads the same in both themes. */
+  --on-signal: #0b0b0b;
+  color-scheme: light;
+
+  /* ── Lattice · nothing sits off 4px ─────────────────────────────────── */
+  --u: 4px;
+  --u2: 8px;
+  --u3: 12px;
+  --u4: 16px;
+  --u5: 20px;
+  --u6: 24px;
+  --u8: 32px;
+  --u12: 48px;
+
+  /* Structure is heavy; subdivision is a hairline of the same ink. */
+  --rule: 2px solid var(--carbon);
+  --rule-ash: 1px solid var(--carbon);
+
+  /* Hover and press are hard swaps. */
+  --step: 80ms steps(1, end);
+
+  /* ── Type · two families ────────────────────────────────────────────── */
+  --display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;
+  --sans: 'Archivo Variable', system-ui, -apple-system, sans-serif;
+  /* Fallbacks only show if the bundled font fails to load: Windows, then macOS. */
+  --mono: 'Departure Mono', 'Cascadia Mono', Consolas, ui-monospace, Menlo, monospace;
+}
+
+/* ── Dark · the same six, inverted ────────────────────────────────────────
+   Every role keeps its meaning: carbon is still the ink, the rules and the
+   inverted bars, so it becomes the light value. Signal does not move. The
+   ink is a shade off white so the bars do not glare. Applied when the OS is
+   dark and no choice was saved, or when dark was chosen in Settings. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --carbon: #e6e6e1;
+    --stock: #121211;
+    --bleach: #1b1b19;
+    --concrete: #2f2f2c;
+    --ash: #8f8f88;
+    --signal: #ff5a1f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --carbon: #e6e6e1;
+  --stock: #121211;
+  --bleach: #1b1b19;
+  --concrete: #2f2f2c;
+  --ash: #8f8f88;
+  --signal: #ff5a1f;
+  color-scheme: dark;
+}

@@ -38,7 +38,25 @@ Apple signing and notarization; credentials are not included in this repository.
 The desktop backend uses an OS-assigned free loopback port.
 The app waits for backend readiness before it creates the window.
 Only one desktop instance runs at a time. Closing the app stops its backend.
-The renderer has no shell permissions or direct Node access.
+The page has no direct Node access. It may ask the shell for three things,
+listed in the `local-page` capability in `tauri.conf.json`: set the title bar
+theme, check for an update, and install one.
+
+## Updates
+
+Settings → Updates checks the latest GitHub release and installs it. Updates
+are signed; the app refuses any file not signed with the project's key.
+
+- Public key: `plugins.updater.pubkey` in `src-tauri/tauri.conf.json`.
+- Private key: `~/.tauri/atelier-1111.key`, never committed. Back it up. If it
+  is lost, installed copies can no longer be updated in place.
+- CI reads the private key from the `TAURI_SIGNING_PRIVATE_KEY` repository
+  secret. The key has no password.
+
+To publish a version, set `version` in `src-tauri/tauri.conf.json`, commit,
+then push a matching tag, for example `v0.2.0`. The Release workflow builds
+all three targets, signs them, and publishes a GitHub release with the
+`latest.json` the app reads.
 
 Desktop data uses the Tauri application-data directory for
 `com.seeker24601.atelier1111`, outside the installed application.

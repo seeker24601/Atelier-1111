@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import StoragePanel from './StoragePanel.jsx'
+import UpdatePanel from './UpdatePanel.jsx'
+import ModelsPanel from './ModelsPanel.jsx'
+import { THEMES } from '../theme.js'
 
 /**
  * The key is typed here and posted straight to the local API, which stores it
  * at data/settings.json. It is never held in browser storage and never comes
  * back over the wire — the panel only ever sees a masked hint.
  */
-export default function SettingsPanel({ open, onClose, settings, storage }) {
+export default function SettingsPanel({ open, onClose, settings, storage, onModelsChange }) {
   const [draft, setDraft] = useState('')
   const [replacing, setReplacing] = useState(false)
 
@@ -35,7 +38,7 @@ export default function SettingsPanel({ open, onClose, settings, storage }) {
     <div className="detail">
       <header className="detail__head">
         <span className="plate__id">Settings</span>
-        <button className="btn btn--ghost btn--sm" onClick={onClose} title="Esc">
+        <button className="btn btn--sm" onClick={onClose} title="Esc">
           ×
         </button>
       </header>
@@ -45,7 +48,7 @@ export default function SettingsPanel({ open, onClose, settings, storage }) {
           <span className="plate-title">OpenRouter key</span>
 
           {status.configured && (
-            <div className="proc proc--state" style={{ marginTop: 20 }}>
+            <div className="proc" style={{ marginTop: 20 }}>
               {[
                 ['Key', `${status.hint}${status.source === 'env' ? ' · .env' : ''}`],
                 ...(account
@@ -83,7 +86,7 @@ export default function SettingsPanel({ open, onClose, settings, storage }) {
                   <span>→</span>
                 </button>
                 {replacing && (
-                  <button type="button" className="btn btn--ghost" onClick={() => setReplacing(false)}>
+                  <button type="button" className="btn" onClick={() => setReplacing(false)}>
                     Cancel
                   </button>
                 )}
@@ -94,12 +97,12 @@ export default function SettingsPanel({ open, onClose, settings, storage }) {
             </form>
           ) : (
             <div className="row" style={{ gap: 8, marginTop: 16 }}>
-              <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => setReplacing(true)}>
+              <button className="btn" style={{ flex: 1 }} onClick={() => setReplacing(true)}>
                 <span>Replace</span>
-                <span>↺</span>
+                <span>→</span>
               </button>
               {status.source === 'stored' && (
-                <button className="btn btn--ghost" style={{ flex: 1 }} onClick={clearKey}>
+                <button className="btn" style={{ flex: 1 }} onClick={clearKey}>
                   <span>Remove</span>
                   <span>×</span>
                 </button>
@@ -115,6 +118,26 @@ export default function SettingsPanel({ open, onClose, settings, storage }) {
         </section>
 
         <StoragePanel {...storage} />
+
+        <section className="settings__col">
+          <span className="plate-title">Appearance</span>
+          <div className="seg" role="group" aria-label="Appearance" style={{ marginTop: 20 }}>
+            {THEMES.map((t) => (
+              <button
+                key={t}
+                className="seg__opt"
+                aria-pressed={settings.theme === t}
+                onClick={() => settings.setTheme(t)}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <ModelsPanel onChange={onModelsChange} />
+
+        <UpdatePanel />
       </div>
     </div>
   )

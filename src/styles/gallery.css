@@ -1,0 +1,145 @@
+/* The plate grid: finished tiles, pending tiles and their hover actions. */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--u6);
+  padding: var(--u6) var(--u5);
+  align-content: start;
+}
+
+.tile {
+  border: var(--rule);
+  background: var(--bleach);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+/* No border here: aspect-ratio counts the border box, so a rule on the frame
+   leaves its inside 2px short of square, and a square image fitted into it
+   shows a 1px strip either side. The divider lives on the caption instead. */
+.tile__frame {
+  background: var(--bleach);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+/* Videos are replaced elements too and need the same fitting, or they lay out
+   at their intrinsic size and overflow the frame. */
+.tile__frame img,
+.tile__frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.tile__meta {
+  border-top: var(--rule);
+  padding: var(--u2) var(--u3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* Hover inverts the caption — selection by inversion, not by hue. */
+.tile:hover .tile__meta {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.tile:hover .tile__meta .dim { color: var(--concrete); }
+
+/* ── Pending · signal marks live work, the one job it is allowed ──────── */
+
+.tile--pending {
+  border-color: var(--signal);
+  cursor: default;
+}
+.tile--pending .tile__frame { background: var(--stock); }
+.tile--pending .tile__meta { border-top-color: var(--signal); }
+.tile--pending:hover .tile__meta {
+  background: var(--bleach);
+  color: var(--carbon);
+}
+.tile--pending:hover .tile__meta .dim { color: var(--ash); }
+
+/* A partial frame is the real image, part-drawn — shown at full opacity so it
+   is not mistaken for a finished plate that rendered badly. */
+.tile__partial {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Nothing to show yet: a bar that steps across the frame. */
+.tile__wait {
+  display: block;
+  width: 64px;
+  height: 12px;
+  border: var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.tile__wait::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 16px;
+  background: var(--signal);
+  animation: sweep 1.2s steps(6, end) infinite;
+}
+
+/* Covers both stepped bars, this one and the busy Generate button's. It sits
+   here, after both are defined, so it wins the cascade. */
+@media (prefers-reduced-motion: reduce) {
+  .tile__wait::after,
+  .commit-wait::after { animation: none; width: 100%; }
+}
+
+/* ── Tile actions · revealed on hover, reachable by keyboard ──────────── */
+
+.tile__actions {
+  position: absolute;
+  top: var(--u2);
+  right: var(--u2);
+  display: flex;
+  gap: var(--u);
+  visibility: hidden;
+}
+.tile:hover .tile__actions,
+.tile__actions:focus-within { visibility: visible; }
+
+.tile__act {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--rule);
+  background: var(--bleach);
+  color: var(--carbon);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--step), color var(--step);
+}
+.tile__act:hover {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+/* Armed delete inverts and spells itself — the state is read, not inferred. */
+.tile__act[data-armed] {
+  width: auto;
+  padding: 0 var(--u2);
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.tile__act-word {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

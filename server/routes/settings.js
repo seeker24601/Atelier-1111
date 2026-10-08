@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { describe, setKey, clearKey, verifyKey, getKey, account } from '../settings.js'
+import { describe, setKey, clearKey, getKey, setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
+import { verifyKey, account } from '../account.js'
 
 export const settings = Router()
 
@@ -22,6 +23,27 @@ settings.put('/settings/key', async (req, res) => {
   // Saved first, then checked — a verification outage must not lock the user out.
   const check = await verifyKey(getKey())
   res.json({ ...describe(), ...check })
+})
+
+settings.put('/settings/theme', (req, res) => {
+  try {
+    setTheme(req.body?.theme)
+    res.json(describe())
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message })
+  }
+})
+
+settings.get('/settings/hidden-models', (_req, res) => {
+  res.json({ ids: getHiddenModels() })
+})
+
+settings.put('/settings/hidden-models', (req, res) => {
+  try {
+    res.json({ ids: setHiddenModels(req.body?.ids) })
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message })
+  }
 })
 
 /** The key's own spend and limit, from OpenRouter. Null when no key is set. */

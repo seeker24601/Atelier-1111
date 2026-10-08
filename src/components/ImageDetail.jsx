@@ -16,7 +16,7 @@ function ReferenceReport({ model, verdict, onReport }) {
         {['ok', 'ignored'].map((v) => (
           <button
             key={v}
-            className="btn btn--ghost btn--sm"
+            className="btn btn--sm"
             style={{ flex: 1 }}
             aria-pressed={verdict === v}
             onClick={() => onReport(model, v)}
@@ -61,16 +61,16 @@ export default function ImageDetail({
     <div className="detail">
       <header className="detail__head">
         <div className="row" style={{ gap: 16 }}>
-          <button className="btn btn--ghost btn--sm" onClick={() => onStep?.(-1)} aria-label="Previous">
+          <button className="btn btn--sm" onClick={() => onStep?.(-1)} aria-label="Previous">
             ←
           </button>
           <span className="plate__id">{shortModel(image.model)}</span>
           {position && <span className="plate__id dim">{position}</span>}
-          <button className="btn btn--ghost btn--sm" onClick={() => onStep?.(1)} aria-label="Next">
+          <button className="btn btn--sm" onClick={() => onStep?.(1)} aria-label="Next">
             →
           </button>
         </div>
-        <button className="btn btn--ghost btn--sm" onClick={onClose} title="Esc">
+        <button className="btn btn--sm" onClick={onClose} title="Esc">
           ×
         </button>
       </header>
@@ -104,12 +104,12 @@ export default function ImageDetail({
               <span>→</span>
             </button>
             <div className="row" style={{ gap: 8 }}>
-              <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => onReuse(image)}>
+              <button className="btn" style={{ flex: 1 }} onClick={() => onReuse(image)}>
                 <span>Reuse</span>
-                <span>↺</span>
+                <span>↰</span>
               </button>
               <a
-                className="btn btn--ghost"
+                className="btn"
                 style={{ flex: 1, textDecoration: 'none' }}
                 href={urlFor(image)}
                 download={`atelier-${image.id.slice(0, 8)}.${extensionOf(image)}`}
@@ -117,7 +117,7 @@ export default function ImageDetail({
                 <span>Save</span>
                 <span>↓</span>
               </a>
-              <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => onDelete(image)}>
+              <button className="btn" style={{ flex: 1 }} onClick={() => onDelete(image)}>
                 <span>Delete</span>
                 <span>×</span>
               </button>

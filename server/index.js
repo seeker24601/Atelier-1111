@@ -1,10 +1,10 @@
 import express from 'express'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { IMAGE_DIR, ROOT } from './paths.js'
 import { api } from './routes/index.js'
 import { reconcileOrphans } from './reconcile.js'
-import { describe } from './settings.js'
+import { describe, getTheme } from './settings.js'
 import { localOnly } from './localonly.js'
 
 /**
@@ -57,9 +57,13 @@ if (APP) {
       },
     })
   )
+  // The saved theme is written into the page itself, so a dark choice never
+  // flashes light while the app boots. "system" leaves it to the OS.
   app.get('*', (_req, res) => {
+    const theme = getTheme()
+    const page = readFileSync(join(DIST, 'index.html'), 'utf8')
     res.setHeader('Cache-Control', 'no-cache')
-    res.sendFile(join(DIST, 'index.html'))
+    res.type('html').send(theme === 'system' ? page : page.replace('<html', `<html data-theme="${theme}"`))
   })
 }
 

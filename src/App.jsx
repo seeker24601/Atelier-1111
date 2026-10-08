@@ -6,6 +6,7 @@ import { useCapabilities } from './state/useCapabilities.js'
 import { useObserved } from './state/useObserved.js'
 import { useLedger } from './state/useLedger.js'
 import { useReferences } from './state/useReferences.js'
+import { useDetail } from './state/useDetail.js'
 import TopBar from './components/TopBar.jsx'
 import ControlColumn from './components/ControlColumn.jsx'
 import Workspace from './components/Workspace.jsx'
@@ -34,8 +35,9 @@ export default function App() {
   // Verdicts appear as jobs settle, so re-read whenever the ledger moves.
   const capabilities = useCapabilities(composer.model, library.jobs.length + library.images.length)
 
-  const [detail, setDetail] = useState(null)
+  const detail = useDetail(library.images)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const closeSettings = useCallback(() => setSettingsOpen(false), [])
 
   const runsForModel = useMemo(
     () => library.images.filter((i) => i.model === composer.model),
@@ -60,12 +62,12 @@ export default function App() {
 
   function attachAndClose(image) {
     composer.attachRef(image)
-    setDetail(null)
+    detail.close()
   }
 
   function reuseAndClose(image) {
     composer.reuse(image)
-    setDetail(null)
+    detail.close()
   }
 
   // Deleting has to drop the image from the reference tray too, or a commit
@@ -76,22 +78,9 @@ export default function App() {
   }
 
   async function deleteAndClose(image) {
-    setDetail(null)
+    detail.close()
     await removeImage(image)
   }
-
-  // Arrow keys and the header arrows walk the gallery in the order it is shown.
-  const at = detail ? library.images.findIndex((i) => i.id === detail.id) : -1
-  const step = useCallback(
-    (delta) => {
-      const list = library.images
-      if (at < 0 || !list.length) return
-      setDetail(list[(at + delta + list.length) % list.length])
-    },
-    [at, library.images]
-  )
-  const closeDetail = useCallback(() => setDetail(null), [])
-  const closeSettings = useCallback(() => setSettingsOpen(false), [])
 
   return (
     <div className="app">
@@ -129,26 +118,27 @@ export default function App() {
           composer={composer}
           settings={settings}
           runs={runsForModel}
-          onOpen={setDetail}
+          onOpen={detail.open}
           onRemove={removeImage}
         />
       </div>
 
       <ImageDetail
-        image={detail}
-        position={at >= 0 ? `${at + 1} / ${library.images.length}` : null}
-        onStep={step}
-        onClose={closeDetail}
+        image={detail.image}
+        position={detail.position}
+        onStep={detail.step}
+        onClose={detail.close}
         onUseAsRef={attachAndClose}
         onReuse={reuseAndClose}
         onDelete={deleteAndClose}
-        refVerdict={detail ? references.verdicts.get(detail.model) : null}
+        refVerdict={detail.image ? references.verdicts.get(detail.image.model) : null}
         onReportRef={references.report}
       />
 
       <SettingsPanel
         open={settingsOpen}
         onClose={closeSettings}
+        onModelsChange={library.reloadModels}
         settings={settings}
         storage={{
           storage: library.storage,

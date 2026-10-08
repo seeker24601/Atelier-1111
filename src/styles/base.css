@@ -1,0 +1,131 @@
+/* Reset, type roles and the small helpers every surface shares. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--stock);
+  color: var(--carbon);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+
+/* Focus is a hard signal rule, never a glow. */
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--stock); border-left: 1px solid var(--carbon); }
+::-webkit-scrollbar-thumb { background: var(--carbon); border: 2px solid var(--stock); }
+::-webkit-scrollbar-thumb:hover { background: var(--ash); }
+
+/* ── Type roles ───────────────────────────────────────────────────────────
+     Archivo, condensed  the shout. Heavy, uppercase, tight. Named things:
+                         a model, a section.
+     Archivo, normal     anything read as language — prompts, explanation.
+     Departure Mono      the machine. Labels, buttons, values, timestamps.
+                         Labels are uppercase and tracked; values keep
+                         their own case. Regular only — a synthesised bold
+                         destroys a pixel font, so emphasis is carried by
+                         case, spacing and inversion instead. Sized in
+                         11px steps, the face's native grid.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.plate-title {
+  font-family: var(--display);
+  font-stretch: 62%;
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--carbon);
+}
+
+.label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.label--sm { letter-spacing: 0.08em; }
+
+.prose {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--carbon);
+}
+.prose--sm { font-size: 12px; }
+
+.data {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+
+.dim { color: var(--ash); }
+.live { color: var(--signal); }
+
+/* ── Spacing ──────────────────────────────────────────────────────────── */
+
+.stack > * + * { margin-top: var(--u3); }
+.stack-sm > * + * { margin-top: var(--u2); }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--u2);
+}
+.row--between { justify-content: space-between; }
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Crop marks on things that will never be cut. */
+.crop { position: relative; }
+.crop::before,
+.crop::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--carbon);
+  border-style: solid;
+  pointer-events: none;
+}
+.crop::before { top: -7px; left: -7px; border-width: 1px 0 0 1px; }
+.crop::after { bottom: -7px; right: -7px; border-width: 0 1px 1px 0; }
+
+/* Stepped, never eased. */
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(500%); }
+}

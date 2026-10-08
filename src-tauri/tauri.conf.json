@@ -10,14 +10,33 @@
   },
   "app": {
     "windows": [],
-    "security": { "capabilities": [] }
+    "withGlobalTauri": true,
+    "security": {
+      "capabilities": [
+        {
+          "identifier": "local-page",
+          "description": "What the local page may ask of the shell: match the title bar to its theme, and check for and install signed updates. Nothing else.",
+          "windows": ["main"],
+          "remote": { "urls": ["http://127.0.0.1:*/*"] },
+          "permissions": ["core:window:allow-set-theme", "allow-update-check", "allow-update-install"]
+        }
+      ]
+    }
   },
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "resources": { "backend/": "backend/" },
     "icon": ["icons/icon.png", "icons/icon.ico", "icons/icon.icns"],
     "macOS": { "minimumSystemVersion": "13.5" },
     "windows": { "nsis": { "installMode": "currentUser" } }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY4QkI3RDAwRDUwNjI5Q0IKUldUTEtRYlZBSDI3YUNKbXU4a1VIRTl5TDRpZ2ZGYnpPWkd6Tnp1bk9QRXk4VzA2aDkwekY0b0gK",
+      "endpoints": ["https://github.com/seeker24601/Atelier-1111/releases/latest/download/latest.json"],
+      "windows": { "installMode": "passive" }
+    }
   }
 }

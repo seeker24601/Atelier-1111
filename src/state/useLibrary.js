@@ -45,9 +45,12 @@ export function useLibrary(kind = 'image') {
     [all]
   )
 
+  // Bumped when the hidden-model list changes in Settings, to re-read the picker.
+  const [modelsVersion, setModelsVersion] = useState(0)
+  const reloadModels = useCallback(() => setModelsVersion((v) => v + 1), [])
+
   useEffect(() => {
     let live = true
-    setModels([])
     api
       .models({ kind })
       .then(({ models }) => live && setModels(models))
@@ -55,7 +58,10 @@ export function useLibrary(kind = 'image') {
     return () => {
       live = false
     }
-  }, [kind])
+  }, [kind, modelsVersion])
+
+  // A different catalogue starts empty rather than showing the last one's models.
+  useEffect(() => setModels([]), [kind])
 
   const readGallery = useCallback(async () => {
     try {
@@ -140,6 +146,7 @@ export function useLibrary(kind = 'image') {
     remove,
     clearAll,
     refreshGallery: readGallery,
+    reloadModels,
     lastCostFor,
   }
 }

@@ -1,0 +1,153 @@
+/* The frame of the app: top bar, the two columns, and the model header. */
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Top bar ──────────────────────────────────────────────────────────── */
+
+.topbar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: var(--rule);
+  background: var(--bleach);
+}
+
+/* The wordmark is the one inverted slab in the chrome. */
+.topbar__mark {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--u4);
+  background: var(--carbon);
+  color: var(--bleach);
+  font-family: var(--display);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.topbar__spacer { flex: 1; }
+
+.topbar__cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--u2) var(--u4);
+  border-left: var(--rule);
+  min-width: 0;
+}
+.topbar__cell--action {
+  border-top: 0;
+  border-bottom: 0;
+  border-right: 0;
+  align-items: flex-start;
+  text-align: left;
+  font: inherit;
+  color: var(--carbon);
+  background: var(--bleach);
+  cursor: pointer;
+  transition: background var(--step), color var(--step);
+}
+.topbar__cell--action:hover {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+.topbar__cell--action:hover .dim { color: var(--concrete); }
+
+/* Modality tabs · the active one is inverted. */
+.tabs {
+  display: flex;
+  align-self: stretch;
+}
+.tab {
+  border: 0;
+  border-right: var(--rule);
+  background: var(--bleach);
+  color: var(--carbon);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 var(--u5);
+  cursor: pointer;
+  transition: background var(--step), color var(--step);
+}
+.tab:hover:not([aria-pressed='true']) { background: var(--concrete); }
+.tab[aria-pressed='true'] {
+  background: var(--carbon);
+  color: var(--bleach);
+}
+
+/* ── Columns ──────────────────────────────────────────────────────────── */
+
+.main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  min-height: 0;
+}
+
+.control {
+  overflow-y: auto;
+  border-right: var(--rule);
+  background: var(--stock);
+  padding: var(--u4) var(--u4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--u4);
+}
+
+/* Generate is docked to the foot of the column so it is never scrolled away.
+   margin-top: auto keeps it at the bottom when the column is short. */
+.commit-dock {
+  position: sticky;
+  bottom: 0;
+  margin: auto calc(-1 * var(--u4)) 0;
+  padding: var(--u4);
+  background: var(--stock);
+  border-top: var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--u2);
+}
+
+.workspace {
+  overflow-y: auto;
+  background: var(--stock);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Model header ─────────────────────────────────────────────────────── */
+
+.readout-band {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u3);
+  padding: var(--u5) var(--u5) var(--u4);
+  border-bottom: var(--rule);
+  background: var(--bleach);
+  min-width: 0;
+}
+.readout-band .plate-title { overflow-wrap: anywhere; }
+
+.readout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u2) var(--u6);
+}
+
+.meta-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--u2);
+  border-left: var(--rule-ash);
+}

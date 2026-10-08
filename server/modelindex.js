@@ -59,8 +59,8 @@ export async function fetchModels(modality, { force = false, decorate = (m) => m
     )
     .sort((a, b) => a.id.localeCompare(b.id))
 
-  // Mark, don't drop — the picker hides these, but the ledger still refers to
-  // models that were current when their output was made.
+  // Marked, never dropped: Settings points these out so they are easy to hide,
+  // but whether to see them is the user's call.
   const retired = findSuperseded(models)
   for (const m of models) m.supersededBy = retired.get(m.id) ?? null
   if (retired.size) {

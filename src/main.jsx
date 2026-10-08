@@ -2,8 +2,12 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 // Bundled, not fetched: the app makes no request to anyone but OpenRouter.
 import '@fontsource-variable/archivo/wdth.css'
-import './design-system.css'
-import './app.css'
+import './styles/tokens.css'
+import './styles/base.css'
+import './styles/controls.css'
+import './styles/layout.css'
+import './styles/gallery.css'
+import './styles/overlays.css'
 import App from './App.jsx'
 
 // A file dropped where nothing takes it must not replace the app with that file.

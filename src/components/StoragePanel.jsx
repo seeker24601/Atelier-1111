@@ -15,7 +15,7 @@ export default function StoragePanel({ storage, count, onClear }) {
     <section className="settings__col">
       <span className="plate-title">Storage</span>
 
-      <div className="proc proc--state" style={{ marginTop: 20 }}>
+      <div className="proc" style={{ marginTop: 20 }}>
         <div className="proc__row">
           <span className="label label--sm dim">Generations</span>
           <span className="data">{count}</span>
@@ -40,20 +40,20 @@ export default function StoragePanel({ storage, count, onClear }) {
         {confirming ? (
           <>
             <button
-              className="btn btn--ghost btn--danger"
+              className="btn btn--danger"
               style={{ flex: 1 }}
               onClick={() => onClear().then(() => setConfirming(false))}
             >
               <span>Delete {count} for good</span>
               <span>×</span>
             </button>
-            <button className="btn btn--ghost" onClick={() => setConfirming(false)}>
+            <button className="btn" onClick={() => setConfirming(false)}>
               Cancel
             </button>
           </>
         ) : (
           <button
-            className="btn btn--ghost"
+            className="btn"
             style={{ flex: 1 }}
             disabled={!count}
             onClick={() => setConfirming(true)}

@@ -20,8 +20,8 @@ const del = send('DELETE')
 export const api = {
   health: () => fetch('/api/health').then(jsonOrThrow),
 
-  models: ({ kind = 'image', refresh = false } = {}) => {
-    const q = new URLSearchParams({ kind, ...(refresh ? { refresh: '1' } : {}) })
+  models: ({ kind = 'image', refresh = false, all = false } = {}) => {
+    const q = new URLSearchParams({ kind, ...(refresh ? { refresh: '1' } : {}), ...(all ? { all: '1' } : {}) })
     return fetch(`/api/models?${q}`).then(jsonOrThrow)
   },
 
@@ -51,6 +51,9 @@ export const api = {
     read: () => fetch('/api/settings').then(jsonOrThrow),
     saveKey: (key) => put('/api/settings/key', { key }),
     clearKey: () => del('/api/settings/key'),
+    setTheme: (theme) => put('/api/settings/theme', { theme }),
+    hiddenModels: () => fetch('/api/settings/hidden-models').then(jsonOrThrow),
+    setHiddenModels: (ids) => put('/api/settings/hidden-models', { ids }),
     account: (fresh = false) =>
       fetch(`/api/settings/account${fresh ? '?fresh=1' : ''}`).then(jsonOrThrow),
   },
