@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Atelier 1111",
+  "version": "0.1.0",
+  "identifier": "com.seeker24601.atelier1111",
+  "build": {
+    "beforeBuildCommand": "npm run desktop:prepare",
+    "beforeDevCommand": "npm run desktop:prepare",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [],
+    "security": { "capabilities": [] }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "resources": { "backend/": "backend/" },
+    "icon": ["icons/icon.png", "icons/icon.ico", "icons/icon.icns"],
+    "macOS": { "minimumSystemVersion": "13.5" },
+    "windows": { "nsis": { "installMode": "currentUser" } }
+  }
+}

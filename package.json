@@ -13,7 +13,10 @@
     "vault": "node --env-file-if-exists=.env scripts/sync-vault.mjs",
     "test": "node --test \"server/*.test.js\" \"src/*.test.js\" \"src/state/*.test.js\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "desktop:prepare": "npm run build && node scripts/prepare-desktop.mjs",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
@@ -22,6 +25,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.12.1",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.2",
     "vite": "^6.0.7"

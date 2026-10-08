@@ -6,3 +6,8 @@ data/
 .DS_Store
 *.log
 .claude/
+src-tauri/target/
+src-tauri/backend/
+src-tauri/gen/
+src-tauri/icons/android/
+src-tauri/icons/ios/

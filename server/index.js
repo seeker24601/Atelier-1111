@@ -16,7 +16,7 @@ import { localOnly } from './localonly.js'
  */
 const APP = process.argv.includes('--app')
 const PORT = APP
-  ? Number(process.env.APP_PORT) || 5180
+  ? Number(process.env.APP_PORT ?? 5180)
   : Number(process.env.API_PORT) || 8788
 const DIST = join(ROOT, 'dist')
 
@@ -68,9 +68,11 @@ if (APP) {
 // rather than lost; finished work is already on disk.
 reconcileOrphans()
 
-app.listen(PORT, '127.0.0.1', () => {
+const listener = app.listen(PORT, '127.0.0.1', () => {
+  const port = listener.address().port
+  if (process.env.ATELIER_DESKTOP) console.log(`ATELIER_READY:${port}`)
   const { configured, source } = describe()
-  console.log(`[atelier-1111] ${APP ? 'app' : 'api'} on http://127.0.0.1:${PORT}`)
+  console.log(`[atelier-1111] ${APP ? 'app' : 'api'} on http://127.0.0.1:${port}`)
   console.log(`[atelier-1111] gallery at ${IMAGE_DIR}`)
   console.log(
     configured

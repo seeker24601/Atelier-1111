@@ -39,6 +39,9 @@ key saved in the app takes precedence.
 
 ## Development
 
+The Tauri desktop app targets Windows and macOS, including Intel and Apple Silicon.
+See [desktop build instructions](docs/desktop.md) for packaging and data locations.
+
 `npm run dev` runs the API on port 8788 behind the Vite dev server on 5180.
 `npm test` runs the tests.
 
