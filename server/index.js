@@ -4,7 +4,8 @@ import { join } from 'node:path'
 import { DATA_DIR, IMAGE_DIR, ROOT } from './paths.js'
 import { api } from './routes/index.js'
 import { reconcileOrphans } from './reconcile.js'
-import { describe, getTheme, getHiddenModels, setHiddenModels } from './settings.js'
+import { getTheme, getHiddenModels, setHiddenModels } from './settings.js'
+import { describe } from './keys.js'
 import { db } from './db/index.js'
 import { qualifyModelIds } from './migrations.js'
 import { localOnly } from './localonly.js'
@@ -88,12 +89,12 @@ reconcileOrphans()
 const listener = app.listen(PORT, '127.0.0.1', () => {
   const port = listener.address().port
   if (process.env.ATELIER_DESKTOP) console.log(`ATELIER_READY:${port}`)
-  const { configured, source } = describe()
+  const { configured, active, source } = describe()
   console.log(`[atelier-1111] ${APP ? 'app' : 'api'} on http://127.0.0.1:${port}`)
   console.log(`[atelier-1111] gallery at ${IMAGE_DIR}`)
   console.log(
     configured
-      ? `[atelier-1111] api key loaded from ${source}`
+      ? `[atelier-1111] ${active} key loaded from ${source}`
       : '[atelier-1111] no api key — add one in Settings'
   )
 })

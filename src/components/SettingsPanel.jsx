@@ -1,18 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import StoragePanel from './StoragePanel.jsx'
 import UpdatePanel from './UpdatePanel.jsx'
 import ModelsPanel from './ModelsPanel.jsx'
+import KeysPanel from './KeysPanel.jsx'
 import { THEMES } from '../theme.js'
 
 /**
- * The key is typed here and posted straight to the local API, which stores it
- * at data/settings.json. It is never held in browser storage and never comes
- * back over the wire — the panel only ever sees a masked hint.
+ * Keys, storage, appearance, models and updates. Keys are typed in KeysPanel
+ * and posted straight to the local API; they never come back over the wire.
  */
 export default function SettingsPanel({ open, onClose, settings, storage, onModelsChange }) {
-  const [draft, setDraft] = useState('')
-  const [replacing, setReplacing] = useState(false)
-
   useEffect(() => {
     if (!open) return
     const onKey = (e) => e.key === 'Escape' && onClose()
@@ -21,18 +18,6 @@ export default function SettingsPanel({ open, onClose, settings, storage, onMode
   }, [open, onClose])
 
   if (!open) return null
-
-  const { status, result, saving, saveKey, clearKey, account } = settings
-  const usd = (n, places = 2) => (n == null ? '——' : `$${n.toFixed(places)}`)
-  const editing = !status.configured || replacing
-
-  async function submit(e) {
-    e.preventDefault()
-    if (!draft.trim()) return
-    await saveKey(draft.trim())
-    setDraft('')
-    setReplacing(false)
-  }
 
   return (
     <div className="detail">
@@ -44,78 +29,7 @@ export default function SettingsPanel({ open, onClose, settings, storage, onMode
       </header>
 
       <div className="settings">
-        <section className="settings__col">
-          <span className="plate-title">OpenRouter key</span>
-
-          {status.configured && (
-            <div className="proc" style={{ marginTop: 20 }}>
-              {[
-                ['Key', `${status.hint}${status.source === 'env' ? ' · .env' : ''}`],
-                ...(account
-                  ? [
-                      ['Remaining', account.remaining == null ? 'no limit' : usd(account.remaining)],
-                      ['Today', usd(account.daily, 3)],
-                      ['This month', usd(account.monthly)],
-                      ['All time', usd(account.usage)],
-                    ]
-                  : []),
-              ].map(([k, v]) => (
-                <div className="proc__row" key={k}>
-                  <span className="label label--sm dim">{k}</span>
-                  <span className="data">{v}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {editing ? (
-            <form onSubmit={submit} className="stack" style={{ marginTop: 20 }}>
-              <input
-                className="field"
-                type="password"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="sk-or-v1-…"
-                autoComplete="off"
-                spellCheck={false}
-                autoFocus
-              />
-              <div className="row" style={{ gap: 8 }}>
-                <button className="btn btn--commit" type="submit" disabled={saving || !draft.trim()}>
-                  <span>{saving ? 'Checking…' : 'Save'}</span>
-                  <span>→</span>
-                </button>
-                {replacing && (
-                  <button type="button" className="btn" onClick={() => setReplacing(false)}>
-                    Cancel
-                  </button>
-                )}
-              </div>
-              <a className="data data--sm dim" href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
-                Get a key ↗
-              </a>
-            </form>
-          ) : (
-            <div className="row" style={{ gap: 8, marginTop: 16 }}>
-              <button className="btn" style={{ flex: 1 }} onClick={() => setReplacing(true)}>
-                <span>Replace</span>
-                <span>→</span>
-              </button>
-              {status.source === 'stored' && (
-                <button className="btn" style={{ flex: 1 }} onClick={clearKey}>
-                  <span>Remove</span>
-                  <span>×</span>
-                </button>
-              )}
-            </div>
-          )}
-
-          {result && (
-            <p className={result.verified ? 'banner banner--ok' : 'banner banner--err'} style={{ marginTop: 16 }}>
-              {result.verified ? 'Verified' : result.detail}
-            </p>
-          )}
-        </section>
+        <KeysPanel settings={settings} />
 
         <StoragePanel {...storage} />
 

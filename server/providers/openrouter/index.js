@@ -1,6 +1,7 @@
 import { generateImages, listImageModels } from './images.js'
 import { generateVideo, collectVideo, listVideoModels } from './videos.js'
 import { verifyKey, account } from './account.js'
+import { OPENROUTER_ENV } from '../../settings.js'
 
 /**
  * OpenRouter behind the provider contract (see ../index.js). The client code
@@ -10,6 +11,7 @@ import { verifyKey, account } from './account.js'
 export const openrouter = {
   id: 'openrouter',
   label: 'OpenRouter',
+  env: OPENROUTER_ENV,
 
   detect: (key) => /^sk-or-/.test(key),
   verify: (key) => verifyKey(key),

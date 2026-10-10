@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { describe } from '../settings.js'
+import { describe } from '../keys.js'
 import { models } from './models.js'
 import { generate } from './generate.js'
 import { jobs } from './jobs.js'

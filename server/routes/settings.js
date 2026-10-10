@@ -1,6 +1,7 @@
 import { Router } from 'express'
-import { describe, setKey, clearKey, getKey, setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
+import { setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
 import { adapter } from '../providers/index.js'
+import { describe, saveKey, deleteKey } from '../keys.js'
 
 const openrouter = adapter('openrouter')
 
@@ -12,19 +13,21 @@ settings.get('/settings', (_req, res) => {
   res.json(describe())
 })
 
+/**
+ * Body: { key, provider? }. Without a provider the key's prefix decides; a key
+ * no provider recognises gets 422 with the choices, and is not stored.
+ */
 settings.put('/settings/key', async (req, res) => {
   const key = req.body?.key
   if (!key || !String(key).trim()) {
     return res.status(400).json({ error: 'Key is empty.' })
   }
   try {
-    setKey(key)
+    const result = await saveKey(key, req.body?.provider ?? null)
+    res.json({ ...describe(), ...result })
   } catch (err) {
-    return res.status(err.status || 500).json({ error: err.message })
+    res.status(err.status || 500).json({ error: err.message, ...(err.choices ? { choices: err.choices } : {}) })
   }
-  // Saved first, then checked — a verification outage must not lock the user out.
-  const check = await openrouter.verify(getKey())
-  res.json({ ...describe(), ...check })
 })
 
 settings.put('/settings/theme', (req, res) => {
@@ -57,7 +60,12 @@ settings.get('/settings/account', async (req, res) => {
   }
 })
 
-settings.delete('/settings/key', (_req, res) => {
-  clearKey()
-  res.json(describe())
+/** Clears a stored key. Without a provider, OpenRouter's, as in v0.1.0. */
+settings.delete(['/settings/key', '/settings/key/:provider'], (req, res) => {
+  try {
+    deleteKey(req.params.provider ?? 'openrouter')
+    res.json(describe())
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message })
+  }
 })

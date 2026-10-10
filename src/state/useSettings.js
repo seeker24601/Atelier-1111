@@ -3,11 +3,12 @@ import { api } from '../api.js'
 import { applyTheme, initialTheme } from '../theme.js'
 
 /**
- * Key state as reported by the server. The key itself never lives here — only
- * whether one is configured, where it came from, and a masked hint.
+ * Key state as reported by the server, per provider. The keys themselves never
+ * live here — only which are configured, where each came from, a masked hint,
+ * and which provider is active.
  */
 export function useSettings() {
-  const [status, setStatus] = useState({ configured: true, source: null, hint: null })
+  const [status, setStatus] = useState({ configured: true, active: null, source: null, hint: null, providers: [] })
   const [result, setResult] = useState(null)
   const [saving, setSaving] = useState(false)
   // The key's own ledger at OpenRouter: spend and limit across everything it
@@ -57,29 +58,37 @@ export function useSettings() {
     read()
   }, [read])
 
+  // Spend and limit are OpenRouter's to report; other providers have no such endpoint.
+  const openrouterHint = status.providers?.find((p) => p.id === 'openrouter' && p.configured)?.hint ?? null
   useEffect(() => {
-    if (status.configured) readAccount()
+    if (openrouterHint) readAccount()
     else setAccount(null)
-  }, [status.configured, status.hint, readAccount])
+  }, [openrouterHint, readAccount])
 
-  const saveKey = useCallback(async (key) => {
+  /**
+   * Saves a key under the provider its prefix names, or under `provider`.
+   * A key no provider recognises comes back with `choices` to pick from.
+   */
+  const saveKey = useCallback(async (key, provider) => {
     setSaving(true)
     setResult(null)
     try {
-      const res = await api.settings.saveKey(key)
-      setStatus({ configured: res.configured, source: res.source, hint: res.hint })
-      setResult({ verified: res.verified, detail: res.detail })
+      const res = await api.settings.saveKey(key, provider)
+      setStatus(res)
+      setResult({ provider: res.provider, verified: res.verified, detail: res.detail })
+      return res
     } catch (e) {
-      setResult({ verified: false, detail: e.message })
+      setResult({ verified: false, detail: e.message, choices: e.body?.choices ?? null })
+      return null
     } finally {
       setSaving(false)
     }
   }, [])
 
-  const clearKey = useCallback(async () => {
+  const clearKey = useCallback(async (provider = 'openrouter') => {
     setResult(null)
     try {
-      setStatus(await api.settings.clearKey())
+      setStatus(await api.settings.clearKey(provider))
     } catch (e) {
       setResult({ verified: false, detail: e.message })
     }

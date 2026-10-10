@@ -24,7 +24,8 @@ try {
   assert.ok(port > 0 && port !== 5180, 'Backend must select its own free port')
   const url = `http://127.0.0.1:${port}`
   assert.deepEqual(await fetch(`${url}/api/health`).then(r => r.json()),
-    { ok: true, key: { configured: false, source: null, hint: null, theme: 'system' } })
+    { ok: true, key: { configured: false, active: null, source: null, hint: null, theme: 'system',
+      providers: ['openrouter', 'openai', 'google'].map((id) => ({ id, label: { openrouter: 'OpenRouter', openai: 'OpenAI', google: 'Google' }[id], configured: false, source: null, hint: null })) } })
   const html = await fetch(url).then(r => r.text())
   assert.match(html, /ATELIER-1111/)
   assert.equal(existsSync(join(data, 'atelier.db')), true, 'Database must use desktop data directory')

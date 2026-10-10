@@ -1,5 +1,7 @@
 import { parseModelId } from '../modelid.js'
 import { openrouter } from './openrouter/index.js'
+import { openai } from './openai/index.js'
+import { google } from './google/index.js'
 
 /**
  * The provider registry. Everything outside server/providers/ reaches a
@@ -7,7 +9,7 @@ import { openrouter } from './openrouter/index.js'
  * (providers.test.js enforces that).
  *
  * The contract every adapter meets:
- *   id, label
+ *   id, label, env (key variables, in order)
  *   detect(key) → boolean        the key looks like this provider's
  *   verify(key) → { verified, detail }
  *   account?(opts)               spend and limit, where the provider reports them
@@ -20,7 +22,8 @@ import { openrouter } from './openrouter/index.js'
  *   generateVideo?(options), collectVideo?(remoteId, onStatus)
  */
 
-const ADAPTERS = [openrouter]
+// Order is the detection order and the fallback order for the active provider.
+const ADAPTERS = [openrouter, openai, google]
 const BY_ID = new Map(ADAPTERS.map((a) => [a.id, a]))
 
 export const adapters = () => ADAPTERS

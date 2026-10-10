@@ -2,7 +2,8 @@
 
 async function jsonOrThrow(res) {
   const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error || `${res.status} ${res.statusText}`)
+  // Extra fields (a key's provider choices) ride along on the error.
+  if (!res.ok) throw Object.assign(new Error(body.error || `${res.status} ${res.statusText}`), { status: res.status, body })
   return body
 }
 
@@ -49,8 +50,8 @@ export const api = {
 
   settings: {
     read: () => fetch('/api/settings').then(jsonOrThrow),
-    saveKey: (key) => put('/api/settings/key', { key }),
-    clearKey: () => del('/api/settings/key'),
+    saveKey: (key, provider) => put('/api/settings/key', provider ? { key, provider } : { key }),
+    clearKey: (provider) => del(`/api/settings/key/${encodeURIComponent(provider)}`),
     setTheme: (theme) => put('/api/settings/theme', { theme }),
     hiddenModels: () => fetch('/api/settings/hidden-models').then(jsonOrThrow),
     setHiddenModels: (ids) => put('/api/settings/hidden-models', { ids }),
