@@ -1,5 +1,5 @@
-import { getKey } from './settings.js'
-import { call, readError } from './http.js'
+import { getKey } from '../../settings.js'
+import { call, readError } from '../../http.js'
 import { readImageStream } from './imagestream.js'
 import { fetchModels } from './modelindex.js'
 import { nativeResolution } from './modelfacts.js'

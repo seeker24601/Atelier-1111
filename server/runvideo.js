@@ -2,8 +2,7 @@ import * as jobsRepo from './db/jobs.js'
 import * as capsRepo from './db/capabilities.js'
 import { readVideoMeta } from './videometa.js'
 import { save } from './library.js'
-import { generateVideo, collectVideo } from './videos.js'
-import { openrouterModel } from './modelid.js'
+import { resolve } from './providers/index.js'
 import { assessVideo } from './videoassess.js'
 import { paramsBlamedBy, acceptedValuesFor, looksLikeParamRejection } from './rejection.js'
 import { VERDICT } from './capabilities.js'
@@ -42,7 +41,7 @@ function recordRejection(job, message) {
  * result, which is otherwise billed and lost.
  */
 export async function resumeVideoJob(job) {
-  const { cost, video } = await collectVideo(job.remote_id)
+  const { cost, video } = await resolve(job.model).adapter.collectVideo(job.remote_id)
   const meta = readVideoMeta(video.buf)
 
   for (const finding of assessVideo(job.params, meta)) {
@@ -62,8 +61,9 @@ export async function resumeVideoJob(job) {
 
 export async function runVideoJob(job, references) {
   let started
-  const result = await generateVideo({
-    model: openrouterModel(job.model),
+  const { adapter, model } = resolve(job.model)
+  const result = await adapter.generateVideo({
+    model,
     prompt: job.prompt,
     params: job.params,
     inputReferences: references.map((r) => r.url),

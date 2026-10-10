@@ -1,4 +1,4 @@
-import { getKey } from './settings.js'
+import { getKey } from '../../settings.js'
 
 /**
  * The key as OpenRouter sees it: whether it is real, and what it has spent

@@ -1,8 +1,7 @@
 import * as jobsRepo from './db/jobs.js'
 import { resolveReferences } from './references.js'
 import * as capsRepo from './db/capabilities.js'
-import { generateImages } from './openrouter.js'
-import { openrouterModel } from './modelid.js'
+import { resolve } from './providers/index.js'
 import { readImageMeta } from './imagemeta.js'
 import { setPreview, dropPreview } from './outbox.js'
 import { save } from './library.js'
@@ -18,13 +17,14 @@ import { paramsBlamedBy, acceptedValuesFor, looksLikeParamRejection } from './re
  */
 async function generateWithFallback(job, references) {
   const inputReferences = references.map((r) => r.url)
+  const { adapter, model } = resolve(job.model)
   const call = (params) =>
-    generateImages({
-      model: openrouterModel(job.model),
+    adapter.generateImage({
+      model,
       prompt: job.prompt,
       n: job.n,
       params,
-      inputReferences,
+      refs: inputReferences,
       // Each partial replaces the last, so the gallery can show the image
       // forming. Nothing here is kept once the job settles.
       onPartial: ({ b64, mediaType }) =>
@@ -32,7 +32,9 @@ async function generateWithFallback(job, references) {
     })
 
   try {
-    return { result: await call(job.params), params: job.params, note: null }
+    // The ledger judges what the adapter actually sent, never the raw request.
+    const result = await call(job.params)
+    return { result, params: result.sent, note: omittedNote(result.omitted) }
   } catch (err) {
     // How many references the provider will take is a capability like any
     // other, and it only ever surfaces as a rejection — Azure caps MAI at one:
@@ -69,13 +71,17 @@ async function generateWithFallback(job, references) {
     const reduced = { ...job.params }
     for (const param of blamed) delete reduced[param]
 
+    const result = await call(reduced)
     return {
-      result: await call(reduced),
-      params: reduced,
-      note: `Retried without ${blamed.join(', ')}`,
+      result,
+      params: result.sent,
+      note: [`Retried without ${blamed.join(', ')}`, omittedNote(result.omitted)].filter(Boolean).join('. '),
     }
   }
 }
+
+const omittedNote = (omitted = []) =>
+  omitted.length ? `Not offered by this provider: ${omitted.join(', ')}` : null
 
 /**
  * Measure what came back, record the verdicts, and write the bytes to disk.

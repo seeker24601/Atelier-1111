@@ -5,7 +5,7 @@ import { DATA_DIR } from './paths.js'
 /**
  * What the app remembers between runs: the API key and the appearance choice,
  * both in data/settings.json. What OpenRouter says about the key lives in
- * account.js.
+ * providers/openrouter/account.js.
  *
  * The key lives server-side only. It is written at mode 0600 and is NEVER
  * returned over HTTP — callers get a masked hint and a source, nothing more.

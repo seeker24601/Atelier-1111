@@ -1,6 +1,6 @@
-import { call, readError } from './http.js'
+import { call, readError } from '../../http.js'
 import { fetchModels } from './modelindex.js'
-import { authHeaders, BASE } from './openrouter.js'
+import { authHeaders, BASE } from './images.js'
 
 /**
  * POST /api/v1/videos — a job, not a response.

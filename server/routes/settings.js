@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { describe, setKey, clearKey, getKey, setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
-import { verifyKey, account } from '../account.js'
+import { adapter } from '../providers/index.js'
+
+const openrouter = adapter('openrouter')
 
 export const settings = Router()
 
@@ -21,7 +23,7 @@ settings.put('/settings/key', async (req, res) => {
     return res.status(err.status || 500).json({ error: err.message })
   }
   // Saved first, then checked — a verification outage must not lock the user out.
-  const check = await verifyKey(getKey())
+  const check = await openrouter.verify(getKey())
   res.json({ ...describe(), ...check })
 })
 
@@ -49,7 +51,7 @@ settings.put('/settings/hidden-models', (req, res) => {
 /** The key's own spend and limit, from OpenRouter. Null when no key is set. */
 settings.get('/settings/account', async (req, res) => {
   try {
-    res.json({ account: await account({ fresh: req.query.fresh === '1' }) })
+    res.json({ account: await openrouter.account({ fresh: req.query.fresh === '1' }) })
   } catch (err) {
     res.status(err.status || 502).json({ error: err.message })
   }

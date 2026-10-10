@@ -1,6 +1,6 @@
 /**
  * Transport concerns only — deadlines and legible failures. What the requests
- * mean belongs in openrouter.js.
+ * mean belongs in providers/openrouter/images.js.
  */
 
 /**

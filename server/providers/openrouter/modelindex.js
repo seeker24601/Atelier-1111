@@ -1,5 +1,5 @@
-import { call, readError } from './http.js'
-import { findSuperseded } from './supersede.js'
+import { call, readError } from '../../http.js'
+import { findSuperseded } from '../../supersede.js'
 
 /**
  * The model catalogue, per output modality.
