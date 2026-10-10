@@ -8,7 +8,7 @@ import { call, REQUEST_TIMEOUT_MS } from '../http.js'
  * which models make images, and how Atelier's params map.
  */
 
-const NO_PRICE = {
+export const NO_PRICE = {
   prompt: null, completion: null, image: null, imageOutput: null,
   imageToken: null, webSearch: null, cacheRead: null,
 }

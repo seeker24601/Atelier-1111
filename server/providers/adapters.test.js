@@ -164,3 +164,46 @@ test('OpenRouter vector models still deliver SVG: Atelier opts in, and serves it
   const result = await adapter('openrouter').generateImage({ model: 'recraft/recraft-v4-vector', prompt: 'a lantern' })
   assert.equal(result.images[0].mediaType, 'image/svg+xml')
 })
+
+test('AI Connections image providers join the registry, detected by prefix only where it is unique', async () => {
+  const { adapters } = await import('./index.js')
+  const ids = adapters().map((a) => a.id)
+  for (const id of ['xai', 'fal', 'replicate', 'bfl', 'luma', 'bytedance', 'prodia']) assert.ok(ids.includes(id), id)
+  assert.equal(adapter('fal').label, 'fal.ai')
+  assert.deepEqual(adapter('fal').env, ['FAL_KEY', 'FAL_API_KEY'])
+  assert.equal(adapters().find((a) => a.detect('xai-abc'))?.id, 'xai')
+  assert.equal(adapters().find((a) => a.detect('r8_abc'))?.id, 'replicate')
+  assert.equal(adapters().find((a) => a.detect('0f1e2d3c-aaaa-bbbb-cccc-1234567890ab:5e6f')), undefined, 'a fal key names no provider')
+})
+
+test('a provider with no free key check is saved unchecked and lists AI Connections suggestions', async () => {
+  const fal = adapter('fal')
+  const check = await fal.verify('fal-test-key')
+  assert.deepEqual([check.verified, check.unchecked], [false, true])
+  assert.match(check.detail, /first image/)
+  calls.length = 0
+  storeKey('fal', 'fal-test-key')
+  const models = await fal.listModels('image')
+  assert.deepEqual(models.map((m) => m.id), ['fal-ai/flux/dev', 'fal-ai/recraft/v3/text-to-image'])
+  assert.equal(calls.length, 0, 'listing suggestions costs no request')
+  assert.deepEqual(await fal.listModels('video'), [], 'video stays with OpenRouter')
+})
+
+test('xAI keys are checked by listing, and its images go through AI Connections with the ratio as asked', async () => {
+  reply = (url, init) => {
+    if (url.endsWith('api.x.ai/v1/models')) return json({ data: [{ id: 'grok-4' }, { id: 'grok-imagine-image' }] })
+    if (url.includes('api.x.ai/v1/images')) return json({ data: [{ b64_json: png }] })
+    return json({ error: 'unexpected ' + url }, 404)
+  }
+  const xai = adapter('xai')
+  const check = await xai.verify('xai-test-key')
+  assert.equal(check.verified, true, check.detail)
+  storeKey('xai', 'xai-test-key')
+  calls.length = 0
+  const result = await xai.generateImage({ model: 'grok-imagine-image', prompt: 'a lantern', params: { aspect_ratio: '16:9', resolution: '2K' } })
+  assert.match(calls[0].url, /api\.x\.ai\/v1\/images/)
+  assert.deepEqual(result.sent, { aspect_ratio: '16:9' })
+  assert.deepEqual(result.omitted, ['resolution'])
+  assert.equal(result.images[0].b64, png)
+  assert.equal(result.cost, null)
+})

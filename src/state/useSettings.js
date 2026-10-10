@@ -75,7 +75,7 @@ export function useSettings() {
     try {
       const res = await api.settings.saveKey(key, provider)
       setStatus(res)
-      setResult({ provider: res.provider, verified: res.verified, detail: res.detail })
+      setResult({ provider: res.provider, verified: res.verified, unchecked: res.unchecked, detail: res.detail })
       return res
     } catch (e) {
       setResult({ verified: false, detail: e.message, choices: e.body?.choices ?? null })

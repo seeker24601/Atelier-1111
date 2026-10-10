@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
+import { setTheme, getHiddenModels, setHiddenModels, getCustomModels, setCustomModels } from '../settings.js'
 import { adapter } from '../providers/index.js'
 import { describe, saveKey, deleteKey, chooseActive } from '../keys.js'
 
@@ -46,6 +46,19 @@ settings.get('/settings/hidden-models', (_req, res) => {
 settings.put('/settings/hidden-models', (req, res) => {
   try {
     res.json({ ids: setHiddenModels(req.body?.ids) })
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message })
+  }
+})
+
+settings.get('/settings/custom-models', (_req, res) => {
+  res.json({ ids: getCustomModels() })
+})
+
+/** Body: { ids }, qualified. The whole list, as for hidden models. */
+settings.put('/settings/custom-models', (req, res) => {
+  try {
+    res.json({ ids: setCustomModels(req.body?.ids) })
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message })
   }

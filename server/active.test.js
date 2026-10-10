@@ -86,3 +86,26 @@ test('a preview frame is served locked down, so an SVG frame cannot run script',
     dropPreview('job-svg-preview')
   }
 })
+
+test('a key with no known prefix asks for a provider; fal is saved unchecked, made active, and takes added models', async () => {
+  const falKey = '0f1e2d3c-aaaa-bbbb-cccc-1234567890ab:5e6f7a8b9c0d'
+  const unknown = await send('PUT', '/settings/key', { key: falKey })
+  assert.equal(unknown.status, 422)
+  assert.ok(unknown.body.choices.some((c) => c.id === 'fal' && c.label === 'fal.ai'))
+  const saved = await send('PUT', '/settings/key', { key: falKey, provider: 'fal' })
+  assert.equal(saved.status, 200)
+  assert.deepEqual([saved.body.provider, saved.body.verified, saved.body.unchecked, saved.body.active], ['fal', false, true, 'fal'])
+  assert.deepEqual(await ids('image'), ['fal:fal-ai/flux/dev', 'fal:fal-ai/recraft/v3/text-to-image'])
+
+  const added = await send('PUT', '/settings/custom-models', { ids: ['fal:fal-ai/flux-pro/v1.1', 'replicate:black-forest-labs/flux-1.1-pro'] })
+  assert.equal(added.status, 200)
+  const models = (await get('/models?kind=image')).models
+  assert.deepEqual(models.map((m) => m.id), ['fal:fal-ai/flux/dev', 'fal:fal-ai/recraft/v3/text-to-image', 'fal:fal-ai/flux-pro/v1.1'], "only the active provider's added models")
+  assert.equal(models.at(-1).custom, true)
+  assert.deepEqual(await ids('video'), [], 'added models are images only')
+  for (const bad of [['fal-ai/no-provider'], ['fal:has space'], ['midjourney:v7'], 'fal:x']) {
+    assert.equal((await send('PUT', '/settings/custom-models', { ids: bad })).status, 400, JSON.stringify(bad))
+  }
+  assert.equal((await send('PUT', '/settings/custom-models', { ids: [] })).status, 200)
+  assert.equal(await send('DELETE', '/settings/key/fal').then((r) => r.status), 200)
+})

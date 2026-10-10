@@ -1,10 +1,12 @@
 import { readFileSync, writeFileSync, existsSync, unlinkSync, chmodSync } from 'node:fs'
 import { join } from 'node:path'
 import { DATA_DIR } from './paths.js'
+import { isQualified, parseModelId } from './modelid.js'
 
 /**
  * What the app remembers between runs, in data/settings.json: one API key per
- * provider, the active provider, the appearance choice and hidden models.
+ * provider, the active provider, the appearance choice, hidden models and
+ * image models the user added by id.
  * Which providers exist, and what their keys can do, is server/keys.js.
  *
  * Keys live server-side only. The file is written at mode 0600 and keys are
@@ -116,6 +118,30 @@ export function setHiddenModels(ids) {
   const unique = [...new Set(ids)].sort()
   if (unique.length) next.hiddenModels = unique
   else delete next.hiddenModels
+  write(next)
+  return unique
+}
+
+/**
+ * Image models the user added by id, qualified (`fal:fal-ai/flux-pro/v1.1`).
+ * For providers whose models AI Connections cannot list, and any model a
+ * provider's list leaves out.
+ */
+export function getCustomModels() {
+  const ids = read().customModels
+  return Array.isArray(ids) ? ids.filter((id) => typeof id === 'string' && isQualified(id)) : []
+}
+
+export function setCustomModels(ids) {
+  const valid = (id) =>
+    typeof id === 'string' && id.length <= 200 && isQualified(id) && /^\S+$/.test(parseModelId(id).model)
+  if (!Array.isArray(ids) || !ids.every(valid)) {
+    throw Object.assign(new Error('Expected a list of model ids, each with a provider and no spaces.'), { status: 400 })
+  }
+  const next = read()
+  const unique = [...new Set(ids)].sort()
+  if (unique.length) next.customModels = unique
+  else delete next.customModels
   write(next)
   return unique
 }

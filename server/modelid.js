@@ -7,7 +7,9 @@
  * them. An id with no known prefix is a pre-0.2 OpenRouter id.
  */
 
-export const PROVIDERS = ['openrouter', 'openai', 'google']
+/** Image providers reached through AI Connections' catalog (server/providers/catalog.js). */
+export const CATALOG_PROVIDERS = ['xai', 'fal', 'replicate', 'bfl', 'luma', 'bytedance', 'prodia']
+export const PROVIDERS = ['openrouter', 'openai', 'google', ...CATALOG_PROVIDERS]
 export const DEFAULT_PROVIDER = 'openrouter'
 
 const PREFIX = new RegExp(`^(${PROVIDERS.join('|')}):`)

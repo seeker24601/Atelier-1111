@@ -1,21 +1,38 @@
 import { useState } from 'react'
 
+// Where each provider issues keys. A provider missing here simply shows no link.
 const GET_A_KEY = {
   openrouter: 'https://openrouter.ai/keys',
   openai: 'https://platform.openai.com/api-keys',
   google: 'https://aistudio.google.com/apikey',
+  xai: 'https://console.x.ai',
+  fal: 'https://fal.ai/dashboard/keys',
+  replicate: 'https://replicate.com/account/api-tokens',
 }
+const PLACEHOLDER = { openrouter: 'sk-or-v1-…', openai: 'sk-…', google: 'AIza…', xai: 'xai-…', replicate: 'r8_…' }
 
 /**
- * One slot per provider. Keys are typed here and posted to the local API,
- * which stores them in data/settings.json; the panel only ever sees a masked
- * hint. The active provider is marked; Use makes another keyed provider active.
+ * Providers with a key get a row; the rest wait in "Add a provider", so ten
+ * providers do not mean ten empty rows. Keys are typed here and posted to the
+ * local API, which stores them in data/settings.json; the panel only ever sees
+ * a masked hint. The active provider is marked; Use makes another keyed
+ * provider active.
  */
 export default function KeysPanel({ settings }) {
   const { status, result, saving, saveKey, clearKey, setActive, account } = settings
   const [editing, setEditing] = useState(null)
   const [draft, setDraft] = useState('')
   const usd = (n, places = 2) => (n == null ? '——' : `$${n.toFixed(places)}`)
+  const providers = status.providers ?? []
+  // A row stays while it is being edited, so adding a key never makes the form jump.
+  const rows = providers.filter((p) => p.configured || p.id === editing)
+  const addable = providers.filter((p) => !p.configured && p.id !== editing)
+  const label = (id) => providers.find((p) => p.id === id)?.label ?? id
+
+  function edit(id) {
+    setEditing(id)
+    setDraft('')
+  }
 
   async function submit(e) {
     e.preventDefault()
@@ -32,7 +49,7 @@ export default function KeysPanel({ settings }) {
       <span className="plate-title">Keys</span>
 
       <div className="proc" style={{ marginTop: 20 }}>
-        {(status.providers ?? []).map((p) => (
+        {rows.map((p) => (
           <div className="proc__row" key={p.id}>
             <span className="label label--sm dim">
               {p.label}
@@ -47,16 +64,11 @@ export default function KeysPanel({ settings }) {
                   Use
                 </button>
               )}
-              <button
-                className="btn btn--sm"
-                disabled={saving}
-                onClick={() => {
-                  setEditing(p.id)
-                  setDraft('')
-                }}
-              >
-                {p.configured ? 'Replace' : 'Add'}
-              </button>
+              {p.configured && (
+                <button className="btn btn--sm" disabled={saving} onClick={() => edit(p.id)}>
+                  Replace
+                </button>
+              )}
               {p.source === 'stored' && (
                 <button className="btn btn--sm" disabled={saving} title={`Remove the ${p.label} key`} onClick={() => clearKey(p.id)}>
                   ×
@@ -67,15 +79,33 @@ export default function KeysPanel({ settings }) {
         ))}
       </div>
 
+      {addable.length > 0 && (
+        <select
+          className="field"
+          aria-label="Add a provider"
+          value=""
+          disabled={saving}
+          onChange={(e) => e.target.value && edit(e.target.value)}
+          style={{ marginTop: 12 }}
+        >
+          <option value="">Add a provider…</option>
+          {addable.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.label}
+            </option>
+          ))}
+        </select>
+      )}
+
       {editing && (
         <form onSubmit={submit} className="stack" style={{ marginTop: 16 }}>
           <input
             className="field"
             type="password"
-            aria-label={`${status.providers.find((p) => p.id === editing)?.label} key`}
+            aria-label={`${label(editing)} key`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder={{ openrouter: 'sk-or-v1-…', openai: 'sk-…', google: 'AIza…' }[editing]}
+            placeholder={PLACEHOLDER[editing] ?? `${label(editing)} key`}
             autoComplete="off"
             spellCheck={false}
             autoFocus
@@ -89,9 +119,11 @@ export default function KeysPanel({ settings }) {
               Cancel
             </button>
           </div>
-          <a className="data data--sm dim" href={GET_A_KEY[editing]} target="_blank" rel="noreferrer">
-            Get a key ↗
-          </a>
+          {GET_A_KEY[editing] && (
+            <a className="data data--sm dim" href={GET_A_KEY[editing]} target="_blank" rel="noreferrer">
+              Get a key ↗
+            </a>
+          )}
         </form>
       )}
 
@@ -112,7 +144,7 @@ export default function KeysPanel({ settings }) {
       )}
 
       {result && (
-        <p className={result.verified ? 'banner banner--ok' : 'banner banner--err'} style={{ marginTop: 16 }}>
+        <p className={result.verified || result.unchecked ? 'banner banner--ok' : 'banner banner--err'} style={{ marginTop: 16 }}>
           {result.verified ? `Verified. ${result.detail ?? ''}` : result.detail}
         </p>
       )}

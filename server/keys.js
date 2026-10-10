@@ -58,8 +58,9 @@ export async function saveKey(key, provider = null) {
   const target = adapter(id)
   storeKey(target.id, trimmed)
   const check = await target.verify(trimmed)
-  if (check.verified) setActive(target.id)
-  return { provider: target.id, verified: check.verified, detail: check.detail }
+  // A key no free call can check is used as saved; its first image is the check.
+  if (check.verified || check.unchecked) setActive(target.id)
+  return { provider: target.id, verified: check.verified, unchecked: Boolean(check.unchecked), detail: check.detail }
 }
 
 export function deleteKey(provider) {

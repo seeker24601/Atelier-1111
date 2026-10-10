@@ -138,6 +138,10 @@
   cursor: pointer;
 }
 .modellist__row:hover { background: var(--concrete); }
+/* An added model: its row plus a remove button. */
+.modellist__custom { display: flex; align-items: center; }
+.modellist__custom .modellist__row { flex: 1; min-width: 0; }
+.modellist__custom > .btn { margin-right: var(--u2); }
 .modellist__row[aria-pressed='false'] .data:not(.dim) { color: var(--ash); }
 
 /* ── Empty gallery ────────────────────────────────────────────────────── */

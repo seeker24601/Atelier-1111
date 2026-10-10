@@ -1,8 +1,9 @@
 # Atelier-1111
 
-BYOK image and video generation with your own OpenRouter, OpenAI or Google
-key. It runs on your machine and saves every result to disk with its prompt
-and, where the provider reports one, its cost.
+BYOK image and video generation with your own key from OpenRouter, OpenAI,
+Google, xAI, fal, Replicate, Black Forest Labs, Luma, ByteDance or Prodia. It
+runs on your machine and saves every result to disk with its prompt and, where
+the provider reports one, its cost.
 
 ![Atelier-1111 with a gallery of images from six models](docs/screenshot.webp)
 
@@ -16,20 +17,26 @@ npm start
 ```
 
 Open http://127.0.0.1:5180 and paste a key from [OpenRouter](https://openrouter.ai/keys),
-[OpenAI](https://platform.openai.com/api-keys) or [Google AI Studio](https://aistudio.google.com/apikey).
-Atelier tells them apart by prefix and asks when it can't. On Windows, you can
+[OpenAI](https://platform.openai.com/api-keys), [Google AI Studio](https://aistudio.google.com/apikey)
+or any of the providers above. Atelier tells keys apart by prefix and asks
+which provider a key is for when it can't. On Windows, you can
 double-click `Start-Atelier.vbs` instead.
 
 ## What it does
 
 - Lists the image and video models of the active provider. With an OpenRouter
-  key that is every model on OpenRouter; with an OpenAI or Google key, the
-  image models that key can use. Keep several keys and switch in Settings.
+  key that is every model on OpenRouter; with an OpenAI, Google or xAI key, the
+  image models that key can use. fal, Replicate, Black Forest Labs, Luma,
+  ByteDance and Prodia offer no model list, so they start with a few
+  suggestions and you add any other model by its id in Settings. Their keys
+  can't be checked for free, so the first image shows whether a key works.
+  Keep several keys and switch in Settings.
+- Video comes from OpenRouter only for now.
 - Takes up to 8 reference images for edits. Paste them, drop them, or send a
   result back in.
 - Saves results to `data/images` and their details to `data/atelier.db`.
 - Shows what each image cost and, for OpenRouter, what your key has left.
-  OpenAI and Google report no cost, so none is shown.
+  Other providers report no cost, so none is shown.
 - Tracks which settings each model honours. Values a model refuses are struck
   through, and values it ignores are dotted. Hover to see why.
 
@@ -39,8 +46,9 @@ Keys are stored in `data/settings.json`, one per provider, and each is only
 sent to its own provider. The browser never sees them. The server only answers requests from localhost, so
 other websites can't use it.
 
-You can also put `OPENROUTER_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY` in
-a `.env` file (see `.env.example`). A key saved in the app takes precedence.
+You can also put a key in a `.env` file under the provider's usual variable,
+such as `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` or `FAL_KEY`
+(see `.env.example`). A key saved in the app takes precedence.
 
 ## Upgrading from 0.1
 

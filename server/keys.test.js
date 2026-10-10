@@ -40,7 +40,10 @@ test('keys are detected by prefix; anything else asks for a provider', () => {
   assert.equal(keys.detectProvider(OA_KEY), 'openai')
   assert.equal(keys.detectProvider('sk-admin-abc'), 'openai')
   assert.equal(keys.detectProvider(GG_KEY), 'google')
-  assert.equal(keys.detectProvider('r8_replicate_token'), null)
+  assert.equal(keys.detectProvider('r8_replicate_token'), 'replicate')
+  assert.equal(keys.detectProvider('xai-grok-token'), 'xai')
+  // fal, Black Forest Labs and others issue keys with no prefix of their own.
+  assert.equal(keys.detectProvider('0f1e2d3c-aaaa-bbbb-cccc-1234567890ab:5e6f7a8b9c0d'), null)
 })
 
 test('an OpenAI admin key is detected as OpenAI but fails verification without a request', async () => {

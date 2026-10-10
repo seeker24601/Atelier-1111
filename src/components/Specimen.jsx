@@ -39,7 +39,7 @@ export default function Specimen({ kind = 'image', settings }) {
           aria-label="API key"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="OpenRouter, OpenAI or Google key"
+          placeholder="API key: OpenRouter, OpenAI, Google, fal, Replicate…"
           autoComplete="off"
           spellCheck={false}
           autoFocus
@@ -51,7 +51,7 @@ export default function Specimen({ kind = 'image', settings }) {
         {result?.choices ? (
           <div className="stack">
             <p className="banner banner--err">{result.detail}</p>
-            <div className="row" style={{ gap: 8 }}>
+            <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
               {result.choices.map((c) => (
                 <button key={c.id} type="button" className="btn btn--sm" disabled={saving} onClick={() => save(c.id)}>
                   {c.label}
@@ -60,7 +60,7 @@ export default function Specimen({ kind = 'image', settings }) {
             </div>
           </div>
         ) : (
-          result && !result.verified && <p className="banner banner--err">{result.detail}</p>
+          result && !result.verified && !result.unchecked && <p className="banner banner--err">{result.detail}</p>
         )}
         <span className="data data--sm dim">
           Get one from{' '}

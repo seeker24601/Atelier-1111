@@ -1,7 +1,8 @@
-import { parseModelId } from '../modelid.js'
+import { parseModelId, CATALOG_PROVIDERS } from '../modelid.js'
 import { openrouter } from './openrouter/index.js'
 import { openai } from './openai/index.js'
 import { google } from './google/index.js'
+import { catalogAdapter } from './catalog.js'
 
 /**
  * The provider registry. Everything outside server/providers/ reaches a
@@ -11,7 +12,7 @@ import { google } from './google/index.js'
  * The contract every adapter meets:
  *   id, label, env (key variables, in order)
  *   detect(key) → boolean        the key looks like this provider's
- *   verify(key) → { verified, detail }
+ *   verify(key) → { verified, detail, unchecked? }   unchecked: no free check exists
  *   account?(opts)               spend and limit, where the provider reports them
  *   listModels(kind, opts) → models with the provider's own ids
  *   generateImage({ model, prompt, params, refs, onPartial })   one image
@@ -23,7 +24,7 @@ import { google } from './google/index.js'
  */
 
 // Order is the detection order and the fallback order for the active provider.
-const ADAPTERS = [openrouter, openai, google]
+const ADAPTERS = [openrouter, openai, google, ...CATALOG_PROVIDERS.map(catalogAdapter)]
 const BY_ID = new Map(ADAPTERS.map((a) => [a.id, a]))
 
 export const adapters = () => ADAPTERS

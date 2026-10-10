@@ -56,6 +56,8 @@ export const api = {
     setTheme: (theme) => put('/api/settings/theme', { theme }),
     hiddenModels: () => fetch('/api/settings/hidden-models').then(jsonOrThrow),
     setHiddenModels: (ids) => put('/api/settings/hidden-models', { ids }),
+    customModels: () => fetch('/api/settings/custom-models').then(jsonOrThrow),
+    setCustomModels: (ids) => put('/api/settings/custom-models', { ids }),
     account: (fresh = false) =>
       fetch(`/api/settings/account${fresh ? '?fresh=1' : ''}`).then(jsonOrThrow),
   },

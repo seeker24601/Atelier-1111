@@ -7,7 +7,8 @@ test('ids split on the first colon after a known provider only', () => {
   assert.deepEqual(parseModelId('openrouter:google/gemini-2.0-flash-exp:free'), { provider: 'openrouter', model: 'google/gemini-2.0-flash-exp:free' })
   assert.deepEqual(parseModelId('openai:gpt-image-2'), { provider: 'openai', model: 'gpt-image-2' })
   assert.deepEqual(parseModelId('google/gemini-3-pro-image'), { provider: 'openrouter', model: 'google/gemini-3-pro-image' }, 'bare ids are pre-0.2 OpenRouter ids')
-  assert.deepEqual(parseModelId('fal:fal-ai/flux'), { provider: 'openrouter', model: 'fal:fal-ai/flux' }, 'unknown prefixes are not providers')
+  assert.deepEqual(parseModelId('midjourney:v7'), { provider: 'openrouter', model: 'midjourney:v7' }, 'unknown prefixes are not providers')
+  assert.deepEqual(parseModelId('fal:fal-ai/flux-pro/v1.1'), { provider: 'fal', model: 'fal-ai/flux-pro/v1.1' }, 'AI Connections providers are known')
   assert.equal(isQualified('openai/gpt-image-2'), false)
 })
 
