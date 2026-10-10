@@ -2,10 +2,12 @@ import { apiKeyNames } from '@ai-connections/core/direct'
 import { verifyByListing } from '../verify.js'
 import { discoverImageModels, generateWith, splitParams } from '../aiconnections.js'
 
-/** OpenAI image models, reached through AI Connections. Models arrive without the `openai:` prefix. */
-export const isImageModel = (id) => /^(gpt-image|dall-e)/.test(id)
-// GPT Image models take reference images (edits); DALL·E models do not here.
-const acceptsImages = (id) => id.startsWith('gpt-image')
+/**
+ * OpenAI image models, reached through AI Connections, which lists every model
+ * OpenAI offers for images. Models arrive without the `openai:` prefix.
+ * DALL·E models take no reference images here; the GPT Image family does (edits).
+ */
+const acceptsImages = (id) => !id.startsWith('dall-e')
 
 /**
  * OpenAI offers three sizes, not ratios. A requested ratio becomes the size of
@@ -34,12 +36,11 @@ export const openai = {
       provider: 'openai',
       label: 'OpenAI',
       key,
-      isImageModel,
       requirement: 'OpenAI may require organization verification before the first image; the first generation will say so.',
     })
   },
 
-  listModels: (kind) => (kind === 'video' ? [] : discoverImageModels(openai, { isImageModel, acceptsImages })),
+  listModels: (kind) => (kind === 'video' ? [] : discoverImageModels(openai, { acceptsImages })),
 
   generateImage({ model, prompt, params = {}, refs = [] }) {
     const { kept, omitted } = splitParams(params, ['aspect_ratio'])

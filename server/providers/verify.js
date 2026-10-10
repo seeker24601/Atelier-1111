@@ -6,10 +6,9 @@ import { listModels } from '@ai-connections/core/direct'
  * the image models the key can see and any access step the provider is known
  * to require before the first image.
  */
-export async function verifyByListing({ provider, label, key, isImageModel, requirement }) {
+export async function verifyByListing({ provider, label, key, requirement }) {
   try {
-    const models = await listModels(provider, { apiKey: key })
-    const images = models.map((m) => m.id).filter(isImageModel)
+    const images = (await listModels(provider, { apiKey: key, kind: 'image' })).map((m) => m.id)
     if (!images.length) {
       return { verified: false, detail: `${label} accepted the key, but it lists no image model.` }
     }

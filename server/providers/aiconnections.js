@@ -15,18 +15,16 @@ const NO_PRICE = {
 const keyOf = (adapter) => readKey(adapter.id, adapter.env).key
 
 /**
- * Image models the key can see, discovered from the provider's own list (no
- * hardcoded ids) and shaped like OpenRouter entries so the picker, readout and
- * hide list treat them alike. Unknown facts are null. No key, no models.
+ * Every image model the provider lists for this key, as AI Connections reports
+ * it, shaped like OpenRouter entries so the picker, readout and hide list treat
+ * them alike. Atelier adds no filter of its own: the user hides what they do
+ * not want. Unknown facts are null. No key, no models.
  */
-export async function discoverImageModels(adapter, { isImageModel, acceptsImages }) {
+export async function discoverImageModels(adapter, { acceptsImages }) {
   const key = keyOf(adapter)
   if (!key) return []
-  const listed = await listModels(adapter.id, { apiKey: key })
-  return listed
-    .filter((m) => isImageModel(m.id))
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map((m) => ({
+  const listed = await listModels(adapter.id, { apiKey: key, kind: 'image' })
+  return listed.map((m) => ({
       id: m.id,
       name: m.name || m.id,
       inputs: acceptsImages(m.id) ? ['text', 'image'] : ['text'],

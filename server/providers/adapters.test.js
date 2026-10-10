@@ -25,11 +25,12 @@ globalThis.fetch = async (input, init) => {
   const url = String(input instanceof Request ? input.url : input)
   calls.push({ url, body: init?.body })
   if (reply) return reply(url, init)
-  if (url.endsWith('api.openai.com/v1/models')) return json({ data: [{ id: 'gpt-4o' }, { id: 'gpt-image-1' }, { id: 'dall-e-3' }] })
+  if (url.endsWith('api.openai.com/v1/models')) return json({ data: [{ id: 'gpt-4o' }, { id: 'gpt-image-1' }, { id: 'chatgpt-image-latest' }, { id: 'dall-e-3' }] })
   if (url.includes('generativelanguage.googleapis.com') && url.includes('/models?')) {
     return json({ models: [
       { name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] },
       { name: 'models/gemini-2.5-flash-image', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/imagen-4.0-generate-001', supportedGenerationMethods: ['predict'] },
     ] })
   }
   if (url.includes(':generateContent')) {
@@ -46,9 +47,9 @@ storeKey('google', 'AIza-test-google-0000')
 const openai = adapter('openai')
 const google = adapter('google')
 
-test('OpenAI lists only its image models; GPT Image takes references, DALL·E does not', async () => {
+test('OpenAI lists every image model it offers, unfiltered by Atelier; DALL·E takes no references', async () => {
   const models = await openai.listModels('image')
-  assert.deepEqual(models.map((m) => [m.id, m.acceptsImages]), [['dall-e-3', false], ['gpt-image-1', true]])
+  assert.deepEqual(models.map((m) => [m.id, m.acceptsImages]), [['chatgpt-image-latest', true], ['dall-e-3', false], ['gpt-image-1', true]])
   assert.equal(models[0].pricing.imageOutput, null)
   assert.deepEqual(await openai.listModels('video'), [])
 })
@@ -86,7 +87,8 @@ test('a provider rejection keeps its message, led by the provider and status', a
 })
 
 test('Google lists Gemini image models and sends ratios and references as asked', async () => {
-  assert.deepEqual((await google.listModels('image')).map((m) => m.id), ['gemini-2.5-flash-image'])
+  const models = await google.listModels('image')
+  assert.deepEqual(models.map((m) => [m.id, m.acceptsImages]), [['gemini-2.5-flash-image', true], ['imagen-4.0-generate-001', false]], 'Imagen is listed too; it takes no references')
   calls.length = 0
   const result = await google.generateImage({
     model: 'gemini-2.5-flash-image', prompt: 'a lantern',

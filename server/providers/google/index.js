@@ -3,11 +3,11 @@ import { verifyByListing } from '../verify.js'
 import { discoverImageModels, generateWith, splitParams } from '../aiconnections.js'
 
 /**
- * Gemini API image models, reached through AI Connections. Models arrive
- * without the `google:` prefix. Imagen models use a different endpoint and are
- * not listed; Gemini image models take references inline.
+ * Gemini API image models, reached through AI Connections, which lists both
+ * Gemini image models and Imagen. Models arrive without the `google:` prefix.
+ * Gemini image models take references inline; Imagen takes none here.
  */
-export const isImageModel = (id) => id.startsWith('gemini') && id.includes('image')
+const acceptsImages = (id) => id.startsWith('gemini')
 
 export const google = {
   id: 'google',
@@ -16,12 +16,12 @@ export const google = {
 
   detect: (key) => key.startsWith('AIza'),
 
-  verify: (key) => verifyByListing({ provider: 'google', label: 'Google', key, isImageModel }),
+  verify: (key) => verifyByListing({ provider: 'google', label: 'Google', key }),
 
-  listModels: (kind) => (kind === 'video' ? [] : discoverImageModels(google, { isImageModel, acceptsImages: () => true })),
+  listModels: (kind) => (kind === 'video' ? [] : discoverImageModels(google, { acceptsImages })),
 
   generateImage({ model, prompt, params = {}, refs = [] }) {
-    // Gemini takes every ratio Atelier offers, so the ratio goes as asked.
+    // The ratio goes as asked; a model that refuses one says so, and the ledger records it.
     const { kept, omitted } = splitParams(params, ['aspect_ratio'])
     const input = kept.aspect_ratio ? { aspectRatio: kept.aspect_ratio } : {}
     return generateWith(google, { model, prompt, input, sent: kept, omitted, refs })
