@@ -119,3 +119,38 @@ test('the ledger judges what OpenAI was sent and never blames an omitted param',
   assert.ok(ledger.every((r) => r.param !== 'resolution'), 'an omitted param is never recorded against the model')
   assert.ok(ledger.every((r) => r.param !== 'aspect_ratio' || r.value === '3:2'), 'the ratio is judged as sent, not as asked')
 })
+
+test('OpenRouter images stream previews, report cost, and a refused param is dropped and retried', async () => {
+  const sse = (events) => new Response(events.map((e) => `data: ${JSON.stringify(e)}\n\n`).join('') + 'data: [DONE]\n\n', {
+    headers: { 'Content-Type': 'text/event-stream' },
+  })
+  const headers = []
+  reply = (url, init) => {
+    headers.push(new Headers(init.headers))
+    const body = JSON.parse(init.body)
+    if (body.resolution) return json({ error: { message: 'resolution is not supported by this model' } }, 400)
+    return sse([
+      { type: 'image_generation.partial_image', b64_json: png, partial_image_index: 0 },
+      { type: 'image_generation.completed', b64_json: png, media_type: 'image/png', usage: { cost: 0.039 } },
+    ])
+  }
+  storeKey('openrouter', 'sk-or-v1-test-openrouter-0000')
+  const job = {
+    id: 'job-openrouter-1', created_at: Date.now(), status: 'queued', model: 'openrouter:google/gemini-2.5-flash-image',
+    prompt: 'a lantern', params: { aspect_ratio: '1:1', resolution: '4K' }, refs: [], n: 1, kind: 'image',
+  }
+  jobsRepo.insert(job)
+  await runJob(job.id)
+  const done = jobsRepo.get(job.id)
+  assert.equal(done.status, 'done', done.error ?? '')
+  assert.equal(done.cost, 0.039)
+  assert.match(done.note ?? '', /Retried without resolution/)
+  const [first, second] = calls.map((c) => JSON.parse(c.body))
+  assert.ok(calls.every((c) => c.url === 'https://openrouter.ai/api/v1/images'))
+  assert.deepEqual([first.stream, first.aspect_ratio, first.resolution], [true, '1:1', '4K'], 'params go as asked, streamed')
+  assert.equal(second.resolution, undefined)
+  assert.equal(headers[0].get('x-title'), 'Atelier-1111')
+  assert.equal(headers[0].get('authorization'), 'Bearer sk-or-v1-test-openrouter-0000')
+  const refused = db.prepare("SELECT evidence FROM capabilities WHERE model = ? AND param = 'resolution'").get(job.model)
+  assert.match(refused.evidence, /^OpenRouter returned HTTP 400: resolution is not supported/)
+})

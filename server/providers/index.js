@@ -14,7 +14,7 @@ import { google } from './google/index.js'
  *   verify(key) → { verified, detail }
  *   account?(opts)               spend and limit, where the provider reports them
  *   listModels(kind, opts) → models with the provider's own ids
- *   generateImage({ model, prompt, n, params, refs, onPartial })
+ *   generateImage({ model, prompt, params, refs, onPartial })   one image
  *     → { request, sent, omitted, images, cost }
  *       sent: the params actually sent, after translation
  *       omitted: params this provider does not offer

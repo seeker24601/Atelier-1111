@@ -1,11 +1,13 @@
-import { generateImages, listImageModels } from './images.js'
+import { listImageModels, attribution } from './images.js'
 import { generateVideo, collectVideo, listVideoModels } from './videos.js'
 import { verifyKey, account } from './account.js'
 import { OPENROUTER_ENV } from '../../settings.js'
+import { generateWith } from '../aiconnections.js'
 
 /**
- * OpenRouter behind the provider contract (see ../index.js). The client code
- * in this folder is unchanged from v0.1.0; this file only adapts its shape.
+ * OpenRouter behind the provider contract (see ../index.js). Images go through
+ * AI Connections, which streams previews and reports the cost; video, the
+ * model index and the account stay on Atelier's own client in this folder.
  * Models arrive here as OpenRouter's own ids, without the `openrouter:` prefix.
  */
 export const openrouter = {
@@ -19,10 +21,14 @@ export const openrouter = {
 
   listModels: (kind, opts) => (kind === 'video' ? listVideoModels(opts) : listImageModels(opts)),
 
-  async generateImage({ model, prompt, n, params = {}, refs = [], onPartial }) {
-    const { request, cost, images } = await generateImages({ model, prompt, n, params, inputReferences: refs, onPartial })
+  generateImage({ model, prompt, params = {}, refs = [], onPartial }) {
     // OpenRouter takes every Atelier param as is: nothing is translated or left out.
-    return { request, sent: params, omitted: [], images, cost }
+    const extra = Object.fromEntries(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+    )
+    return generateWith(openrouter, {
+      model, prompt, extra, headers: attribution(), sent: params, omitted: [], refs, onPartial,
+    })
   },
 
   generateVideo: (options) => generateVideo(options),

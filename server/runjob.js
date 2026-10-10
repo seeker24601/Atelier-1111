@@ -22,7 +22,6 @@ async function generateWithFallback(job, references) {
     adapter.generateImage({
       model,
       prompt: job.prompt,
-      n: job.n,
       params,
       refs: inputReferences,
       // Each partial replaces the last, so the gallery can show the image
