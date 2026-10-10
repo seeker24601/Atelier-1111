@@ -25,6 +25,3 @@ export async function verifyByListing({ provider, label, key, isImageModel, requ
     return { verified: false, detail: `Could not verify with ${label}: ${err?.message ?? err}` }
   }
 }
-
-export const notYet = (label) =>
-  Object.assign(new Error(`${label} image generation is not available yet.`), { status: 501 })
