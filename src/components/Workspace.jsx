@@ -22,7 +22,12 @@ export default function Workspace({ kind = 'image', library, composer, settings,
           pending={library.activeJobs}
         />
       ) : (
-        <Specimen kind={kind} settings={settings} />
+        <Specimen
+          kind={kind}
+          settings={settings}
+          // Direct models are listed only when their provider has a key.
+          otherKey={kind === 'image' && library.models.some((m) => m.provider)}
+        />
       )}
     </main>
   )

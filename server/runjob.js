@@ -2,6 +2,7 @@ import * as jobsRepo from './db/jobs.js'
 import { resolveReferences } from './references.js'
 import * as capsRepo from './db/capabilities.js'
 import { generateImages } from './openrouter.js'
+import { generateDirectImage, isDirectModel } from './imageproviders.js'
 import { readImageMeta } from './imagemeta.js'
 import { setPreview, dropPreview } from './outbox.js'
 import { save } from './library.js'
@@ -18,7 +19,9 @@ import { paramsBlamedBy, acceptedValuesFor, looksLikeParamRejection } from './re
 async function generateWithFallback(job, references) {
   const inputReferences = references.map((r) => r.url)
   const call = (params) =>
-    generateImages({
+    isDirectModel(job.model)
+      ? generateDirectImage({ model: job.model, prompt: job.prompt, params, inputReferences })
+      : generateImages({
       model: job.model,
       prompt: job.prompt,
       n: job.n,
@@ -31,7 +34,13 @@ async function generateWithFallback(job, references) {
     })
 
   try {
-    return { result: await call(job.params), params: job.params, note: null }
+    const result = await call(job.params)
+    // A direct provider sends only what AI Connections can carry; record what
+    // was really requested so the ledger never blames a model for a param it never saw.
+    if (result.sent) {
+      return { result, params: result.sent, note: unsentNote(result.unsent) }
+    }
+    return { result, params: job.params, note: null }
   } catch (err) {
     // How many references the provider will take is a capability like any
     // other, and it only ever surfaces as a rejection — Azure caps MAI at one:
@@ -68,13 +77,17 @@ async function generateWithFallback(job, references) {
     const reduced = { ...job.params }
     for (const param of blamed) delete reduced[param]
 
+    const result = await call(reduced)
     return {
-      result: await call(reduced),
-      params: reduced,
-      note: `Retried without ${blamed.join(', ')}`,
+      result,
+      params: result.sent ?? reduced,
+      note: [`Retried without ${blamed.join(', ')}`, unsentNote(result.unsent)].filter(Boolean).join('. '),
     }
   }
 }
+
+const unsentNote = (unsent = []) =>
+  unsent.length ? `Not sent to this provider: ${unsent.join(', ')}` : null
 
 /**
  * Measure what came back, record the verdicts, and write the bytes to disk.

@@ -56,6 +56,9 @@ export const api = {
     setHiddenModels: (ids) => put('/api/settings/hidden-models', { ids }),
     account: (fresh = false) =>
       fetch(`/api/settings/account${fresh ? '?fresh=1' : ''}`).then(jsonOrThrow),
+    providers: () => fetch('/api/settings/providers').then(jsonOrThrow),
+    saveProviderKey: (id, key) => put(`/api/settings/providers/${encodeURIComponent(id)}`, { key }),
+    clearProviderKey: (id) => del(`/api/settings/providers/${encodeURIComponent(id)}`),
   },
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import StoragePanel from './StoragePanel.jsx'
 import UpdatePanel from './UpdatePanel.jsx'
 import ModelsPanel from './ModelsPanel.jsx'
+import ImageProvidersPanel from './ImageProvidersPanel.jsx'
 import { THEMES } from '../theme.js'
 
 /**
@@ -116,6 +117,8 @@ export default function SettingsPanel({ open, onClose, settings, storage, onMode
             </p>
           )}
         </section>
+
+        <ImageProvidersPanel onModelsChange={onModelsChange} />
 
         <StoragePanel {...storage} />
 

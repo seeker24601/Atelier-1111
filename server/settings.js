@@ -112,3 +112,44 @@ export function clearKey() {
     write(next)
   }
 }
+
+/*
+ * Keys for image providers reached through AI Connections (fal, Replicate, …),
+ * one per provider id, under `providerKeys`. Same rules as the OpenRouter key:
+ * stored at 0600, never returned, an env var as fallback (each provider's
+ * conventional name, e.g. FAL_KEY), and the stored key wins.
+ */
+export function getProviderKey(id, envNames = []) {
+  const stored = read().providerKeys?.[id]
+  if (typeof stored === 'string' && stored) return { key: stored, source: 'stored' }
+  for (const name of envNames) {
+    const value = process.env[name]?.trim()
+    if (value) return { key: value, source: 'env' }
+  }
+  return { key: null, source: null }
+}
+
+export function describeProviderKey(id, envNames = []) {
+  const { key, source } = getProviderKey(id, envNames)
+  return { configured: Boolean(key), source, hint: hint(key) }
+}
+
+export function setProviderKey(id, key) {
+  const trimmed = String(key || '').trim()
+  if (!trimmed) throw Object.assign(new Error('Key is empty.'), { status: 400 })
+  if (trimmed.length > 4096 || /\s/.test(trimmed)) {
+    throw Object.assign(new Error('That does not look like an API key.'), { status: 400 })
+  }
+  const next = read()
+  next.providerKeys = { ...(next.providerKeys || {}), [id]: trimmed }
+  write(next)
+}
+
+/** Clears only the stored key — an env-provided key is not ours to remove. */
+export function clearProviderKey(id) {
+  const next = read()
+  if (!next.providerKeys?.[id]) return
+  delete next.providerKeys[id]
+  if (Object.keys(next.providerKeys).length === 0) delete next.providerKeys
+  write(next)
+}

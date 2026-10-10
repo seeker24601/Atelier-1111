@@ -21,6 +21,11 @@ instead.
 ## What it does
 
 - Lists every image and video model on OpenRouter.
+- Adds image models from fal, Replicate, Black Forest Labs, OpenAI, Google,
+  xAI, Luma, ByteDance and Prodia when you add that provider's key in
+  Settings. These run through [AI Connections](https://github.com/seeker24601/ai-connections)
+  and take a prompt and an aspect ratio; streaming previews, cost, reference
+  images, resolution and format are OpenRouter-only for now.
 - Takes up to 8 reference images for edits. Paste them, drop them, or send a
   result back in.
 - Saves results to `data/images` and their details to `data/atelier.db`.
@@ -30,12 +35,14 @@ instead.
 
 ## Your key
 
-The key is stored in `data/settings.json` and is only sent to OpenRouter. The
-browser never sees it. The server only answers requests from localhost, so
+The key is stored in `data/settings.json` and is only sent to OpenRouter. Keys
+for other image providers are stored there too, each sent only to its own
+provider. The browser never sees them. The server only answers requests from localhost, so
 other websites can't use it.
 
-You can also put `OPENROUTER_API_KEY` in a `.env` file (see `.env.example`). A
-key saved in the app takes precedence.
+You can also put `OPENROUTER_API_KEY` in a `.env` file (see `.env.example`), and
+other providers' keys under their usual names, such as `FAL_KEY` or
+`REPLICATE_API_TOKEN`. A key saved in the app takes precedence.
 
 ## Development
 

@@ -12,9 +12,23 @@ export const stamp = (ms) => {
   return `${d.getFullYear()}—${p(d.getMonth() + 1)}—${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
-export const shortModel = (id) => (id ? id.split('/').pop().toUpperCase() : '——')
+/**
+ * Ids from providers reached through AI Connections are `provider:model`
+ * (`fal:fal-ai/flux/dev`). OpenRouter ids always have a `/` before any colon
+ * (`vendor/model:free`), so they pass through unchanged.
+ */
+const directSplit = (id) => {
+  const colon = id.indexOf(':')
+  return colon > 0 && !id.slice(0, colon).includes('/')
+    ? { vendor: id.slice(0, colon), model: id.slice(colon + 1) }
+    : null
+}
 
-export const vendorOf = (id) => (id ? id.split('/')[0].toUpperCase() : '——')
+export const shortModel = (id) =>
+  id ? (directSplit(id)?.model ?? id).split('/').pop().toUpperCase() : '——'
+
+export const vendorOf = (id) =>
+  id ? (directSplit(id)?.vendor ?? id.split('/')[0]).toUpperCase() : '——'
 
 export const pad = (n, width = 2) => String(n).padStart(width, '0')
 

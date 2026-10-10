@@ -1,15 +1,15 @@
 import { useState } from 'react'
 
 /**
- * The empty gallery. With no key, the key is the only thing worth asking for,
- * so the field is right here; otherwise there is nothing to say — the left
- * column is the procedure.
+ * The empty gallery. With no key at all, the key is the only thing worth asking
+ * for, so the field is right here; otherwise there is nothing to say — the left
+ * column is the procedure. A key for another image provider counts as a key.
  */
-export default function Specimen({ kind = 'image', settings }) {
+export default function Specimen({ kind = 'image', settings, otherKey = false }) {
   const [draft, setDraft] = useState('')
   const { status, result, saving, saveKey } = settings
 
-  if (status.configured) {
+  if (status.configured || otherKey) {
     return (
       <div className="specimen">
         <span className="plate-title dim">No {kind === 'video' ? 'clips' : 'images'} yet</span>
@@ -46,6 +46,9 @@ export default function Specimen({ kind = 'image', settings }) {
         <a className="data data--sm dim" href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
           Get a key ↗
         </a>
+        {kind === 'image' && (
+          <span className="data data--sm dim">Or add fal, Replicate, OpenAI or another image provider in Settings.</span>
+        )}
       </form>
     </div>
   )

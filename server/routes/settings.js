@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { describe, setKey, clearKey, getKey, setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
 import { verifyKey, account } from '../account.js'
+import { setProviderKey, clearProviderKey } from '../settings.js'
+import { describeImageProviders, isImageProvider } from '../imageproviders.js'
 
 export const settings = Router()
 
@@ -58,4 +60,28 @@ settings.get('/settings/account', async (req, res) => {
 settings.delete('/settings/key', (_req, res) => {
   clearKey()
   res.json(describe())
+})
+
+/*
+ * Image providers other than OpenRouter. Saving does not verify the key: none
+ * of them has a free check, and a generation would bill. The panel says so.
+ */
+settings.get('/settings/providers', (_req, res) => {
+  res.json({ providers: describeImageProviders() })
+})
+
+settings.put('/settings/providers/:id', (req, res) => {
+  if (!isImageProvider(req.params.id)) return res.status(404).json({ error: 'Unknown provider.' })
+  try {
+    setProviderKey(req.params.id, req.body?.key)
+    res.json({ providers: describeImageProviders() })
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message })
+  }
+})
+
+settings.delete('/settings/providers/:id', (req, res) => {
+  if (!isImageProvider(req.params.id)) return res.status(404).json({ error: 'Unknown provider.' })
+  clearProviderKey(req.params.id)
+  res.json({ providers: describeImageProviders() })
 })

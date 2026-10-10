@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { listImageModels } from '../openrouter.js'
 import { listVideoModels } from '../videos.js'
 import { getHiddenModels } from '../settings.js'
+import { listDirectImageModels } from '../imageproviders.js'
 
 export const models = Router()
 
@@ -12,8 +13,16 @@ export const models = Router()
  */
 models.get('/models', async (req, res) => {
   try {
-    const list = req.query.kind === 'video' ? listVideoModels : listImageModels
-    const all = await list({ force: req.query.refresh === '1' })
+    const video = req.query.kind === 'video'
+    const list = video ? listVideoModels : listImageModels
+    // Providers with their own key add their models to the image list. If
+    // OpenRouter cannot be reached, those still show rather than nothing.
+    const direct = video ? [] : listDirectImageModels()
+    const openrouter = await list({ force: req.query.refresh === '1' }).catch((err) => {
+      if (!direct.length) throw err
+      return []
+    })
+    const all = [...openrouter, ...direct]
     const hidden = new Set(getHiddenModels())
     res.json({
       models:
