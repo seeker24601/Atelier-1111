@@ -72,3 +72,17 @@ test('a provider without a key cannot be made active', async () => {
   assert.equal(res.status, 400)
   assert.match(res.body.error, /Add a Google key first/)
 })
+
+test('a preview frame is served locked down, so an SVG frame cannot run script', async () => {
+  const { setPreview, dropPreview } = await import('./outbox.js')
+  setPreview('job-svg-preview', { buf: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'), mediaType: 'image/svg+xml' })
+  try {
+    const res = await realFetch(`${base}/output/job-svg-preview/preview`)
+    assert.equal(res.status, 200)
+    assert.equal(res.headers.get('x-content-type-options'), 'nosniff')
+    assert.match(res.headers.get('content-security-policy') ?? '', /\bsandbox\b/)
+    assert.match(res.headers.get('content-security-policy') ?? '', /default-src 'none'/)
+  } finally {
+    dropPreview('job-svg-preview')
+  }
+})

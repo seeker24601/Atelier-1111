@@ -68,6 +68,9 @@ export async function generateWith(adapter, { model, prompt, input = {}, extra, 
         apiKey: key,
         fetch: call,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        // Vector models return SVG. Atelier serves files and previews sandboxed
+        // and never content-sniffed (server/index.js, routes/output.js).
+        allowSvg: true,
         ...(extra ? { providerOptions: { [adapter.id]: extra } } : {}),
         ...(headers ? { headers } : {}),
         ...(onPartial ? { onPartial: (p) => onPartial({ b64: p.base64, mediaType: p.mediaType, index: p.index }) } : {}),
