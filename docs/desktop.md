@@ -68,6 +68,13 @@ To migrate a web gallery, close both applications and copy the contents of its
 `data` folder into the desktop data folder. Keep the original as a backup.
 Copy SQLite WAL and SHM files with the database if they are present.
 
+Version 0.2 qualifies stored model ids with their provider on first start and
+writes a copy of the database and `settings.json` to `backups` inside the data
+directory first. Before running 0.1 against that data again, run
+`node scripts/downgrade-model-ids.mjs <data directory>`; it backs up the same
+way. 0.2 also writes the OpenRouter key to 0.1's `openrouterApiKey` field, so
+0.1 finds it either way.
+
 ## Verification status
 
 Windows verified on 2026-10-08:

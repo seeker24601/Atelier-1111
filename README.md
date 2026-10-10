@@ -1,7 +1,8 @@
 # Atelier-1111
 
-BYOK image and video generation for OpenRouter. It runs on your machine and
-saves every result to disk with its prompt and cost.
+BYOK image and video generation with your own OpenRouter, OpenAI or Google
+key. It runs on your machine and saves every result to disk with its prompt
+and, where the provider reports one, its cost.
 
 ![Atelier-1111 with a gallery of images from six models](docs/screenshot.webp)
 
@@ -14,28 +15,40 @@ npm install
 npm start
 ```
 
-Open http://127.0.0.1:5180 and paste your OpenRouter key. You can get one at
-https://openrouter.ai/keys. On Windows, you can double-click `Start-Atelier.vbs`
-instead.
+Open http://127.0.0.1:5180 and paste a key from [OpenRouter](https://openrouter.ai/keys),
+[OpenAI](https://platform.openai.com/api-keys) or [Google AI Studio](https://aistudio.google.com/apikey).
+Atelier tells them apart by prefix and asks when it can't. On Windows, you can
+double-click `Start-Atelier.vbs` instead.
 
 ## What it does
 
-- Lists every image and video model on OpenRouter.
+- Lists the image and video models of the active provider. With an OpenRouter
+  key that is every model on OpenRouter; with an OpenAI or Google key, the
+  image models that key can use. Keep several keys and switch in Settings.
 - Takes up to 8 reference images for edits. Paste them, drop them, or send a
   result back in.
 - Saves results to `data/images` and their details to `data/atelier.db`.
-- Shows what each image cost and what your key has left.
+- Shows what each image cost and, for OpenRouter, what your key has left.
+  OpenAI and Google report no cost, so none is shown.
 - Tracks which settings each model honours. Values a model refuses are struck
   through, and values it ignores are dotted. Hover to see why.
 
 ## Your key
 
-The key is stored in `data/settings.json` and is only sent to OpenRouter. The
-browser never sees it. The server only answers requests from localhost, so
+Keys are stored in `data/settings.json`, one per provider, and each is only
+sent to its own provider. The browser never sees them. The server only answers requests from localhost, so
 other websites can't use it.
 
-You can also put `OPENROUTER_API_KEY` in a `.env` file (see `.env.example`). A
-key saved in the app takes precedence.
+You can also put `OPENROUTER_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY` in
+a `.env` file (see `.env.example`). A key saved in the app takes precedence.
+
+## Upgrading from 0.1
+
+The first start of 0.2 stores model ids with their provider
+(`openrouter:google/…`), after copying the database and `settings.json` to
+`data/backups`. To go back to 0.1, run
+`node scripts/downgrade-model-ids.mjs <data directory>` first; 0.1 then finds
+its key, gallery and hidden models as before.
 
 ## Development
 
