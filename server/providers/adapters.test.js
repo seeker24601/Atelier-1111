@@ -154,3 +154,13 @@ test('OpenRouter images stream previews, report cost, and a refused param is dro
   const refused = db.prepare("SELECT evidence FROM capabilities WHERE model = ? AND param = 'resolution'").get(job.model)
   assert.match(refused.evidence, /^OpenRouter returned HTTP 400: resolution is not supported/)
 })
+
+test('OpenRouter vector models still deliver SVG: Atelier opts in, and serves it sandboxed', async () => {
+  const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>').toString('base64')
+  reply = () => new Response(`data: ${JSON.stringify({ type: 'image_generation.completed', b64_json: svg, media_type: 'image/svg+xml' })}\n\ndata: [DONE]\n\n`, {
+    headers: { 'Content-Type': 'text/event-stream' },
+  })
+  storeKey('openrouter', 'sk-or-v1-test-openrouter-0000')
+  const result = await adapter('openrouter').generateImage({ model: 'recraft/recraft-v4-vector', prompt: 'a lantern' })
+  assert.equal(result.images[0].mediaType, 'image/svg+xml')
+})
