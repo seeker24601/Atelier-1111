@@ -1,3 +1,5 @@
+import { parseModelId as parseQualified, isQualified } from './modelid.js'
+
 /**
  * Retire models that a newer version of the *same thing* has replaced.
  *
@@ -14,10 +16,20 @@
  *   gemini-3.1-flash-image → NOT superseded by gemini-3-pro-image (tier differs)
  */
 
-/** Split `vendor/family-<version>-<tier>` into its parts. */
+/**
+ * Split `vendor/family-<version>-<tier>` into its parts. Qualified ids keep their
+ * provider in `vendor` (`openrouter:google`), so lines never cross providers; a
+ * direct provider's ids have no vendor segment, so the provider is the vendor.
+ * `base` is everything before the slug, for rebuilding a sibling id.
+ */
 export function parseModelId(id) {
-  const [vendor, ...rest] = id.split('/')
+  const { provider, model } = parseQualified(id)
+  const qualified = isQualified(id)
+  const direct = qualified && provider !== 'openrouter'
+  const [rawVendor, ...rest] = direct ? [provider, model] : model.split('/')
+  const vendor = qualified && !direct ? `openrouter:${rawVendor}` : rawVendor
   const slug = rest.join('/')
+  const base = id.slice(0, id.length - slug.length)
 
   // A trailing -preview is a stability marker, not a tier.
   const preview = slug.endsWith('-preview')
@@ -38,6 +50,7 @@ export function parseModelId(id) {
 
     return {
       vendor,
+      base,
       family: [...tokens.slice(0, i), m[1]].filter(Boolean).join('-'),
       version: m[2],
       tier: comp ? comp[1] : rawTier,
@@ -46,7 +59,7 @@ export function parseModelId(id) {
       core,
     }
   }
-  return { vendor, family: core, version: null, tier: '', component: 1, preview, core }
+  return { vendor, base, family: core, version: null, tier: '', component: 1, preview, core }
 }
 
 function compareVersions(a, b) {
@@ -70,7 +83,7 @@ export function findSuperseded(models) {
   for (const p of parsed) {
     // A preview is retired the moment its stable twin exists.
     if (p.preview) {
-      const stable = `${p.vendor}/${p.core}`
+      const stable = `${p.base}${p.core}`
       if (byId.has(stable)) {
         retired.set(p.id, stable)
         continue

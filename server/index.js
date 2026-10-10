@@ -1,10 +1,12 @@
 import express from 'express'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { IMAGE_DIR, ROOT } from './paths.js'
+import { DATA_DIR, IMAGE_DIR, ROOT } from './paths.js'
 import { api } from './routes/index.js'
 import { reconcileOrphans } from './reconcile.js'
-import { describe, getTheme } from './settings.js'
+import { describe, getTheme, getHiddenModels, setHiddenModels } from './settings.js'
+import { db } from './db/index.js'
+import { qualifyModelIds } from './migrations.js'
 import { localOnly } from './localonly.js'
 
 /**
@@ -65,6 +67,17 @@ if (APP) {
     res.setHeader('Cache-Control', 'no-cache')
     res.type('html').send(theme === 'system' ? page : page.replace('<html', `<html data-theme="${theme}"`))
   })
+}
+
+// Stored model ids become provider-qualified (openrouter:…), backed up first.
+// Runs every start so data written by an older version catches up.
+const migrated = qualifyModelIds({
+  db,
+  dataDir: DATA_DIR,
+  hiddenModels: { get: getHiddenModels, set: setHiddenModels },
+})
+if (migrated.changed) {
+  console.log(`[atelier-1111] qualified ${migrated.changed} stored model ids; backup at ${migrated.backup.dbCopy}`)
 }
 
 // Nothing survives a restart on its own: settle what was in flight first.

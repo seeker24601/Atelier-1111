@@ -1,4 +1,5 @@
 import Plate from '../ui/Plate.jsx'
+import { parseModelId } from '../../../server/modelid.js'
 
 /** Just the choice. Price, context and release date read in the band above. */
 export default function ModelPlate({
@@ -30,7 +31,8 @@ export default function ModelPlate({
           {models.length === 0 && <option value="">Loading…</option>}
           {models.map((m) => (
             <option key={m.id} value={m.id} disabled={blocked(m)}>
-              {m.id}
+              {/* The picker lists one provider's models, so the prefix says nothing. */}
+              {parseModelId(m.id).model}
               {blocked(m) ? why(m) : ''}
             </option>
           ))}

@@ -1,3 +1,4 @@
+import { parseModelId } from '../server/modelid.js'
 /** Presentation helpers. Data prints as readouts: fixed width, tabular. */
 
 /** 0.0243 → "0.0243" · null → "——" */
@@ -12,9 +13,18 @@ export const stamp = (ms) => {
   return `${d.getFullYear()}—${p(d.getMonth() + 1)}—${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
-export const shortModel = (id) => (id ? id.split('/').pop().toUpperCase() : '——')
+/**
+ * Ids are `<provider>:<model>`. Display and filenames use the model part, so a
+ * filename never carries the colon; an OpenRouter model's vendor is its own
+ * prefix (`google/…`), another provider's vendor is the provider.
+ */
+export const shortModel = (id) => (id ? parseModelId(id).model.split('/').pop().toUpperCase() : '——')
 
-export const vendorOf = (id) => (id ? id.split('/')[0].toUpperCase() : '——')
+export const vendorOf = (id) => {
+  if (!id) return '——'
+  const { provider, model } = parseModelId(id)
+  return (provider === 'openrouter' ? model.split('/')[0] : provider).toUpperCase()
+}
 
 export const pad = (n, width = 2) => String(n).padStart(width, '0')
 

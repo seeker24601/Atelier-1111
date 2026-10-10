@@ -3,6 +3,7 @@ import * as capsRepo from './db/capabilities.js'
 import { readVideoMeta } from './videometa.js'
 import { save } from './library.js'
 import { generateVideo, collectVideo } from './videos.js'
+import { openrouterModel } from './modelid.js'
 import { assessVideo } from './videoassess.js'
 import { paramsBlamedBy, acceptedValuesFor, looksLikeParamRejection } from './rejection.js'
 import { VERDICT } from './capabilities.js'
@@ -62,7 +63,7 @@ export async function resumeVideoJob(job) {
 export async function runVideoJob(job, references) {
   let started
   const result = await generateVideo({
-    model: job.model,
+    model: openrouterModel(job.model),
     prompt: job.prompt,
     params: job.params,
     inputReferences: references.map((r) => r.url),

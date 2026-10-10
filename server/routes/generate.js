@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 import * as jobsRepo from '../db/jobs.js'
 import { enqueue, MAX_IN_FLIGHT } from '../queue.js'
+import { qualify } from '../modelid.js'
 
 export const generate = Router()
 
@@ -31,7 +32,7 @@ generate.post('/generate', (req, res) => {
       id: randomUUID(),
       created_at: Date.now(),
       status: 'queued',
-      model,
+      model: qualify(model),
       prompt: prompt.trim(),
       params,
       refs,

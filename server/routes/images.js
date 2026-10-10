@@ -2,6 +2,7 @@ import { Router } from 'express'
 import * as imagesRepo from '../db/images.js'
 import * as jobsRepo from '../db/jobs.js'
 import * as library from '../library.js'
+import { qualify } from '../modelid.js'
 
 export const images = Router()
 
@@ -10,7 +11,7 @@ images.get('/images', (req, res) => {
   res.json({
     images: imagesRepo.list({
       limit: Math.min(Number(req.query.limit) || 400, 5000),
-      model: req.query.model || null,
+      model: req.query.model ? qualify(req.query.model) : null,
       q: req.query.q || null,
       kind: req.query.kind || null,
     }),

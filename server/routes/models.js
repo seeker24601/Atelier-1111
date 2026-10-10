@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { listImageModels } from '../openrouter.js'
 import { listVideoModels } from '../videos.js'
 import { getHiddenModels } from '../settings.js'
+import { qualify } from '../modelid.js'
 
 export const models = Router()
 
@@ -13,7 +14,11 @@ export const models = Router()
 models.get('/models', async (req, res) => {
   try {
     const list = req.query.kind === 'video' ? listVideoModels : listImageModels
-    const all = await list({ force: req.query.refresh === '1' })
+    const all = (await list({ force: req.query.refresh === '1' })).map((m) => ({
+      ...m,
+      id: qualify(m.id),
+      supersededBy: m.supersededBy ? qualify(m.supersededBy) : null,
+    }))
     const hidden = new Set(getHiddenModels())
     res.json({
       models:

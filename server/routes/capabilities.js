@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import * as capsRepo from '../db/capabilities.js'
+import { qualify } from '../modelid.js'
 
 export const capabilities = Router()
 
@@ -8,7 +9,7 @@ export const capabilities = Router()
  * "never tried", which is different from "unsupported" and is shown as such.
  */
 capabilities.get('/capabilities', (req, res) => {
-  const model = req.query.model
+  const model = req.query.model ? qualify(req.query.model) : null
   res.json({ capabilities: model ? capsRepo.forModel(model) : capsRepo.all() })
 })
 
@@ -22,7 +23,8 @@ capabilities.get('/capabilities', (req, res) => {
  * verdict is reported, not measured, and is labelled that way.
  */
 capabilities.put('/capabilities/reference', (req, res) => {
-  const { model, verdict } = req.body || {}
+  const { model: raw, verdict } = req.body || {}
+  const model = raw ? qualify(raw) : raw
   if (!model) return res.status(400).json({ error: 'model is required' })
   if (!['ok', 'ignored'].includes(verdict))
     return res.status(400).json({ error: 'verdict must be ok or ignored' })

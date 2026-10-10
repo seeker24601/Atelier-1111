@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { IMAGE_DIR, DATA_DIR } from './paths.js'
 import * as imagesRepo from './db/images.js'
 import { extFor, slimRefs } from './media.js'
+import { qualify } from './modelid.js'
 
 /**
  * The gallery, on this machine's disk.
@@ -71,7 +72,7 @@ export async function adopt(record, buf) {
     job_id: record.job_id || id,
     kind: record.kind === 'video' ? 'video' : 'image',
     created_at: Number(record.created_at) || Date.now(),
-    model: String(record.model || 'unknown'),
+    model: qualify(String(record.model || 'unknown')),
     prompt: String(record.prompt || ''),
     note: record.note ?? null,
     params: record.params || {},

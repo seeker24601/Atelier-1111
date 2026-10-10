@@ -16,8 +16,8 @@ export function lineageNote({ retired, stamp, total, current, measured = new Map
     const r = seen(id)
     return r ? pick(r) : '—'
   }
-  const nb2 = seen('google/gemini-3.1-flash-image')
-  const nbPro = seen('google/gemini-3-pro-image')
+  const nb2 = seen('openrouter:google/gemini-3.1-flash-image')
+  const nbPro = seen('openrouter:google/gemini-3-pro-image')
   const table = [...retired]
     .sort()
     .map(([id, by]) => `| \`${id}\` | \`${by}\` |`)
@@ -93,8 +93,8 @@ name is the clearer guide to what each one is for.
 
 | Model | Time | Cost/image | Returned |
 |---|---:|---:|---|
-| \`gemini-3-pro-image\` (NB Pro) | ${cell('google/gemini-3-pro-image', (r) => `${r.avg.toFixed(1)}s`)} | ${cell('google/gemini-3-pro-image', (r) => `$${r.cost.toFixed(4)}`)} | ${cell('google/gemini-3-pro-image', (r) => r.fmts.join(', '))} |
-| \`gemini-3.1-flash-image\` (NB 2) | ${cell('google/gemini-3.1-flash-image', (r) => `${r.avg.toFixed(1)}s`)} | ${cell('google/gemini-3.1-flash-image', (r) => `$${r.cost.toFixed(4)}`)} | ${cell('google/gemini-3.1-flash-image', (r) => r.fmts.join(', '))} |
+| \`gemini-3-pro-image\` (NB Pro) | ${cell('openrouter:google/gemini-3-pro-image', (r) => `${r.avg.toFixed(1)}s`)} | ${cell('openrouter:google/gemini-3-pro-image', (r) => `$${r.cost.toFixed(4)}`)} | ${cell('openrouter:google/gemini-3-pro-image', (r) => r.fmts.join(', '))} |
+| \`gemini-3.1-flash-image\` (NB 2) | ${cell('openrouter:google/gemini-3.1-flash-image', (r) => `${r.avg.toFixed(1)}s`)} | ${cell('openrouter:google/gemini-3.1-flash-image', (r) => `$${r.cost.toFixed(4)}`)} | ${cell('openrouter:google/gemini-3.1-flash-image', (r) => r.fmts.join(', '))} |
 ${
   nb2 && nbPro
     ? `

@@ -3,7 +3,7 @@ import { api } from '../api.js'
 import { urlFor } from '../store/urls.js'
 import { DEFAULTS } from './composerDefaults.js'
 
-const PREFERRED = ['google/gemini-3-pro-image', 'openai/gpt-image-2']
+const PREFERRED = ['openrouter:google/gemini-3-pro-image', 'openrouter:openai/gpt-image-2']
 const MAX_REFS = 8
 
 /** The request under construction: what will be sent on the next commit. */

@@ -2,6 +2,7 @@ import * as jobsRepo from './db/jobs.js'
 import { resolveReferences } from './references.js'
 import * as capsRepo from './db/capabilities.js'
 import { generateImages } from './openrouter.js'
+import { openrouterModel } from './modelid.js'
 import { readImageMeta } from './imagemeta.js'
 import { setPreview, dropPreview } from './outbox.js'
 import { save } from './library.js'
@@ -19,7 +20,7 @@ async function generateWithFallback(job, references) {
   const inputReferences = references.map((r) => r.url)
   const call = (params) =>
     generateImages({
-      model: job.model,
+      model: openrouterModel(job.model),
       prompt: job.prompt,
       n: job.n,
       params,

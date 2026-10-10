@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api.js'
+import { parseModelId } from '../../server/modelid.js'
 
 const KINDS = ['image', 'video']
 
@@ -102,7 +103,7 @@ export default function ModelsPanel({ onChange }) {
                 title={m.supersededBy ? `A newer version exists: ${m.supersededBy}` : m.name}
               >
                 <span className={`mark ${off ? '' : 'mark--on'}`} />
-                <span className="data truncate">{m.id}</span>
+                <span className="data truncate">{parseModelId(m.id).model}</span>
                 {m.supersededBy && (
                   <span className="data data--sm dim">newer: {m.supersededBy.split('/').pop()}</span>
                 )}
