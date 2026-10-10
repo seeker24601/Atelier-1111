@@ -1,4 +1,4 @@
-import { apiKeyNames } from '@ai-connections/core/direct'
+import { apiKeyNames } from 'ai-connections/direct'
 import { verifyByListing } from '../verify.js'
 import { discoverImageModels, generateWith, splitParams } from '../aiconnections.js'
 

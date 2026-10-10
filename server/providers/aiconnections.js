@@ -1,4 +1,4 @@
-import { createImage, listModels } from '@ai-connections/core/direct'
+import { createImage, listModels } from 'ai-connections/direct'
 import { readKey } from '../settings.js'
 import { call, REQUEST_TIMEOUT_MS } from '../http.js'
 

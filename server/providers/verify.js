@@ -1,4 +1,4 @@
-import { listModels } from '@ai-connections/core/direct'
+import { listModels } from 'ai-connections/direct'
 
 /**
  * Key checks for providers reached through AI Connections. Listing models is
