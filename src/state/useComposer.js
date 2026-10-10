@@ -1,9 +1,15 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { parseModelId } from '../../server/modelid.js'
 import { api } from '../api.js'
 import { urlFor } from '../store/urls.js'
 import { DEFAULTS } from './composerDefaults.js'
 
-const PREFERRED = ['openrouter:google/gemini-3-pro-image', 'openrouter:openai/gpt-image-2']
+// The model each provider starts on, first match wins; otherwise its first model.
+const PREFERRED = {
+  openrouter: ['openrouter:google/gemini-3-pro-image', 'openrouter:openai/gpt-image-2'],
+  openai: ['openai:gpt-image-2', 'openai:gpt-image-1'],
+  google: ['google:gemini-3-pro-image', 'google:gemini-3-pro-image-preview', 'google:gemini-2.5-flash-image'],
+}
 const MAX_REFS = 8
 
 /** The request under construction: what will be sent on the next commit. */
@@ -21,13 +27,22 @@ export function useComposer({ kind = 'image', models, refCapFor = () => Infinity
     setParamsOn(DEFAULTS[kind].on)
   }, [kind])
 
+  // The last model chosen under each provider, so switching back restores it.
+  const lastByProvider = useRef(new Map())
+  useEffect(() => {
+    if (model) lastByProvider.current.set(parseModelId(model).provider, model)
+  }, [model])
+
   // Settle on a default once the index arrives, without clobbering a choice.
-  // Also catches a switch of modality, where the held model is from the old
-  // catalogue and no longer exists in this one.
+  // Also catches a switch of modality or provider, where the held model is
+  // from the old catalogue and no longer exists in this one.
   useEffect(() => {
     if (models.length === 0) return
     if (model && models.some((m) => m.id === model)) return
-    setModel(PREFERRED.find((id) => models.some((m) => m.id === id)) || models[0].id)
+    const has = (id) => models.some((m) => m.id === id)
+    const provider = parseModelId(models[0].id).provider
+    const remembered = lastByProvider.current.get(provider)
+    setModel((has(remembered) && remembered) || (PREFERRED[provider] ?? []).find(has) || models[0].id)
   }, [models, model])
 
   // Switching models can leave more references attached than the new one will

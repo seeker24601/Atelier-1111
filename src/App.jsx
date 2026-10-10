@@ -12,14 +12,35 @@ import ControlColumn from './components/ControlColumn.jsx'
 import Workspace from './components/Workspace.jsx'
 import ImageDetail from './components/ImageDetail.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
+import Specimen from './components/Specimen.jsx'
+import { api } from './api.js'
 
 /** Composition only. State lives in state/, presentation in components/. */
 export default function App() {
   // Which catalogue and pipeline the whole page is working in.
   const [view, setView] = useState('image')
 
-  const library = useLibrary(view)
   const settings = useSettings()
+  const { active, configured } = settings.status
+  // The catalogue follows the active provider: switching it re-reads the picker.
+  const library = useLibrary(view, active)
+
+  // A tab appears only when the active provider has models of that kind.
+  const [views, setViews] = useState(['image', 'video'])
+  useEffect(() => {
+    let live = true
+    Promise.all(
+      ['image', 'video'].map((kind) =>
+        api.models({ kind }).then(({ models }) => (models.length ? kind : null), () => null)
+      )
+    ).then((kinds) => live && setViews(kinds.filter(Boolean)))
+    return () => {
+      live = false
+    }
+  }, [active, configured])
+  useEffect(() => {
+    if (views.length && !views.includes(view)) setView(views[0])
+  }, [views, view])
   // Built before the composer: how many references a model will take decides
   // what the composer is allowed to hold.
   const ledger = useLedger(library.images.length)
@@ -82,6 +103,35 @@ export default function App() {
     await removeImage(image)
   }
 
+  if (!configured) {
+    return (
+      <div className="app">
+        <TopBar
+          activeJobs={library.activeJobs}
+          spend={library.spend}
+          keyStatus={settings.status}
+          account={settings.account}
+          view={view}
+          views={[]}
+          onView={setView}
+          onOpenSettings={() => setSettingsOpen(true)}
+        />
+        <div className="main main--keyonly">
+          <main className="workspace">
+            <Specimen kind={view} settings={settings} />
+          </main>
+        </div>
+        <SettingsPanel
+          open={settingsOpen}
+          onClose={closeSettings}
+          onModelsChange={library.reloadModels}
+          settings={settings}
+          storage={{ storage: library.storage, count: library.totals.count, onClear: library.clearAll }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <TopBar
@@ -90,6 +140,7 @@ export default function App() {
         keyStatus={settings.status}
         account={settings.account}
         view={view}
+        views={views}
         onView={setView}
         onOpenSettings={() => setSettingsOpen(true)}
       />

@@ -40,5 +40,3 @@ export function resolve(modelId) {
   return { adapter: adapter(provider), model }
 }
 
-/** The provider listing and generation follow. One provider until per-provider keys arrive. */
-export const activeProvider = () => openrouter

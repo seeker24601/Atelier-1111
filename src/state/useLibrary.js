@@ -15,7 +15,7 @@ const POLL_IDLE = 8000
  * the page only has to notice that something finished and re-read the gallery.
  * Nothing depends on this tab staying open.
  */
-export function useLibrary(kind = 'image') {
+export function useLibrary(kind = 'image', active = null) {
   const [models, setModels] = useState([])
   const [serverJobs, setServerJobs] = useState([])
   // Every stored row, both modalities — the log is not per-tab.
@@ -58,10 +58,10 @@ export function useLibrary(kind = 'image') {
     return () => {
       live = false
     }
-  }, [kind, modelsVersion])
+  }, [kind, modelsVersion, active])
 
   // A different catalogue starts empty rather than showing the last one's models.
-  useEffect(() => setModels([]), [kind])
+  useEffect(() => setModels([]), [kind, active])
 
   const readGallery = useCallback(async () => {
     try {

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { setTheme, getHiddenModels, setHiddenModels } from '../settings.js'
 import { adapter } from '../providers/index.js'
-import { describe, saveKey, deleteKey } from '../keys.js'
+import { describe, saveKey, deleteKey, chooseActive } from '../keys.js'
 
 const openrouter = adapter('openrouter')
 
@@ -64,6 +64,16 @@ settings.get('/settings/account', async (req, res) => {
 settings.delete(['/settings/key', '/settings/key/:provider'], (req, res) => {
   try {
     deleteKey(req.params.provider ?? 'openrouter')
+    res.json(describe())
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message })
+  }
+})
+
+/** Body: { provider }. The picker, tabs and generation follow the active provider. */
+settings.put('/settings/active', (req, res) => {
+  try {
+    chooseActive(req.body?.provider)
     res.json(describe())
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message })

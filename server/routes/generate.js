@@ -2,7 +2,9 @@ import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 import * as jobsRepo from '../db/jobs.js'
 import { enqueue, MAX_IN_FLIGHT } from '../queue.js'
-import { qualify } from '../modelid.js'
+import { qualify, parseModelId } from '../modelid.js'
+import { activeProviderId } from '../keys.js'
+import { adapter } from '../providers/index.js'
 
 export const generate = Router()
 
@@ -23,6 +25,17 @@ generate.post('/generate', (req, res) => {
   if (inFlight + models.length > MAX_IN_FLIGHT) {
     return res.status(429).json({
       error: `Queue is full — ${MAX_IN_FLIGHT} generations at a time. ${inFlight} still running.`,
+    })
+  }
+
+  // Generation uses only the active provider, whatever a stale client sends.
+  const active = activeProviderId()
+  const foreign = models.map((m) => parseModelId(qualify(m)).provider).find((p) => p !== active)
+  if (foreign) {
+    return res.status(400).json({
+      error: active
+        ? `${adapter(foreign).label} is not the active provider. Switch to it in Settings to use its models.`
+        : 'Add a key first.',
     })
   }
 

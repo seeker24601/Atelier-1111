@@ -9,10 +9,10 @@ const GET_A_KEY = {
 /**
  * One slot per provider. Keys are typed here and posted to the local API,
  * which stores them in data/settings.json; the panel only ever sees a masked
- * hint. The active provider is marked; switching it arrives with the picker.
+ * hint. The active provider is marked; Use makes another keyed provider active.
  */
 export default function KeysPanel({ settings }) {
-  const { status, result, saving, saveKey, clearKey, account } = settings
+  const { status, result, saving, saveKey, clearKey, setActive, account } = settings
   const [editing, setEditing] = useState(null)
   const [draft, setDraft] = useState('')
   const usd = (n, places = 2) => (n == null ? '——' : `$${n.toFixed(places)}`)
@@ -42,6 +42,11 @@ export default function KeysPanel({ settings }) {
               <span className="data">
                 {p.configured ? `${p.hint}${p.source === 'env' ? ' · .env' : ''}` : 'No key'}
               </span>
+              {p.configured && status.active !== p.id && (
+                <button className="btn btn--sm" disabled={saving} title={`Use ${p.label}'s models`} onClick={() => setActive(p.id)}>
+                  Use
+                </button>
+              )}
               <button
                 className="btn btn--sm"
                 disabled={saving}

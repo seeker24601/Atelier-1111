@@ -17,7 +17,7 @@ function keyFigure(account) {
   return null
 }
 
-export default function TopBar({ activeJobs, spend, keyStatus, account, view, onView, onOpenSettings }) {
+export default function TopBar({ activeJobs, spend, keyStatus, account, view, views = ['image', 'video'], onView, onOpenSettings }) {
   const figure = keyStatus.configured ? keyFigure(account) : null
   return (
     <header className="topbar">
@@ -26,7 +26,7 @@ export default function TopBar({ activeJobs, spend, keyStatus, account, view, on
       {/* Two catalogues, two pipelines. The tab is the only place the app is
           told which one it is working in. */}
       <nav className="tabs">
-        {VIEWS.map((v) => (
+        {VIEWS.filter((v) => views.includes(v.id)).map((v) => (
           <button
             key={v.id}
             className="tab"

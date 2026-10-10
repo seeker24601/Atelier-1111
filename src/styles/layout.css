@@ -151,3 +151,8 @@
   padding-left: var(--u2);
   border-left: var(--rule-ash);
 }
+
+/* First run: only the key field, across the whole width. */
+.main--keyonly {
+  grid-template-columns: 1fr;
+}

@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { activeProvider } from '../providers/index.js'
+import { adapter } from '../providers/index.js'
+import { activeProviderId } from '../keys.js'
 import { getHiddenModels } from '../settings.js'
 import { qualify } from '../modelid.js'
 
@@ -12,7 +13,10 @@ export const models = Router()
  */
 models.get('/models', async (req, res) => {
   try {
-    const provider = activeProvider()
+    // Only the active provider's catalogue; with no key there is none to show.
+    const active = activeProviderId()
+    if (!active) return res.json({ models: [] })
+    const provider = adapter(active)
     const kind = req.query.kind === 'video' ? 'video' : 'image'
     const all = (await provider.listModels(kind, { force: req.query.refresh === '1' })).map((m) => ({
       ...m,

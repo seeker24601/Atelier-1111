@@ -85,6 +85,16 @@ export function useSettings() {
     }
   }, [])
 
+  /** Makes a provider with a key the active one: the picker, tabs and generation follow it. */
+  const setActive = useCallback(async (provider) => {
+    setResult(null)
+    try {
+      setStatus(await api.settings.setActive(provider))
+    } catch (e) {
+      setResult({ verified: false, detail: e.message })
+    }
+  }, [])
+
   const clearKey = useCallback(async (provider = 'openrouter') => {
     setResult(null)
     try {
@@ -100,6 +110,7 @@ export function useSettings() {
     saving,
     saveKey,
     clearKey,
+    setActive,
     refresh: read,
     account,
     readAccount,

@@ -52,6 +52,7 @@ export const api = {
     read: () => fetch('/api/settings').then(jsonOrThrow),
     saveKey: (key, provider) => put('/api/settings/key', provider ? { key, provider } : { key }),
     clearKey: (provider) => del(`/api/settings/key/${encodeURIComponent(provider)}`),
+    setActive: (provider) => put('/api/settings/active', { provider }),
     setTheme: (theme) => put('/api/settings/theme', { theme }),
     hiddenModels: () => fetch('/api/settings/hidden-models').then(jsonOrThrow),
     setHiddenModels: (ids) => put('/api/settings/hidden-models', { ids }),

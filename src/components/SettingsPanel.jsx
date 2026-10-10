@@ -49,7 +49,8 @@ export default function SettingsPanel({ open, onClose, settings, storage, onMode
           </div>
         </section>
 
-        <ModelsPanel onChange={onModelsChange} />
+        {/* Remounted per provider: the hide list shows the active provider's models. */}
+        <ModelsPanel key={settings.status.active ?? 'none'} onChange={onModelsChange} />
 
         <UpdatePanel />
       </div>
