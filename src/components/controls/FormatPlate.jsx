@@ -5,6 +5,7 @@ import { fieldsFor } from '../../params.js'
 import { recordFor } from '../../paramrecord.js'
 import { offerableOptions } from '../../ratios.js'
 import { optionsFor, offersBackground, unpublishedFlag } from '../../specs.js'
+import { ratioGroup } from '../../groups.js'
 
 /**
  * A box drawn at the ratio it names. "4:3" and "3:4" are one character apart
@@ -74,6 +75,7 @@ export default function FormatPlate({
               verdictFor={verdictFor}
               inferenceFor={inferenceFor}
               glyph={f.glyph ? (v) => <RatioGlyph value={v} /> : undefined}
+              groupBy={f.glyph ? ratioGroup : undefined}
               format={(v) => (f.unit ? `${v}${f.unit}` : f.boolean ? (v === 'true' ? 'on' : 'off') : v)}
               flag={neverHonoured(recordFor(ledger, modelIds, f.key)) ?? unpublishedFlag(f, spec)}
             />

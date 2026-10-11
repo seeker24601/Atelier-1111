@@ -206,6 +206,46 @@
   color: var(--bleach);
 }
 
+/* Group tabs above a row too long for the panel (Portrait, Square, Landscape).
+   The tab holding the current choice keeps a mark while another is open. */
+.seg--tabs { margin-bottom: 4px; }
+.seg--tabs .seg__opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--u);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+.seg__count { opacity: 0.6; }
+.seg--tabs .seg__opt[data-holds='true']:not([aria-pressed='true']) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* A group still longer than a row: a slider, with the choice drawn beside it. */
+.param__slider {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u2) var(--u3);
+  border: var(--rule);
+  background: var(--bleach);
+}
+.param__slider input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--carbon);
+}
+.param__slider-value {
+  display: flex;
+  align-items: center;
+  gap: var(--u2);
+  min-width: 64px;
+  justify-content: flex-end;
+}
+
 /* Aspect options draw the shape they select; the glyph inherits currentColor,
    so it inverts with the pressed state like the label. */
 .seg--glyph .seg__opt {
