@@ -29,7 +29,7 @@ export default function ControlColumn({
   // removed rather than shown as a dead control.
   const active = models.find((m) => m.id === composer.model)
   const declared = active ? active.acceptsImages : true
-  const cap = declared ? Math.min(references.capFor(composer.model), composer.maxRefs) : 0
+  const cap = declared ? references.capFor(composer.model) : 0
 
   return (
     <>
@@ -62,6 +62,7 @@ export default function ControlColumn({
         modelIds={models.map((m) => m.id)}
         hidden={observed.hidden}
         kind={kind}
+        spec={kind === 'image' ? active?.spec : null}
       />
 
       {/* Docked to the bottom of the column, so it is never scrolled away. */}

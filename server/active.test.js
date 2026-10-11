@@ -109,3 +109,17 @@ test('a key with no known prefix asks for a provider; fal is saved unchecked, ma
   assert.equal((await send('PUT', '/settings/custom-models', { ids: [] })).status, 200)
   assert.equal(await send('DELETE', '/settings/key/fal').then((r) => r.status), 200)
 })
+
+test('OpenRouter image models carry the options their fal twin publishes', async () => {
+  const saved = await send('PUT', '/settings/key', { key: 'sk-or-v1-test-openrouter-0000', provider: 'openrouter' })
+  assert.equal(saved.status, 200)
+  await send('PUT', '/settings/active', { provider: 'openrouter' })
+  const [model] = (await get('/models?kind=image')).models
+  assert.equal(model.id, 'openrouter:google/gemini-3-pro-image')
+  assert.deepEqual(model.spec.resolutions, ['1K', '2K', '4K'])
+  assert.ok(model.spec.aspect_ratios.includes('21:9'))
+  assert.equal(model.spec.source.endpoint, 'fal-ai/nano-banana-pro')
+  const [video] = (await get('/models?kind=video')).models
+  assert.equal(video.spec, undefined, 'video models have no spec')
+  await send('DELETE', '/settings/key/openrouter')
+})

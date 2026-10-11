@@ -32,13 +32,21 @@ double-click `Start-Atelier.vbs` instead.
   can't be checked for free, so the first image shows whether a key works.
   Keep several keys and switch in Settings.
 - Video comes from OpenRouter only for now.
-- Takes up to 8 reference images for edits. Paste them, drop them, or send a
-  result back in.
+- Takes reference images for edits, up to the model's published limit (16 for
+  GPT Image 2, 1 for MAI) or 8 where it states none. Paste them, drop them, or
+  send a result back in.
+- Offers each OpenRouter model the aspect ratios, resolutions, formats and
+  background options it publishes, from
+  [openrouter-image-specs](https://github.com/seeker24601/openrouter-image-specs):
+  the same model's schema on fal. A transparent background is offered where a
+  model has one. Refresh the bundled copy with `node scripts/sync-specs.mjs`.
 - Saves results to `data/images` and their details to `data/atelier.db`.
 - Shows what each image cost and, for OpenRouter, what your key has left.
   Other providers report no cost, so none is shown.
-- Tracks which settings each model honours. Values a model refuses are struck
-  through, and values it ignores are dotted. Hover to see why.
+- Tracks which settings each model honours, since a published option is not
+  proof OpenRouter forwards it. Values a model refuses are struck through, and
+  values it ignores are dotted. Hover to see why. A transparent background is
+  checked against the image's alpha channel.
 
 ## Your key
 

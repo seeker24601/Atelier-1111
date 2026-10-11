@@ -1,10 +1,11 @@
 import { describeRatio } from './imagemeta.js'
 
 /**
- * Support for aspect_ratio / resolution / output_format is not
- * published anywhere — OpenRouter's supported_parameters covers chat sampling
- * only. So capability is *observed*, never declared, and there are two ways a
- * parameter can fail:
+ * OpenRouter publishes nothing about aspect_ratio / resolution / output_format /
+ * background; its supported_parameters covers chat sampling only. The same
+ * models' schemas on fal say what each model takes (server/specs.js), but not
+ * what OpenRouter forwards. So capability through OpenRouter is *observed*,
+ * and there are two ways a parameter can fail:
  *
  *   rejected — the API returned an error naming it. Loud, and billed nothing.
  *   ignored  — the API returned 200 and quietly did something else. Silent,
@@ -23,10 +24,10 @@ export const VERDICT = {
   UNVERIFIABLE: 'unverifiable',
 }
 
-const RESOLUTION_PIXELS = { '1K': 1024, '2K': 2048, '4K': 4096 }
+const RESOLUTION_PIXELS = { '0.5K': 512, '1K': 1024, '2K': 2048, '4K': 4096 }
 
 /** Which parameters leave evidence in the returned bytes. */
-const OBSERVABLE = new Set(['aspect_ratio', 'output_format', 'resolution'])
+const OBSERVABLE = new Set(['aspect_ratio', 'output_format', 'resolution', 'background'])
 
 /**
  * Compare what was asked for against what came back.
@@ -99,6 +100,31 @@ export function assessOutput(params, meta, reference = null) {
         verdict: close ? VERDICT.OK : VERDICT.IGNORED,
         evidence: `Asked ${value} (~${target}px), received ${meta.width}×${meta.height} (${side}px square-equivalent).`,
       })
+    }
+
+    if (param === 'background') {
+      // The header says whether there is an alpha channel, not whether any pixel
+      // uses it, so only "transparent and none came back" is a clear miss.
+      const want = String(value)
+      const unknown = { param, value: want, verdict: VERDICT.UNVERIFIABLE }
+      if (meta.alpha == null) {
+        out.push({ ...unknown, evidence: `A ${meta.format} header does not say whether it has transparency.` })
+      } else if (want === 'transparent') {
+        out.push({
+          param,
+          value: want,
+          verdict: meta.alpha ? VERDICT.OK : VERDICT.IGNORED,
+          evidence: meta.alpha
+            ? `Received ${meta.format} with an alpha channel.`
+            : `Received ${meta.format} with no alpha channel: the background is opaque.`,
+        })
+      } else if (want === 'opaque') {
+        out.push(
+          meta.alpha
+            ? { ...unknown, evidence: 'Received an alpha channel; whether any pixel is transparent is not checked.' }
+            : { param, value: want, verdict: VERDICT.OK, evidence: `Received ${meta.format} with no alpha channel.` }
+        )
+      }
     }
   }
 

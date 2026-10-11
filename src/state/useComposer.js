@@ -10,7 +10,6 @@ const PREFERRED = {
   openai: ['openai:gpt-image-2', 'openai:gpt-image-1'],
   google: ['google:gemini-3-pro-image', 'google:gemini-3-pro-image-preview', 'google:gemini-2.5-flash-image'],
 }
-const MAX_REFS = 8
 
 /** The request under construction: what will be sent on the next commit. */
 export function useComposer({ kind = 'image', models, refCapFor = () => Infinity, onCommitted, onError }) {
@@ -107,13 +106,18 @@ export function useComposer({ kind = 'image', models, refCapFor = () => Infinity
     }
   }, [kind, model, prompt, params, paramsOn, refs, onCommitted, onError])
 
-  const attachRef = useCallback((image) => {
-    setRefs((current) =>
-      current.length >= MAX_REFS || current.some((r) => r.id === image.id)
-        ? current
-        : [...current, { kind: 'image', id: image.id, url: urlFor(image) }]
-    )
-  }, [])
+  // The tray holds what this model takes: its published limit, or the default.
+  const attachRef = useCallback(
+    (image) => {
+      const cap = refCapFor(model)
+      setRefs((current) =>
+        current.length >= cap || current.some((r) => r.id === image.id)
+          ? current
+          : [...current, { kind: 'image', id: image.id, url: urlFor(image) }]
+      )
+    },
+    [model, refCapFor]
+  )
 
   const detachRef = useCallback((imageId) => {
     setRefs((current) => current.filter((r) => r.id !== imageId))
@@ -150,6 +154,5 @@ export function useComposer({ kind = 'image', models, refCapFor = () => Infinity
     detachRef,
     reuse,
     withhold,
-    maxRefs: MAX_REFS,
   }
 }

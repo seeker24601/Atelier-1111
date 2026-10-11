@@ -12,7 +12,7 @@ import { PARAM_FIELDS } from './params.js'
  */
 
 const RATIOS = PARAM_FIELDS.find((f) => f.key === 'aspect_ratio').options
-const RESOLUTIONS = { '1K': 1024, '2K': 2048 }
+const RESOLUTIONS = { '0.5K': 512, '1K': 1024, '2K': 2048, '4K': 4096 }
 
 /** Nearest named ratio, or null if the image is not close to one we offer. */
 export function ratioOf(w, h) {

@@ -5,9 +5,9 @@
  */
 export const DEFAULTS = {
   image: {
-    params: { aspect_ratio: '1:1', resolution: '2K', output_format: 'png' },
+    params: { aspect_ratio: '1:1', resolution: '2K', output_format: 'png', background: 'transparent' },
     // Model support for these varies, so each carries its own send switch.
-    on: { aspect_ratio: true, resolution: false, output_format: true },
+    on: { aspect_ratio: true, resolution: false, output_format: true, background: false },
   },
   video: {
     // Landscape and 8s because that is what the models returned unasked; audio

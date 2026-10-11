@@ -14,6 +14,8 @@ import ImageDetail from './components/ImageDetail.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import Specimen from './components/Specimen.jsx'
 import { api } from './api.js'
+import { unpublishedChoices } from './specs.js'
+import { fieldsFor } from './params.js'
 
 /** Composition only. State lives in state/, presentation in components/. */
 export default function App() {
@@ -44,7 +46,7 @@ export default function App() {
   // Built before the composer: how many references a model will take decides
   // what the composer is allowed to hold.
   const ledger = useLedger(library.images.length)
-  const references = useReferences(ledger)
+  const references = useReferences({ ...ledger, models: library.models })
   const composer = useComposer({
     kind: view,
     models: library.models,
@@ -69,10 +71,17 @@ export default function App() {
   // choice at all — a parameter with a fixed outcome is hidden, not offered.
   const observed = useObserved(runsForModel, capabilities.unusable)
 
+  // A choice the model's published spec does not include is withheld like a
+  // measured dead end: the switch goes off, the value stays for other models.
+  const activeSpec = library.models.find((m) => m.id === composer.model)?.spec ?? null
+  const unusable = useMemo(
+    () => new Set([...(capabilities.unusable ?? []), ...unpublishedChoices(composer.params, activeSpec, fieldsFor(view))]),
+    [capabilities.unusable, composer.params, activeSpec, view]
+  )
   const { withhold } = composer
   useEffect(() => {
-    withhold(capabilities.unusable, observed.hidden)
-  }, [capabilities.unusable, observed.hidden, withhold])
+    withhold(unusable, observed.hidden)
+  }, [unusable, observed.hidden, withhold])
 
   // A new plate means a new charge: re-read what the key has left.
   const { readAccount } = settings

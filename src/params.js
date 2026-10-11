@@ -31,6 +31,14 @@ export const PARAM_FIELDS = [
     text: 'Format',
     options: ['png', 'jpeg', 'webp', 'svg'],
   },
+  {
+    // Shown only for models whose published spec offers a transparent
+    // background (GPT Image); see src/specs.js.
+    key: 'background',
+    text: 'Background',
+    options: ['transparent', 'opaque'],
+    publishedOnly: true,
+  },
 ]
 
 /** Straight from the endpoint's own validator; 21:9 and 9:21 are video-only. */

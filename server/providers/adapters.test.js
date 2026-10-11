@@ -57,11 +57,17 @@ test('OpenAI lists every image model it offers, unfiltered by Atelier; DALL·E t
 test('OpenAI turns a ratio into the size of the same shape and reports what was sent', async () => {
   const result = await openai.generateImage({
     model: 'gpt-image-1', prompt: 'a lantern',
-    params: { aspect_ratio: '16:9', resolution: '2K', output_format: 'webp' },
+    params: { aspect_ratio: '16:9', resolution: '2K', output_format: 'webp', background: 'transparent' },
   })
-  assert.equal(JSON.parse(calls[0].body).size, '1536x1024')
-  assert.deepEqual(result.sent, { aspect_ratio: '3:2' })
-  assert.deepEqual(result.omitted, ['resolution', 'output_format'])
+  const body = JSON.parse(calls[0].body)
+  assert.equal(body.size, '1536x1024')
+  assert.deepEqual([body.background, body.output_format], ['transparent', 'webp'], 'GPT Image options reach OpenAI')
+  assert.deepEqual(result.sent, { aspect_ratio: '3:2', background: 'transparent', output_format: 'webp' })
+  assert.deepEqual(result.omitted, ['resolution'])
+  calls.length = 0
+  const vector = await openai.generateImage({ model: 'gpt-image-1', prompt: 'x', params: { output_format: 'svg' } })
+  assert.equal(JSON.parse(calls[0].body).output_format, undefined)
+  assert.deepEqual(vector.omitted, ['output_format'], 'svg is not a GPT Image format')
   assert.equal(result.cost, null)
   assert.deepEqual(result.images, [{ b64: png, mediaType: 'image/png' }])
   for (const [ratio, size] of [['9:16', '1024x1536'], ['1:1', '1024x1024'], ['4:3', '1536x1024']]) {

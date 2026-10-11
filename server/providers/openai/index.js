@@ -43,14 +43,32 @@ export const openai = {
   listModels: (kind) => (kind === 'video' ? [] : discoverImageModels(openai, { acceptsImages })),
 
   generateImage({ model, prompt, params = {}, refs = [] }) {
-    const { kept, omitted } = splitParams(params, ['aspect_ratio'])
+    const { kept, omitted } = splitParams(params, ['aspect_ratio', 'background', 'output_format'])
     const input = {}
     const sent = {}
+    // OpenAI's own options, through the AI SDK's providerOptions.openai.
+    const extra = {}
     if (kept.aspect_ratio) {
       const { size, ratio } = sizeFor(kept.aspect_ratio)
       input.size = size
       sent.aspect_ratio = ratio
     }
-    return generateWith(openai, { model, prompt, input, sent, omitted, refs })
+    if (kept.background) {
+      extra.background = kept.background
+      sent.background = kept.background
+    }
+    if (kept.output_format) {
+      // GPT Image writes png, jpeg or webp; anything else is not offered here.
+      if (['png', 'jpeg', 'webp'].includes(kept.output_format)) {
+        extra.outputFormat = kept.output_format
+        sent.output_format = kept.output_format
+      } else {
+        omitted.push('output_format')
+      }
+    }
+    return generateWith(openai, {
+      model, prompt, input, sent, omitted, refs,
+      ...(Object.keys(extra).length ? { extra } : {}),
+    })
   },
 }

@@ -4,14 +4,10 @@ import { activeProviderId } from '../keys.js'
 import { getHiddenModels, getCustomModels } from '../settings.js'
 import { qualify, parseModelId } from '../modelid.js'
 import { NO_PRICE } from '../providers/aiconnections.js'
+import { specFor } from '../specs.js'
 
 export const models = Router()
 
-/**
- * Every model the active provider lists for the modality, plus image models
- * the user added by id, minus the ones the user hid in Settings. ?all=1 returns the whole list with a `hidden` flag, which is
- * what Settings shows.
- */
 /** An added model, shaped like a listed one. Its facts are unknown, so they are null. */
 const customEntry = (id) => ({
   id,
@@ -30,6 +26,12 @@ const customEntry = (id) => ({
   custom: true,
 })
 
+/**
+ * Every model the active provider lists for the modality, plus image models
+ * the user added by id, minus the ones the user hid in Settings. ?all=1
+ * returns the whole list with a `hidden` flag, which is what Settings shows.
+ * Image models carry `spec`: the options they publish, where known.
+ */
 models.get('/models', async (req, res) => {
   try {
     // Only the active provider's catalogue; with no key there is none to show.
@@ -48,7 +50,7 @@ models.get('/models', async (req, res) => {
           .filter((id) => parseModelId(id).provider === provider.id && !known.has(id))
           .map((id) => customEntry(id))
       : []
-    const all = [...listed, ...added]
+    const all = [...listed, ...added].map((m) => (kind === 'image' ? { ...m, spec: specFor(m.id) } : m))
     const hidden = new Set(getHiddenModels())
     res.json({
       models:

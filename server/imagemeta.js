@@ -6,11 +6,17 @@
  * the only evidence is that its pixels don't match what was asked for.
  */
 
-/** PNG: 8-byte signature, then IHDR carries width and height as big-endian u32. */
+/**
+ * PNG: 8-byte signature, then IHDR carries width and height as big-endian u32,
+ * and its colour type says whether there is an alpha channel (4 and 6). A
+ * palette image (3) may carry transparency in a later chunk, so it is unknown.
+ */
 function png(buf) {
   if (buf.length < 24) return null
   if (buf.readUInt32BE(0) !== 0x89504e47) return null
-  return { format: 'png', width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) }
+  const colourType = buf.length > 25 ? buf[25] : null
+  const alpha = colourType === 4 || colourType === 6 ? true : colourType === 3 || colourType === null ? null : false
+  return { format: 'png', width: buf.readUInt32BE(16), height: buf.readUInt32BE(20), alpha }
 }
 
 /** JPEG: walk the marker chain to the first start-of-frame. */
@@ -26,7 +32,8 @@ function jpeg(buf) {
     const marker = buf[i + 1]
     // SOF0–SOF15, excluding DHT (c4), JPG (c8) and DAC (cc) which aren't frames.
     if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
-      return { format: 'jpeg', height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) }
+      // JPEG has no alpha channel.
+      return { format: 'jpeg', height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7), alpha: false }
     }
     const len = buf.readUInt16BE(i + 2)
     if (len < 2) return null

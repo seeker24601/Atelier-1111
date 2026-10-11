@@ -4,6 +4,7 @@ import FixedParam from '../ui/FixedParam.jsx'
 import { fieldsFor } from '../../params.js'
 import { recordFor } from '../../paramrecord.js'
 import { offerableOptions } from '../../ratios.js'
+import { optionsFor, offersBackground, unpublishedFlag } from '../../specs.js'
 
 /**
  * A box drawn at the ratio it names. "4:3" and "3:4" are one character apart
@@ -48,8 +49,10 @@ export default function FormatPlate({
   modelIds = [],
   hidden = new Map(),
   kind = 'image',
+  spec = null,
 }) {
-  const fields = fieldsFor(kind)
+  // Background exists only where the model publishes it; the rest always show.
+  const fields = fieldsFor(kind).filter((f) => !f.publishedOnly || offersBackground(spec))
   const shown = fields.filter((f) => !hidden.has(f.key))
   const sent = shown.filter((f) => paramsOn[f.key]).length
 
@@ -63,7 +66,7 @@ export default function FormatPlate({
             <Param
               key={f.key}
               label={f}
-              options={offerableOptions(f, verdictFor, acceptedFor)}
+              options={offerableOptions({ ...f, options: optionsFor(f, spec) }, verdictFor, acceptedFor)}
               value={params[f.key]}
               onValue={(v) => onParams({ ...params, [f.key]: v })}
               enabled={paramsOn[f.key]}
@@ -72,9 +75,14 @@ export default function FormatPlate({
               inferenceFor={inferenceFor}
               glyph={f.glyph ? (v) => <RatioGlyph value={v} /> : undefined}
               format={(v) => (f.unit ? `${v}${f.unit}` : f.boolean ? (v === 'true' ? 'on' : 'off') : v)}
-              flag={neverHonoured(recordFor(ledger, modelIds, f.key))}
+              flag={neverHonoured(recordFor(ledger, modelIds, f.key)) ?? unpublishedFlag(f, spec)}
             />
           )
+        )}
+        {spec?.source && (
+          <a className="data data--sm dim" href={spec.source.url} target="_blank" rel="noreferrer">
+            Options as published for {spec.source.endpoint} on fal ↗
+          </a>
         )}
       </div>
     </Plate>
