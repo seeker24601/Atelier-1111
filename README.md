@@ -1,9 +1,9 @@
 # Atelier-1111
 
 BYOK image and video generation with your own key from OpenRouter, OpenAI,
-Google, xAI, fal, Replicate, Black Forest Labs, Luma, ByteDance or Prodia. It
-runs on your machine and saves every result to disk with its prompt and, where
-the provider reports one, its cost.
+Google, xAI, fal, Replicate, Black Forest Labs, Luma, ByteDance, Prodia,
+Higgsfield or WaveSpeed. It runs on your machine and saves every result to disk
+with its prompt and, where the provider reports one, its cost.
 
 ![Atelier-1111 with a gallery of images from six models](docs/screenshot.webp)
 
@@ -25,12 +25,14 @@ double-click `Start-Atelier.vbs` instead.
 ## What it does
 
 - Lists the image and video models of the active provider. With an OpenRouter
-  key that is every model on OpenRouter; with an OpenAI, Google or xAI key, the
-  image models that key can use. fal, Replicate, Black Forest Labs, Luma,
-  ByteDance and Prodia offer no model list, so they start with a few
-  suggestions and you add any other model by its id in Settings. Their keys
+  key that is every model on OpenRouter; with an OpenAI, Google, xAI or
+  WaveSpeed key, the image models that key can use. Higgsfield lists the image
+  models it documents. fal, Replicate, Black Forest Labs, Luma, ByteDance and
+  Prodia offer no model list, so they start with a few suggestions, and you add
+  any other model by its id in Settings. Keys for these and for Higgsfield
   can't be checked for free, so the first image shows whether a key works.
-  Keep several keys and switch in Settings.
+  Keep several keys and switch in Settings. A Higgsfield key is its key id and
+  secret together: `KEY_ID:KEY_SECRET`.
 - Video comes from OpenRouter only for now.
 - Takes reference images for edits, up to the model's published limit (16 for
   GPT Image 2, 1 for MAI) or 8 where it states none. Paste them, drop them, or

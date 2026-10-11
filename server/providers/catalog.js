@@ -4,7 +4,8 @@ import { discoverImageModels, generateWith, splitParams } from './aiconnections.
 
 /**
  * Any image provider AI Connections knows, as an Atelier adapter: xAI, fal,
- * Replicate, Black Forest Labs, Luma, ByteDance and Prodia. OpenRouter, OpenAI
+ * Replicate, Black Forest Labs, Luma, ByteDance, Prodia, Higgsfield and
+ * WaveSpeed. OpenRouter, OpenAI
  * and Google keep adapters of their own, for what only they have (cost,
  * previews and video; OpenAI's sizes; Google's references).
  *

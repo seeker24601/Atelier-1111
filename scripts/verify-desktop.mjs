@@ -28,7 +28,7 @@ try {
   assert.deepEqual({ ...health, key }, { ok: true, key: { configured: false, active: null, source: null, hint: null, theme: 'system' } })
   // The bundled backend must carry AI Connections: its catalog supplies all but the first three.
   assert.deepEqual(providers.map((p) => p.id),
-    ['openrouter', 'openai', 'google', 'xai', 'fal', 'replicate', 'bfl', 'luma', 'bytedance', 'prodia'])
+    ['openrouter', 'openai', 'google', 'xai', 'fal', 'replicate', 'bfl', 'luma', 'bytedance', 'prodia', 'higgsfield', 'wavespeed'])
   assert.equal(providers.find((p) => p.id === 'fal').label, 'fal.ai')
   assert.ok(providers.every((p) => !p.configured && p.source === null && p.hint === null), 'no key in a fresh data directory')
   const html = await fetch(url).then(r => r.text())

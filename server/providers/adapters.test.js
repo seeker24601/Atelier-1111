@@ -174,7 +174,7 @@ test('OpenRouter vector models still deliver SVG: Atelier opts in, and serves it
 test('AI Connections image providers join the registry, detected by prefix only where it is unique', async () => {
   const { adapters } = await import('./index.js')
   const ids = adapters().map((a) => a.id)
-  for (const id of ['xai', 'fal', 'replicate', 'bfl', 'luma', 'bytedance', 'prodia']) assert.ok(ids.includes(id), id)
+  for (const id of ['xai', 'fal', 'replicate', 'bfl', 'luma', 'bytedance', 'prodia', 'higgsfield', 'wavespeed']) assert.ok(ids.includes(id), id)
   assert.equal(adapter('fal').label, 'fal.ai')
   assert.deepEqual(adapter('fal').env, ['FAL_KEY', 'FAL_API_KEY'])
   assert.equal(adapters().find((a) => a.detect('xai-abc'))?.id, 'xai')
@@ -212,4 +212,29 @@ test('xAI keys are checked by listing, and its images go through AI Connections 
   assert.deepEqual(result.omitted, ['resolution'])
   assert.equal(result.images[0].b64, png)
   assert.equal(result.cost, null)
+})
+
+test('Higgsfield keys are saved unchecked and list its documented models; WaveSpeed keys are checked by its own list', async () => {
+  const higgsfield = adapter('higgsfield')
+  assert.equal(higgsfield.label, 'Higgsfield')
+  const check = await higgsfield.verify('kid:secret')
+  assert.deepEqual([check.verified, check.unchecked], [false, true])
+  storeKey('higgsfield', 'kid:secret')
+  const models = await higgsfield.listModels('image')
+  assert.equal(models.length, 16)
+  assert.ok(models.some((m) => m.id === 'marketing-studio/image/sunburst'))
+
+  reply = (url) => url.startsWith('https://api.wavespeed.ai/api/v3/models')
+    ? json({ code: 200, message: 'success', data: [
+        { model_id: 'google/nano-banana-2/edit', name: 'Nano Banana 2 Edit', type: 'image-to-image', api_schema: { api_schemas: [{ type: 'model_run', request_schema: { properties: { prompt: {}, images: {} } } }] } },
+        { model_id: 'wavespeed-ai/wan-2.2/t2v', type: 'text-to-video', api_schema: { api_schemas: [] } },
+      ] })
+    : json({ code: 404, message: 'unexpected ' + url }, 404)
+  const wavespeed = adapter('wavespeed')
+  assert.equal(wavespeed.label, 'WaveSpeed AI')
+  const verified = await wavespeed.verify('ws-test-key')
+  assert.equal(verified.verified, true, verified.detail)
+  storeKey('wavespeed', 'ws-test-key')
+  const listed = await wavespeed.listModels('image')
+  assert.deepEqual(listed.map((m) => [m.id, m.acceptsImages]), [['google/nano-banana-2/edit', true]])
 })

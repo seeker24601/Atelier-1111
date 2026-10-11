@@ -8,8 +8,11 @@ const GET_A_KEY = {
   xai: 'https://console.x.ai',
   fal: 'https://fal.ai/dashboard/keys',
   replicate: 'https://replicate.com/account/api-tokens',
+  wavespeed: 'https://wavespeed.ai/accesskey',
+  higgsfield: 'https://console.higgsfield.ai',
 }
-const PLACEHOLDER = { openrouter: 'sk-or-v1-…', openai: 'sk-…', google: 'AIza…', xai: 'xai-…', replicate: 'r8_…' }
+// Higgsfield's key is its key id and secret together.
+const PLACEHOLDER = { openrouter: 'sk-or-v1-…', openai: 'sk-…', google: 'AIza…', xai: 'xai-…', replicate: 'r8_…', higgsfield: 'KEY_ID:KEY_SECRET' }
 
 /**
  * Providers with a key get a row; the rest wait in "Add a provider", so ten
