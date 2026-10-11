@@ -80,21 +80,22 @@ export default function KeysPanel({ settings }) {
       </div>
 
       {addable.length > 0 && (
-        <select
-          className="field"
-          aria-label="Add a provider"
-          value=""
-          disabled={saving}
-          onChange={(e) => e.target.value && edit(e.target.value)}
-          style={{ marginTop: 12 }}
-        >
-          <option value="">Add a provider…</option>
-          {addable.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
-        </select>
+        <label className="select-wrap" style={{ marginTop: 12 }}>
+          <select
+            className="select"
+            aria-label="Add a provider"
+            value=""
+            disabled={saving}
+            onChange={(e) => e.target.value && edit(e.target.value)}
+          >
+            <option value="">Add a provider…</option>
+            {addable.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
 
       {editing && (

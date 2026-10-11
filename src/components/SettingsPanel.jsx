@@ -28,35 +28,40 @@ export default function SettingsPanel({ open, onClose, settings, storage, onMode
         </button>
       </header>
 
+      {/* Two stacks, not one grid: a long model list must not push Updates out of sight. */}
       <div className="settings">
-        <KeysPanel settings={settings} />
+        <div className="settings__stack">
+          <KeysPanel settings={settings} />
 
-        <StoragePanel {...storage} />
+          <UpdatePanel />
 
-        <section className="settings__col">
-          <span className="plate-title">Appearance</span>
-          <div className="seg" role="group" aria-label="Appearance" style={{ marginTop: 20 }}>
-            {THEMES.map((t) => (
-              <button
-                key={t}
-                className="seg__opt"
-                aria-pressed={settings.theme === t}
-                onClick={() => settings.setTheme(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        </section>
+          <section className="settings__col">
+            <span className="plate-title">Appearance</span>
+            <div className="seg" role="group" aria-label="Appearance" style={{ marginTop: 20 }}>
+              {THEMES.map((t) => (
+                <button
+                  key={t}
+                  className="seg__opt"
+                  aria-pressed={settings.theme === t}
+                  onClick={() => settings.setTheme(t)}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
 
-        {/* Remounted per provider: the hide list shows the active provider's models. */}
-        <ModelsPanel
-          key={settings.status.active ?? 'none'}
-          provider={settings.status.providers?.find((p) => p.id === settings.status.active) ?? null}
-          onChange={onModelsChange}
-        />
+        <div className="settings__stack">
+          <StoragePanel {...storage} />
 
-        <UpdatePanel />
+          {/* Remounted per provider: the hide list shows the active provider's models. */}
+          <ModelsPanel
+            key={settings.status.active ?? 'none'}
+            provider={settings.status.providers?.find((p) => p.id === settings.status.active) ?? null}
+            onChange={onModelsChange}
+          />
+        </div>
       </div>
     </div>
   )

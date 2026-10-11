@@ -90,6 +90,12 @@
   overflow-y: auto;
   align-content: start;
 }
+.settings__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u12);
+  min-width: 0;
+}
 .settings__col {
   display: flex;
   flex-direction: column;
@@ -97,6 +103,7 @@
 }
 @media (max-width: 900px) {
   .settings { grid-template-columns: 1fr; gap: var(--u6); }
+  .settings__stack { gap: var(--u6); }
 }
 
 /* A readout table: label left, value right. */
