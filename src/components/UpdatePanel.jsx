@@ -1,16 +1,22 @@
 import { useState } from 'react'
-import { canUpdate, checkForUpdate, installUpdate } from '../updates.js'
+import { canUpdate, checkForUpdate, installUpdate, wantsTestBuilds, setWantsTestBuilds } from '../updates.js'
 
-/** Desktop only: check the release feed, then install and restart. */
+/**
+ * Desktop only: check the release feed, then install and restart. "Include
+ * test builds" switches this machine to the test feed, which offers each new
+ * build before it is promoted to a release everyone gets.
+ */
 export default function UpdatePanel() {
   const [state, setState] = useState({ step: 'idle' })
+  const [testBuilds, setTestBuilds] = useState(wantsTestBuilds)
 
   if (!canUpdate()) return null
+  const channel = testBuilds ? 'test' : null
 
   async function check() {
     setState({ step: 'checking' })
     try {
-      const status = await checkForUpdate()
+      const status = await checkForUpdate(channel)
       setState({ step: status.available ? 'available' : 'current', ...status })
     } catch (e) {
       setState({ step: 'error', error: String(e) })
@@ -20,10 +26,18 @@ export default function UpdatePanel() {
   async function install() {
     setState((s) => ({ ...s, step: 'installing' }))
     try {
-      await installUpdate()
+      await installUpdate(channel)
     } catch (e) {
       setState((s) => ({ ...s, step: 'error', error: String(e) }))
     }
+  }
+
+  function toggleTestBuilds() {
+    const next = !testBuilds
+    setTestBuilds(next)
+    setWantsTestBuilds(next)
+    // What was found on the other feed no longer applies.
+    setState({ step: 'idle' })
   }
 
   const { step } = state
@@ -60,6 +74,16 @@ export default function UpdatePanel() {
             <span>→</span>
           </button>
         )}
+        <button
+          className="send-toggle"
+          aria-pressed={testBuilds}
+          onClick={toggleTestBuilds}
+          disabled={step === 'checking' || step === 'installing'}
+          title="Test builds arrive as soon as they are made, before they are released to everyone."
+        >
+          <span className={`mark ${testBuilds ? 'mark--on' : ''}`} style={{ width: 8, height: 8 }} />
+          include test builds
+        </button>
         {state.notes && step === 'available' && <p className="prose prose--sm">{state.notes}</p>}
         {step === 'error' && <p className="banner banner--err">{state.error}</p>}
       </div>

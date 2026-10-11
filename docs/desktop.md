@@ -44,8 +44,10 @@ theme, check for an update, and install one.
 
 ## Updates
 
-Settings → Updates checks the latest GitHub release and installs it. Updates
-are signed; the app refuses any file not signed with the project's key.
+Settings → Updates checks the latest GitHub release and installs it. With
+"Include test builds" on, it reads the test-channel feed instead, which offers
+every build as soon as it is made. Updates are signed; the app refuses any file
+not signed with the project's key.
 
 - Public key: `plugins.updater.pubkey` in `src-tauri/tauri.conf.json`.
 - Private key: `~/.tauri/atelier-1111.key`, never committed. Back it up. If it
@@ -53,10 +55,11 @@ are signed; the app refuses any file not signed with the project's key.
 - CI reads the private key from the `TAURI_SIGNING_PRIVATE_KEY` repository
   secret. The key has no password.
 
-To publish a version, set `version` in `src-tauri/tauri.conf.json`, commit,
-then push a matching tag, for example `v0.2.0`. The Release workflow builds
-all three targets, signs them, and publishes a GitHub release with the
-`latest.json` the app reads.
+To ship a version:
+1. Set `version` in `src-tauri/tauri.conf.json` (and `package.json`, `Cargo.toml`), commit, and push a matching tag, for example `v0.2.3`.
+2. The Release workflow builds and signs all three targets. Once every platform succeeds, it publishes them as a pre-release and copies its `latest.json` to the `test-channel` release, the feed test builds come from.
+3. Try it through Settings → Updates with "Include test builds" on.
+4. Run the Promote workflow (Actions → Promote, with the tag). It makes that pre-release the latest release, with the same files and no rebuild, and every installed copy finds it through Check for updates.
 
 Desktop data uses the Tauri application-data directory for
 `com.seeker24601.atelier1111`, outside the installed application.

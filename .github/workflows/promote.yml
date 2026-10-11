@@ -1,0 +1,29 @@
+name: Promote
+# Makes a tested pre-release the release everyone gets: the same files, no
+# rebuild. Run it from the Actions tab with the tag, e.g. v0.2.3. Every
+# installed Atelier then finds it through Check for updates.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of the pre-release to promote, e.g. v0.2.3'
+        required: true
+permissions:
+  contents: write
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Check it is a finished pre-release with an update feed
+        run: |
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,assets \
+            --jq 'if .isDraft then error("still a draft") elif (.assets | map(.name) | index("latest.json")) == null then error("no latest.json") else "ok" end'
+      - name: Promote
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq .id)
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$id" \
+            -f tag_name="$TAG" -F prerelease=false -f make_latest=true --silent
+          echo "Promoted $TAG."

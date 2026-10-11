@@ -1,9 +1,13 @@
 name: Release
-# Push a tag like v0.2.0 to build a draft release. The tag must match "version"
-# in src-tauri/tauri.conf.json. Each job signs its updater bundle and adds itself
-# to the release's latest.json, which the app's Check for updates reads.
-# A draft is invisible to Check for updates (it reads releases/latest), so the
-# installers can be tried first; publishing the draft on GitHub is what ships it.
+# Push a tag like v0.2.3 to build it. The tag must match "version" in
+# src-tauri/tauri.conf.json. Each build job signs its updater bundle and adds
+# itself to the release's latest.json.
+#
+# Every build ships as a pre-release first, and its latest.json is copied to
+# the test-channel feed, which Atelier reads when "Include test builds" is on.
+# Releases everyone gets come from promoting a tested pre-release (the Promote
+# workflow), so what testers ran is exactly what ships. Check for updates reads
+# releases/latest, which never includes a pre-release.
 on:
   push:
     tags: ['v*']
@@ -23,7 +27,7 @@ jobs:
         run: |
           id=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
             -f tag_name="$GITHUB_REF_NAME" -f name="Atelier-1111 $GITHUB_REF_NAME" \
-            -F draft=true -F prerelease=false --jq .id)
+            -F draft=true -F prerelease=true --jq .id)
           echo "id=$id" >> "$GITHUB_OUTPUT"
   release:
     needs: draft
@@ -61,3 +65,24 @@ jobs:
           releaseId: ${{ needs.draft.outputs.id }}
           tagName: ${{ github.ref_name }}
       - run: node scripts/verify-desktop.mjs
+  # Only once every platform built: publish as a pre-release and point the
+  # test feed at it. A failed build leaves the draft unpublished.
+  publish:
+    needs: [draft, release]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Publish the pre-release
+        run: |
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/${{ needs.draft.outputs.id }}" \
+            -f tag_name="$GITHUB_REF_NAME" -F draft=false -F prerelease=true -f make_latest=false --silent
+      - name: Point the test feed at it
+        run: |
+          gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -p latest.json -D feed
+          if ! gh release view test-channel -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create test-channel -R "$GITHUB_REPOSITORY" --prerelease --target main \
+              --title "Test channel (update feed)" \
+              --notes "Holds the update feed for Atelier's \"Include test builds\" setting. Not a release to download."
+          fi
+          gh release upload test-channel feed/latest.json -R "$GITHUB_REPOSITORY" --clobber

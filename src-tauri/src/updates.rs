@@ -1,8 +1,17 @@
 //! Check for and install signed updates from the GitHub release feed. Both are
 //! commands the local page may call; nothing else of the updater is exposed.
+//!
+//! Two channels. The default reads the latest published release. "test" reads
+//! the test-channel feed, which carries the newest build of any kind: every
+//! tagged build is a pre-release there first, and becomes the latest release
+//! when it is promoted. Either way the update must carry the release key's
+//! signature.
 
-use tauri::AppHandle;
+use tauri::{AppHandle, Url};
 use tauri_plugin_updater::{Update, UpdaterExt};
+
+const TEST_FEED: &str =
+    "https://github.com/seeker24601/Atelier-1111/releases/download/test-channel/latest.json";
 
 #[derive(serde::Serialize)]
 pub struct UpdateStatus {
@@ -11,25 +20,31 @@ pub struct UpdateStatus {
     notes: Option<String>,
 }
 
-async fn latest(app: &AppHandle) -> Result<Option<Update>, String> {
-    app.updater()
-        .map_err(|e| e.to_string())?
-        .check()
-        .await
-        .map_err(|e| match e {
-            // The feed URL answers 404 until the first release exists, which
-            // the plugin reports as an invalid release file.
-            tauri_plugin_updater::Error::ReleaseNotFound => {
-                "No release has been published yet.".to_string()
-            }
-            e => e.to_string(),
-        })
+async fn latest(app: &AppHandle, channel: Option<&str>) -> Result<Option<Update>, String> {
+    let updater = if channel == Some("test") {
+        let feed = Url::parse(TEST_FEED).map_err(|e| e.to_string())?;
+        app.updater_builder()
+            .endpoints(vec![feed])
+            .map_err(|e| e.to_string())?
+            .build()
+            .map_err(|e| e.to_string())?
+    } else {
+        app.updater().map_err(|e| e.to_string())?
+    };
+    updater.check().await.map_err(|e| match e {
+        // The feed URL answers 404 until the first release exists, which
+        // the plugin reports as an invalid release file.
+        tauri_plugin_updater::Error::ReleaseNotFound => {
+            "No release has been published yet.".to_string()
+        }
+        e => e.to_string(),
+    })
 }
 
-/// What is installed, and what the release feed offers, if anything newer.
+/// What is installed, and what the chosen feed offers, if anything newer.
 #[tauri::command]
-pub async fn update_check(app: AppHandle) -> Result<UpdateStatus, String> {
-    let update = latest(&app).await?;
+pub async fn update_check(app: AppHandle, channel: Option<String>) -> Result<UpdateStatus, String> {
+    let update = latest(&app, channel.as_deref()).await?;
     Ok(UpdateStatus {
         current: app.package_info().version.to_string(),
         available: update.as_ref().map(|u| u.version.clone()),
@@ -44,8 +59,10 @@ pub async fn update_check(app: AppHandle) -> Result<UpdateStatus, String> {
 /// rather than sitting there without a backend. On Windows the installer exits
 /// the app itself and starts the new version when it finishes.
 #[tauri::command]
-pub async fn update_install(app: AppHandle) -> Result<(), String> {
-    let update = latest(&app).await?.ok_or("Already up to date.")?;
+pub async fn update_install(app: AppHandle, channel: Option<String>) -> Result<(), String> {
+    let update = latest(&app, channel.as_deref())
+        .await?
+        .ok_or("Already up to date.")?;
     let bytes = update
         .download(|_, _| {}, || {})
         .await
