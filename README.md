@@ -81,7 +81,7 @@ See [desktop build instructions](docs/desktop.md) for packaging and data locatio
 
 ## License
 
-MIT. The bundled fonts, Departure Mono, Archivo and Silkscreen, use the SIL
+MIT. The bundled fonts, Departure Mono and Silkscreen, use the SIL
 Open Font License 1.1. Icons are [Lucide](https://lucide.dev) (ISC). Provider
 and model makers' marks come from [LobeHub Icons](https://github.com/lobehub/lobe-icons)
 (MIT) and [Simple Icons](https://simpleicons.org) (CC0); they belong to their

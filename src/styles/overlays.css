@@ -203,7 +203,7 @@
   align-items: baseline;
   gap: 10px;
 }
-.key__name b { font-family: var(--sans); font-size: 14px; font-weight: 400; }
+.key__name b { font-family: var(--mono); font-size: 14px; font-weight: 400; }
 .key__on { color: var(--cyan); }
 
 /* Services to add a key for: a grid of their marks. */
@@ -286,7 +286,7 @@
   border: 0;
   background: transparent;
   color: var(--ash);
-  font-family: var(--sans);
+  font-family: var(--mono);
   font-size: 13px;
   text-align: left;
   cursor: pointer;

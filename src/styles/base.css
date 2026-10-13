@@ -18,7 +18,7 @@ body,
 body {
   background: var(--page);
   color: var(--ink);
-  font-family: var(--sans);
+  font-family: var(--mono);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -53,11 +53,11 @@ body {
 
 /* ── Type roles ───────────────────────────────────────────────────────────
      Silkscreen       the shout: the wordmark and a model's name. 16 or 32.
-     Archivo          anything read as language: prompts, model names in
-                      lists, explanation.
-     Departure Mono   the machine: labels, buttons, values, timestamps.
-                      Labels are uppercase and tracked; values keep their
-                      own case. Regular only, always 11px, its native grid.
+     Departure Mono   everything else. Labels, buttons, values and
+                      timestamps at 11px, its native grid: labels uppercase
+                      and tracked, values in their own case. Prompts, model
+                      names in lists and explanation are set larger in
+                      their own case, read as language. Regular only.
    ───────────────────────────────────────────────────────────────────────── */
 
 .plate-title {
@@ -81,7 +81,7 @@ body {
 .label--sm { letter-spacing: 0.08em; }
 
 .prose {
-  font-family: var(--sans);
+  font-family: var(--mono);
   font-size: 14px;
   line-height: 1.6;
   color: var(--ink);

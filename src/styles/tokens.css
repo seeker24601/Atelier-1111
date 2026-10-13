@@ -56,11 +56,11 @@
   /* ── Motion · two hard frames, the house timing ─────────────────────── */
   --frames: 90ms steps(2, end);
 
-  /* ── Type · three faces, all bundled ────────────────────────────────── */
+  /* ── Type · two faces, both bundled ──────────────────────────────────── */
   /* Silkscreen is drawn on an 8px grid: set it at 16 or 32 only. */
   --display: 'Silkscreen', 'Departure Mono', monospace;
-  --sans: 'Archivo Variable', system-ui, -apple-system, sans-serif;
-  /* Departure Mono is drawn on an 11px grid: every mono size is 11px. */
+  /* Departure Mono is drawn on an 11px grid: labels and values sit on it at
+     11px; reading text is set larger. */
   --mono: 'Departure Mono', 'Cascadia Mono', Consolas, ui-monospace, Menlo, monospace;
 }
 

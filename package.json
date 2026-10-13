@@ -19,7 +19,6 @@
     "desktop:build": "tauri build"
   },
   "dependencies": {
-    "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource/silkscreen": "5.3.0",
     "ai-connections": "^0.4.0",
     "express": "^4.21.2",
