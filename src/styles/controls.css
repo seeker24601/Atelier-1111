@@ -1,11 +1,11 @@
 /* Plates and every control that sits on them. */
 
-/* ── Plate · every plate carries an ID; the head is an inverted bar ───── */
+/* ── Plate · a raised head strip, an ID on every one ──────────────────── */
 
 .plate {
   border: var(--rule);
-  background: var(--bleach);
-  color: var(--carbon);
+  background: var(--plate);
+  color: var(--ink);
 }
 
 .plate__head {
@@ -13,11 +13,10 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--u2);
-  padding: var(--u2) var(--u3);
-  background: var(--carbon);
-  color: var(--bleach);
+  padding: 9px var(--u3);
+  border-bottom: var(--rule);
+  background: var(--raised);
 }
-.plate__head .dim { color: var(--concrete); }
 
 .plate__id {
   font-family: var(--mono);
@@ -27,196 +26,165 @@
   white-space: nowrap;
 }
 
-.plate__body { padding: var(--u3); }
+.plate__body {
+  display: grid;
+  gap: 14px;
+  padding: var(--u3);
+}
 
 /* ── Buttons ──────────────────────────────────────────────────────────── */
 
 .btn {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: var(--u3) var(--u4);
-  border: var(--rule);
-  background: var(--bleach);
-  color: var(--carbon);
-  cursor: pointer;
-  transition: background var(--step), color var(--step);
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: var(--u2);
+  min-height: 36px;
+  padding: 0 var(--u3);
+  border: var(--rule);
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
 }
-.btn:hover:not(:disabled) {
-  background: var(--carbon);
-  color: var(--bleach);
-}
-.btn:active:not(:disabled) {
-  background: var(--ash);
-  border-color: var(--ash);
-}
-.btn:disabled {
-  color: var(--ash);
-  border-color: var(--concrete);
-  background: var(--stock);
-  cursor: not-allowed;
-}
-.btn--sm { padding: var(--u2) var(--u3); }
+.btn:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
+.btn:disabled { background: var(--raised); color: var(--ash); cursor: not-allowed; }
+.btn--sm { min-height: 32px; padding: 0 10px; }
+.btn--icon { width: 36px; padding: 0; }
+.btn--wide { justify-content: space-between; }
+/* The primary move in a panel that spends nothing: ink, not pink. */
+.btn--ink { background: var(--ink); color: var(--on-accent); border-color: var(--ink); }
+.btn--ink:hover:not(:disabled) { background: var(--ink); color: var(--on-accent); }
+.btn[aria-pressed='true'] { background: var(--cyan-wash); color: var(--cyan); border-color: var(--cyan); }
 
-/* A button that records a choice shows which choice is recorded — inverted,
-   like the pressed state everywhere else. */
-.btn[aria-pressed='true'] {
-  background: var(--carbon);
-  color: var(--bleach);
-  border-color: var(--carbon);
-}
-
-/* Irreversible: inverted, so it never looks like the Cancel beside it. */
-.btn--danger,
-.btn--danger:hover:not(:disabled) {
-  background: var(--carbon);
-  color: var(--bleach);
-}
-
-/* Commit — the one live action. Signal is spent here. */
-.btn--commit {
-  background: var(--signal);
-  color: var(--on-signal);
-  border-color: var(--carbon);
-  padding: var(--u4);
-  width: 100%;
-}
-.btn--commit:hover:not(:disabled) {
-  background: var(--on-signal);
-  color: var(--signal);
-}
-.btn--commit:disabled {
-  background: var(--stock);
-  color: var(--ash);
-  border-color: var(--concrete);
-}
-/* Committing is live but not actionable: signal on ink, distinct from both
-   the solid-signal idle button and a plain dead disabled one. */
-.btn--commit[data-busy='true'],
-.btn--commit[data-busy='true']:disabled {
-  background: var(--on-signal);
-  color: var(--signal);
-  border-color: var(--carbon);
-  cursor: progress;
-}
-
-.commit-wait {
+/* Irreversible and armed: inverted, spelled, and burning down. */
+.btn--armed,
+.btn--armed:hover:not(:disabled) {
   position: relative;
-  display: block;
-  width: 48px;
-  height: 8px;
-  border: 1px solid currentColor;
   overflow: hidden;
-  flex: none;
+  background: var(--ink);
+  color: var(--on-accent);
+  border-color: var(--ink);
 }
-.commit-wait::after {
+.btn--armed::after {
   content: '';
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 25%;
-  background: currentColor;
-  animation: sweep 1.2s steps(6, end) infinite;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--on-accent);
+  transform-origin: left;
+  animation: fuse 3s steps(12, end) both;
+}
+@keyframes fuse { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* Every small control gives under the finger: 1px down while held. */
+.btn:active:not(:disabled),
+.seg__opt:active:not(:disabled),
+.tab:active,
+.act:active,
+.maker:active,
+.pick:active,
+.svc:active,
+.toggle:active {
+  transform: translateY(1px);
 }
 
-/* ── Fields ───────────────────────────────────────────────────────────── */
+/* ── Fields · the border itself lights on focus ───────────────────────── */
 
 .field {
   display: block;
   width: 100%;
-  font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.55;
   padding: var(--u3);
   border: var(--rule);
-  background: var(--bleach);
-  color: var(--carbon);
+  background: var(--plate);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.55;
+  caret-color: var(--cyan);
   resize: vertical;
 }
 .field::placeholder { color: var(--ash); }
-
-/* Select — square, the caret sits in its own inverted block. */
-.select-wrap {
-  position: relative;
-  display: block;
-}
-.select-wrap::after {
-  content: '▼';
-  position: absolute;
-  inset: 0 0 0 auto;
-  width: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--carbon);
-  color: var(--bleach);
-  font-size: 8px;
-  pointer-events: none;
-}
-.select {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 1.4;
-  padding: var(--u3) 44px var(--u3) var(--u3);
-  border: var(--rule);
-  background: var(--bleach);
-  color: var(--carbon);
-  cursor: pointer;
-}
-
+input.field { height: 44px; }
+input.field--mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0.02em; }
 .field:focus,
-.select:focus {
-  outline: 2px solid var(--signal);
-  outline-offset: -4px;
+.field:focus-visible {
+  outline: none;
+  border-color: transparent;
+  box-shadow: var(--focus-glow);
+  background:
+    linear-gradient(var(--plate), var(--plate)) padding-box,
+    linear-gradient(135deg, var(--focus-a), var(--focus-b)) border-box;
 }
 
-/* ── Segmented · square only ──────────────────────────────────────────── */
+/* ── Segmented · Auto first, then the values this model takes ─────────── */
 
 .seg {
   display: flex;
+  flex-wrap: wrap;
   border: var(--rule);
-  background: var(--bleach);
+  background: var(--page);
 }
 .seg__opt {
-  flex: 1;
+  flex: 1 0 auto;
+  min-height: 38px;
+  padding: 10px 8px;
+  border: 0;
+  border-right: var(--rule);
+  background: transparent;
+  color: var(--ink);
   font-family: var(--mono);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
-  padding: var(--u2) var(--u);
-  border: 0;
-  border-right: var(--rule-ash);
-  background: var(--bleach);
-  color: var(--carbon);
-  cursor: pointer;
-  transition: background var(--step), color var(--step);
   white-space: nowrap;
+  cursor: pointer;
 }
 .seg__opt:last-child { border-right: 0; }
-.seg__opt:hover:not([aria-pressed='true']):not(:disabled) { background: var(--concrete); }
+.seg__opt:hover:not([aria-pressed='true']):not(:disabled) { background: var(--hover); }
+.seg__opt:focus-visible { position: relative; z-index: 1; }
+/* Chosen: cyan. It locks in with an outline for a frame, then fills. */
 .seg__opt[aria-pressed='true'] {
-  background: var(--carbon);
-  color: var(--bleach);
+  background: var(--cyan-wash);
+  color: var(--cyan);
+  box-shadow: inset 0 0 0 1px var(--cyan);
+  animation: lockIn 90ms steps(2, end);
 }
+@keyframes lockIn { 0% { background: transparent; color: var(--cyan); box-shadow: inset 0 0 0 1px var(--cyan); } }
 
-/* Group tabs above a row too long for the panel (Portrait, Square, Landscape).
-   The tab holding the current choice keeps a mark while another is open. */
-.seg--tabs { margin-bottom: 4px; }
+/* Auto: the model decides and nothing is sent. Where you are, not a choice. */
+.seg__opt--auto { flex: 0 0 64px; color: var(--ash); }
+.seg--tabs .seg__opt--auto { flex: 0 0 52px; color: var(--ash); }
+.seg__opt--auto[aria-pressed='true'],
+.seg--tabs .seg__opt[aria-pressed='true'] {
+  background: var(--raised);
+  color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--ink);
+  animation: underIn 90ms steps(2, end);
+}
+@keyframes underIn { 0% { box-shadow: inset 0 0 0 var(--ink); } }
+
+/* Group tabs above a row too long for the panel. The tab holding the current
+   choice keeps a mark while another is open. */
+.seg--tabs { flex-wrap: nowrap; }
 .seg--tabs .seg__opt {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--u);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  gap: 5px;
+  color: var(--ash);
   font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 .seg__count { opacity: 0.6; }
 .seg--tabs .seg__opt[data-holds='true']:not([aria-pressed='true']) {
@@ -224,38 +192,16 @@
   text-underline-offset: 3px;
 }
 
-/* A group still longer than a row: a slider, with the choice drawn beside it. */
-.param__slider {
-  display: flex;
-  align-items: center;
-  gap: var(--u3);
-  padding: var(--u2) var(--u3);
-  border: var(--rule);
-  background: var(--bleach);
-}
-.param__slider input[type='range'] {
-  flex: 1;
-  min-width: 0;
-  accent-color: var(--carbon);
-}
-.param__slider-value {
-  display: flex;
-  align-items: center;
-  gap: var(--u2);
-  min-width: 64px;
-  justify-content: flex-end;
-}
-
-/* Aspect options draw the shape they select; the glyph inherits currentColor,
-   so it inverts with the pressed state like the label. */
+/* Aspect options draw the shape they select. */
 .seg--glyph .seg__opt {
+  flex: 1 0 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--u);
+  gap: 5px;
+  min-height: 54px;
   padding: var(--u2) 2px;
-  min-height: 48px;
 }
 .ratio-glyph {
   display: block;
@@ -265,35 +211,47 @@
 
 /* Observed verdicts, typographic and never coloured. Refused is struck
    through, ignored is dotted; both are disabled in the markup. */
-.seg__opt[data-verdict='rejected'] {
-  text-decoration: line-through;
-  color: var(--ash);
-}
-.seg__opt[data-verdict='ignored'] {
-  text-decoration: underline dotted;
-  text-underline-offset: 3px;
-  color: var(--ash);
-}
+.seg__opt[data-verdict='rejected'] { text-decoration: line-through; color: var(--ash); }
+.seg__opt[data-verdict='ignored'] { text-decoration: underline dotted; text-underline-offset: 3px; color: var(--ash); }
 .seg__opt[data-verdict='rejected']:disabled,
-.seg__opt[data-verdict='ignored']:disabled {
-  background: var(--concrete);
-  cursor: not-allowed;
-}
-/* Reasoned, not measured — dimmed and bracketed, but still selectable,
-   because the request that would settle it is a free 400. */
+.seg__opt[data-verdict='ignored']:disabled { background: var(--raised); cursor: not-allowed; }
+/* Reasoned, not measured: dimmed and bracketed, still selectable. */
 .seg__opt[data-verdict='expected'] { color: var(--ash); }
 .seg__opt[data-verdict='expected']:not(:disabled) span:last-child::before { content: '('; }
 .seg__opt[data-verdict='expected']:not(:disabled) span:last-child::after { content: ')'; }
+
+/* A group still longer than a row: a slider, the choice drawn beside it. */
+.param__slider {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  padding: var(--u2) var(--u3);
+  border: var(--rule);
+  background: var(--page);
+}
+.param__slider input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--cyan);
+}
+.param__slider-value {
+  display: flex;
+  align-items: center;
+  gap: var(--u2);
+  min-width: 64px;
+  justify-content: flex-end;
+}
 
 /* ── Parameters ───────────────────────────────────────────────────────── */
 
 .param {
   display: grid;
-  gap: var(--u);
+  gap: 6px;
+  animation: build 90ms steps(2, end) both;
 }
 .param__head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--u2);
 }
@@ -302,7 +260,6 @@
   border-left: var(--rule);
   padding-left: var(--u2);
 }
-/* A parameter that has never worked on anything here. */
 .param__flag {
   margin-left: var(--u2);
   padding: 0 var(--u);
@@ -311,84 +268,306 @@
   cursor: help;
 }
 
-.send-toggle {
-  display: inline-flex;
+/* ── Model · a button that opens the picker ───────────────────────────── */
+
+.model-btn {
+  display: flex;
   align-items: center;
-  gap: var(--u);
-  border: 0;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  color: var(--ash);
+  gap: var(--u3);
+  width: 100%;
+  min-height: 52px;
+  padding: 0 0 0 14px;
+  border: var(--rule);
+  background: var(--page);
+  color: var(--ink);
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: color var(--step);
+  font-size: 15px;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
 }
-.send-toggle:hover,
-.send-toggle[aria-pressed='true'] { color: var(--carbon); }
+.model-btn:hover:not(:disabled) { background: var(--hover); }
+.model-btn:disabled { color: var(--ash); cursor: progress; }
+.model-btn__name { flex: 1; min-width: 0; }
+.model-btn__caret {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  border-left: var(--rule);
+  color: var(--ash);
+}
 
-.mark {
-  width: 12px;
-  height: 12px;
-  border: 1px solid currentColor;
-  display: block;
-}
-.mark--on {
-  background: var(--carbon);
-  border-color: var(--carbon);
-}
-
-/* ── Reference tray ───────────────────────────────────────────────────── */
+/* ── References ───────────────────────────────────────────────────────── */
 
 .reftray {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--u2);
 }
-
-.refslot {
+.ref {
   position: relative;
   aspect-ratio: 1 / 1;
   border: var(--rule);
-  background: var(--bleach);
+  background: var(--page);
   overflow: hidden;
+  animation: build 90ms steps(2, end) both;
 }
-.refslot img {
+.ref img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-.refslot__kill {
+.ref__kill {
   position: absolute;
   top: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
-  border: 0;
-  background: var(--carbon);
-  color: var(--bleach);
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 20px;
-  text-align: center;
-  cursor: pointer;
-  padding: 0;
-}
-.refslot__kill:hover { background: var(--bleach); color: var(--carbon); }
-
-.refslot--add {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--stock);
-  border: 2px dashed var(--carbon);
-  color: var(--carbon);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-left: var(--rule);
+  border-bottom: var(--rule);
+  background: var(--page);
+  color: var(--ink);
   cursor: pointer;
-  font-family: var(--mono);
-  font-size: 22px;
-  transition: background var(--step), color var(--step);
+  visibility: hidden;
 }
-.refslot--add:hover { background: var(--carbon); color: var(--bleach); border-style: solid; }
+.ref:hover .ref__kill,
+.ref__kill:focus-visible { visibility: visible; }
+.ref__kill:hover { background: var(--hover); }
+.refadd {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--u);
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+}
+.refadd:hover { border-style: solid; color: var(--ink); background: var(--hover); }
+/* The file input itself is hidden; keyboard focus on it lights the + tile. */
+.plate__body:has(#refpick:focus-visible) .refadd { box-shadow: var(--focus-ring); }
+
+/* ── Composer · the prompt and Generate, together, always in view ─────── */
+
+.dock {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: var(--u3);
+  margin: auto calc(-1 * var(--u4)) 0;
+  padding: 14px var(--u4) 18px;
+  border-top: var(--rule);
+  background: var(--page);
+  isolation: isolate;
+}
+.prompt { position: relative; display: block; }
+.prompt .field {
+  min-height: 124px;
+  max-height: 260px;
+  padding-bottom: 30px;
+}
+.field.is-flash { animation: flash 240ms steps(1, end); }
+@keyframes flash { 0% { background: var(--cyan-wash); } 50% { background: var(--plate); } }
+.prompt__hint {
+  position: absolute;
+  right: 10px;
+  bottom: var(--u2);
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* ── Generate · the one pink control ──────────────────────────────────────
+   Two parts: the action in the display face with an arrow, and what it
+   costs. At rest it sits on a pink hatch, a page-coloured ring between them.
+   Hover: it turns white, the hatch goes, the word and arrow split into cyan
+   and pink, the arrow steps forward, and the word tears once. Click: one pink
+   frame, like a shutter, then it drops while held. Hatching is the one place
+   a line may be heavier than 1px: 2px on a 5px repeat. */
+.commit {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  width: 100%;
+  min-height: 60px;
+  padding: 0;
+  border: 0;
+  background: var(--pink);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 2px var(--page);
+  text-align: left;
+  cursor: pointer;
+  animation: arm 90ms steps(2, end);
+}
+@keyframes arm { 0% { background: var(--raised); color: var(--ash); } }
+.commit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: repeating-linear-gradient(-45deg, var(--pink) 0 2px, transparent 2px 5px);
+  transform: translate(7px, 7px);
+  transition: transform var(--frames), visibility var(--frames);
+}
+.commit__label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.commit__text { position: relative; }
+.commit__text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: var(--pink);
+  clip-path: inset(38% 0 30% 0);
+  visibility: hidden;
+  pointer-events: none;
+}
+.commit__arrow { transition: transform var(--frames); }
+.commit__side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--u4);
+  border-left: 1px solid rgba(14, 14, 16, 0.3);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.commit:hover:not(:disabled):not([data-busy='true']) { background: var(--ink); }
+.commit:hover:not(:disabled):not([data-busy='true']) .commit__text::after { background: var(--ink); }
+.commit:hover:not(:disabled):not([data-busy='true']) .commit__side { border-left-color: rgba(14, 14, 16, 0.2); }
+.commit:hover:not(:disabled)::before { visibility: hidden; }
+.commit:hover:not(:disabled) .commit__arrow { transform: translateX(4px); }
+.commit:hover:not(:disabled):not([data-busy='true']) .commit__text {
+  text-shadow: -2px 0 0 var(--cyan), 2px 0 0 var(--pink);
+  animation: splitIn 120ms steps(1, end) 1;
+}
+.commit:hover:not(:disabled):not([data-busy='true']) .commit__arrow {
+  filter: drop-shadow(2px 0 0 var(--pink)) drop-shadow(-2px 0 0 var(--cyan));
+}
+.commit:hover:not(:disabled) .commit__text::after { animation: tearOnce 140ms steps(1, end) 1; }
+.commit:active:not(:disabled) { transform: translate(4px, 4px); }
+.commit:active:not(:disabled)::before { transform: none; transition: none; }
+/* arm stays in the list, so adding and removing the shutter never restarts it. */
+.commit.is-fired:not(:disabled) { animation: arm 90ms steps(2, end), fire 120ms steps(1, end) 1; }
+
+/* Nothing to send: it says what is missing and stops looking like the action. */
+.commit:disabled { background: var(--raised); color: var(--ash); box-shadow: none; cursor: not-allowed; animation: none; }
+.commit:disabled::before { display: none; }
+.commit:disabled .commit__label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; }
+/* Queue full: live but not actionable. Pink on dark, the queue counted. */
+.commit[data-busy='true'] {
+  background: var(--plate);
+  color: var(--pink);
+  box-shadow: inset 0 0 0 1px var(--pink);
+  transform: none;
+  cursor: progress;
+  animation: none;
+}
+.commit[data-busy='true']::before { display: none; }
+.commit[data-busy='true'] .commit__side { border-left-color: rgba(254, 44, 85, 0.35); }
+
+@keyframes splitIn {
+  0% { text-shadow: -5px 0 0 var(--cyan), 5px 0 0 var(--pink); }
+  50% { text-shadow: -1px 0 0 var(--cyan), 1px 0 0 var(--pink); }
+}
+@keyframes tearOnce {
+  0% { visibility: visible; transform: translateX(3px); }
+  50% { visibility: visible; transform: translateX(-2px); }
+  100% { visibility: hidden; transform: none; }
+}
+@keyframes fire { 0% { background: var(--pink); } 100% { background: var(--ink); } }
+
+/* A stepped bar for live work that has no picture to show. */
+.wait {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 8px;
+  border: 1px solid currentColor;
+  overflow: hidden;
+  flex: none;
+}
+.wait::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 25%;
+  background: currentColor;
+  animation: sweep 1.2s steps(6, end) infinite;
+}
+
+/* A checkbox row: the box is the Lucide square, ticked in cyan. */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u2);
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.toggle[aria-pressed='true'] { color: var(--ink); }
+.toggle[aria-pressed='true'] .lucide { color: var(--cyan); }
+.toggle:disabled { cursor: not-allowed; opacity: 0.5; }
+
+/* ── Notices · said in words, never in colour ─────────────────────────── */
+
+.banner {
+  display: block;
+  padding: 10px var(--u3);
+  border: var(--rule);
+  background: var(--plate);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.banner--err { border-color: var(--ink); }
+.banner--ok { color: var(--ash); }
+/* An error you can close: the whole banner is the button. */
+.banner--dismiss {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--u3);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.banner--dismiss > :first-child {
+  max-height: 7.5em;
+  overflow: auto;
+}

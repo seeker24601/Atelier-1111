@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Plus, X } from 'lucide-react'
 import Plate from '../ui/Plate.jsx'
 import { blobToDataUrl } from '../../api.js'
 import { canBeReference } from '../../format.js'
@@ -6,8 +7,10 @@ import { normalizeReference } from '../../store/normalize.js'
 
 const imagesIn = (list) => Array.from(list || []).filter((f) => f.type.startsWith('image/'))
 
+/** The file picker's id, so a failed job that needs a reference can open it. */
+export const REF_PICKER_ID = 'refpick'
+
 export default function RefsPlate({ refs, onRefs, max }) {
-  const fileInput = useRef(null)
   const [refused, setRefused] = useState(null)
 
   // Read through a ref so the window listeners below never see a stale tray.
@@ -38,8 +41,8 @@ export default function RefsPlate({ refs, onRefs, max }) {
     if (added.length) onRefs([...refs, ...added])
   }
 
-  // Paste or drop an image anywhere on the page — the tray is the only place
-  // an image can go, so there is no reason to aim for it.
+  // Paste or drop an image anywhere on the page: the tray is the only place an
+  // image can go, so there is no reason to aim for it.
   useEffect(() => {
     const onPaste = (e) => {
       const files = imagesIn(e.clipboardData?.files)
@@ -60,48 +63,37 @@ export default function RefsPlate({ refs, onRefs, max }) {
   }, [])
 
   return (
-    <Plate id="03 / References" right={`${refs.length} / ${max}`}>
+    <Plate id="02 / References" right={`${refs.length} / ${max}`}>
       <div className="reftray">
         {refs.map((r, i) => (
-          <div className="refslot" key={r.id || i} title={r.name}>
-            <img src={r.url} alt="" />
-            <button
-              className="refslot__kill"
-              onClick={() => onRefs(refs.filter((_, j) => j !== i))}
-              aria-label="Remove"
-            >
-              ×
+          <div className="ref" key={r.id || i} title={r.name}>
+            <img src={r.url} alt={r.name || `Reference ${i + 1}`} />
+            <button className="ref__kill" onClick={() => onRefs(refs.filter((_, j) => j !== i))} aria-label={`Remove reference ${i + 1}`}>
+              <X size={12} aria-hidden="true" />
             </button>
           </div>
         ))}
         {refs.length < max && (
-          <button
-            className="refslot refslot--add"
-            onClick={() => fileInput.current?.click()}
-            aria-label="Add reference"
-          >
-            +
-          </button>
+          <label className="refadd" htmlFor={REF_PICKER_ID} title="Add a reference">
+            <Plus size={16} aria-hidden="true" />
+            Add
+          </label>
         )}
       </div>
 
       <input
-        ref={fileInput}
+        id={REF_PICKER_ID}
+        className="sr"
         type="file"
         accept="image/png,image/jpeg,image/webp,image/gif"
         multiple
-        hidden
         onChange={(e) => {
           addFiles(e.target.files)
           e.target.value = ''
         }}
       />
 
-      {refused && (
-        <p className="banner banner--err" style={{ marginTop: 8 }}>
-          Raster only · {refused}
-        </p>
-      )}
+      {refused && <p className="banner banner--err">Raster images only. Not added: {refused}</p>}
     </Plate>
   )
 }

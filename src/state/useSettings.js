@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api.js'
-import { applyTheme, initialTheme } from '../theme.js'
+import { applyDarkChrome } from '../theme.js'
 
 /**
  * Key state as reported by the server, per provider. The keys themselves never
@@ -14,37 +14,19 @@ export function useSettings() {
   // The key's own ledger at OpenRouter: spend and limit across everything it
   // paid for, not just this app. Null until read, or when there is no key.
   const [account, setAccount] = useState(null)
-  // Starts from what the server wrote into the page, so nothing flips on load.
-  const [theme, setThemeState] = useState(initialTheme)
 
   const read = useCallback(async () => {
     try {
-      const res = await api.settings.read()
-      setStatus(res)
-      if (res.theme) setThemeState(res.theme)
+      setStatus(await api.settings.read())
     } catch {
       // A settings read failing shouldn't blank the app; leave the last status.
     }
   }, [])
 
-  // Also runs once on mount, which brings the desktop title bar in line.
+  // Dark only: bring the desktop title bar in line once.
   useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
-
-  /** Applied at once; put back if the server could not save it. */
-  const setTheme = useCallback(
-    async (next) => {
-      const previous = theme
-      setThemeState(next)
-      try {
-        await api.settings.setTheme(next)
-      } catch {
-        setThemeState(previous)
-      }
-    },
-    [theme]
-  )
+    applyDarkChrome()
+  }, [])
 
   const readAccount = useCallback(async (fresh = false) => {
     try {
@@ -114,7 +96,5 @@ export function useSettings() {
     refresh: read,
     account,
     readAccount,
-    theme,
-    setTheme,
   }
 }

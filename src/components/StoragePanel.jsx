@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Plate from './ui/Plate.jsx'
 
 const mb = (n) => (n == null ? '——' : `${(n / 1048576).toFixed(1)} MB`)
 const gb = (n) => (n == null ? '——' : `${(n / 1073741824).toFixed(1)} GB`)
@@ -12,57 +13,36 @@ export default function StoragePanel({ storage, count, onClear }) {
   const [confirming, setConfirming] = useState(false)
 
   return (
-    <section className="settings__col">
-      <span className="plate-title">Storage</span>
-
-      <div className="proc" style={{ marginTop: 20 }}>
-        <div className="proc__row">
-          <span className="label label--sm dim">Generations</span>
-          <span className="data">{count}</span>
-        </div>
-        <div className="proc__row">
-          <span className="label label--sm dim">Size</span>
-          <span className="data">{mb(storage?.bytes)}</span>
-        </div>
-        <div className="proc__row">
-          <span className="label label--sm dim">Disk free</span>
-          <span className="data">{gb(storage?.free)}</span>
-        </div>
-        <div className="proc__row">
-          <span className="label label--sm dim">Folder</span>
-          <span className="data truncate" title={storage?.dir}>{storage?.dir ?? '——'}</span>
-        </div>
-      </div>
+    <Plate id="03 / Storage">
+      <dl className="facts">
+        <dt>Generations</dt>
+        <dd>{count}</dd>
+        <dt>Size</dt>
+        <dd>{mb(storage?.bytes)}</dd>
+        <dt>Disk free</dt>
+        <dd>{gb(storage?.free)}</dd>
+        <dt>Folder</dt>
+        <dd title={storage?.dir}>{storage?.dir ?? '——'}</dd>
+      </dl>
 
       {/* An explicit two-button confirm rather than a control that arms and
-          then quietly disarms — in a settings panel that reads as broken. */}
-      <div className="row" style={{ gap: 8, marginTop: 16 }}>
+          then quietly disarms: in a settings panel that reads as broken. */}
+      <div className="row">
         {confirming ? (
           <>
-            <button
-              className="btn btn--danger"
-              style={{ flex: 1 }}
-              onClick={() => onClear().then(() => setConfirming(false))}
-            >
-              <span>Delete {count} for good</span>
-              <span>×</span>
+            <button className="btn btn--ink" style={{ flex: 1 }} onClick={() => onClear().then(() => setConfirming(false))}>
+              Delete {count} for good
             </button>
             <button className="btn" onClick={() => setConfirming(false)}>
               Cancel
             </button>
           </>
         ) : (
-          <button
-            className="btn"
-            style={{ flex: 1 }}
-            disabled={!count}
-            onClick={() => setConfirming(true)}
-          >
-            <span>Clear history</span>
-            <span>×</span>
+          <button className="btn" style={{ flex: 1 }} disabled={!count} onClick={() => setConfirming(true)}>
+            Clear history
           </button>
         )}
       </div>
-    </section>
+    </Plate>
   )
 }

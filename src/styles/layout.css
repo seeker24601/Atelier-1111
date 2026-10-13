@@ -1,8 +1,9 @@
-/* The frame of the app: top bar, the two columns, and the model header. */
+/* The frame of the app: top bar, the two columns, the model header, the
+   model picker and the drop target. */
 
 .app {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   height: 100%;
   overflow: hidden;
 }
@@ -12,147 +13,301 @@
 .topbar {
   display: flex;
   align-items: stretch;
+  min-height: 60px;
   border-bottom: var(--rule);
-  background: var(--bleach);
+  background: var(--plate);
 }
 
-/* The wordmark is the one inverted slab in the chrome. */
-.topbar__mark {
+/* The wordmark, with the app icon's one pink pixel. */
+.word {
   display: flex;
   align-items: center;
-  padding: 0 var(--u4);
-  background: var(--carbon);
-  color: var(--bleach);
+  padding: 0 var(--u5);
+  border-right: var(--rule);
   font-family: var(--display);
-  font-stretch: 62%;
-  font-weight: 900;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1;
-  letter-spacing: 0.01em;
   text-transform: uppercase;
   white-space: nowrap;
 }
+.word i {
+  width: 5px;
+  height: 5px;
+  margin: 0 0 0.6em 3px;
+  background: var(--pink);
+}
 
-.topbar__spacer { flex: 1; }
+.tabs { display: flex; }
+.tab {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-right: var(--rule);
+  background: transparent;
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.tab:hover { color: var(--ink); background: var(--hover); }
+.tab[aria-pressed='true'] {
+  color: var(--ink);
+  background: var(--raised);
+  box-shadow: inset 0 -2px 0 var(--ink);
+  animation: underIn 90ms steps(2, end);
+}
 
 .topbar__cell {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
-  padding: var(--u2) var(--u4);
+  gap: 3px;
+  padding: var(--u2) 18px;
+  border: 0;
   border-left: var(--rule);
-  min-width: 0;
-}
-.topbar__cell--action {
-  border-top: 0;
-  border-bottom: 0;
-  border-right: 0;
-  align-items: flex-start;
+  background: transparent;
+  color: var(--ink);
   text-align: left;
   font: inherit;
-  color: var(--carbon);
-  background: var(--bleach);
-  cursor: pointer;
-  transition: background var(--step), color var(--step);
+  min-width: 0;
 }
-.topbar__cell--action:hover {
-  background: var(--carbon);
-  color: var(--bleach);
-}
-.topbar__cell--action:hover .dim { color: var(--concrete); }
-
-/* Modality tabs · the active one is inverted. */
-.tabs {
-  display: flex;
-  align-self: stretch;
-}
-.tab {
-  border: 0;
-  border-right: var(--rule);
-  background: var(--bleach);
-  color: var(--carbon);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0 var(--u5);
-  cursor: pointer;
-  transition: background var(--step), color var(--step);
-}
-.tab:hover:not([aria-pressed='true']) { background: var(--concrete); }
-.tab[aria-pressed='true'] {
-  background: var(--carbon);
-  color: var(--bleach);
-}
+.topbar__cell--action { cursor: pointer; }
+.topbar__cell--action:hover { background: var(--hover); }
 
 /* ── Columns ──────────────────────────────────────────────────────────── */
 
 .main {
+  position: relative;
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 380px minmax(0, 1fr);
   min-height: 0;
 }
 
 .control {
-  overflow-y: auto;
-  border-right: var(--rule);
-  background: var(--stock);
-  padding: var(--u4) var(--u4) 0;
   display: flex;
   flex-direction: column;
   gap: var(--u4);
-}
-
-/* Generate is docked to the foot of the column so it is never scrolled away.
-   margin-top: auto keeps it at the bottom when the column is short. */
-.commit-dock {
-  position: sticky;
-  bottom: 0;
-  margin: auto calc(-1 * var(--u4)) 0;
-  padding: var(--u4);
-  background: var(--stock);
-  border-top: var(--rule);
-  display: flex;
-  flex-direction: column;
-  gap: var(--u2);
+  padding: var(--u4) var(--u4) 0;
+  overflow-y: auto;
+  border-right: var(--rule);
+  background: var(--page);
 }
 
 .workspace {
-  overflow-y: auto;
-  background: var(--stock);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  background: var(--page);
 }
 
 /* ── Model header ─────────────────────────────────────────────────────── */
 
-.readout-band {
+.readout {
   display: flex;
   flex-direction: column;
-  gap: var(--u3);
-  padding: var(--u5) var(--u5) var(--u4);
+  gap: 14px;
+  padding: 22px var(--u6) 18px;
   border-bottom: var(--rule);
-  background: var(--bleach);
+  background: var(--plate);
   min-width: 0;
 }
-.readout-band .plate-title { overflow-wrap: anywhere; }
-
+.readout__name {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
 .readout-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--u2) var(--u6);
+  gap: var(--u2) 28px;
 }
-
 .meta-cell {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-left: var(--u2);
-  border-left: var(--rule-ash);
+  gap: 3px;
+  padding-left: 10px;
+  border-left: var(--rule);
 }
 
-/* First run: only the key field, across the whole width. */
-.main--keyonly {
-  grid-template-columns: 1fr;
+/* ── Model picker · as tall as the column, searchable, marks as filters ─
+   It wipes out of the column it serves; the scrim steps in behind it, and
+   both leave the way they came. */
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  border: 0;
+  padding: 0;
+  background: rgba(14, 14, 16, 0.72);
+  cursor: default;
+  animation: scrimIn 90ms steps(2, end) both;
+}
+.scrim.is-closing { animation: scrimOut 90ms steps(2, end) both; }
+.scrim:focus-visible { box-shadow: none; }
+
+.picker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  width: min(480px, 100%);
+  border-right: var(--rule);
+  background: var(--plate);
+  animation: wipeIn 120ms steps(3, end) both;
+}
+.picker.is-closing { animation: wipeOut 90ms steps(2, end) both; }
+
+/* Focus belongs to the whole search bar: its rule lights, pale to deep. */
+.picker__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--u3) 0 var(--u4);
+  border-bottom: var(--rule);
+  color: var(--ash);
+}
+.picker__search:focus-within {
+  color: var(--focus-a);
+  border-bottom-color: transparent;
+  background: linear-gradient(90deg, var(--focus-a), var(--focus-b)) left bottom / 100% 1px no-repeat;
+  box-shadow: 0 8px 14px -12px rgba(37, 244, 238, 0.7);
+}
+.picker__input {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 15px;
+  caret-color: var(--cyan);
+}
+.picker__input::placeholder { color: var(--ash); }
+.picker__input:focus,
+.picker__input:focus-visible { outline: none; box-shadow: none; }
+
+.makers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: var(--u3) var(--u4);
+  border-bottom: var(--rule);
+}
+.maker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border: var(--rule);
+  background: var(--page);
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.maker:hover { color: var(--ink); background: var(--hover); }
+.maker[aria-pressed='true'] {
+  color: var(--cyan);
+  background: var(--cyan-wash);
+  border-color: var(--cyan);
+  animation: lockIn 90ms steps(2, end);
+}
+
+.picker__list { overflow-y: auto; padding: 6px 0 var(--u3); }
+.picker__group {
+  padding: 14px var(--u4) 6px;
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.pick {
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--u4);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+.pick:hover,
+.pick.is-hi { background: var(--hover); }
+.pick:disabled { color: var(--ash); cursor: not-allowed; }
+.pick[aria-pressed='true'] { background: var(--cyan-wash); color: var(--cyan); }
+.pick__name { flex: 1; min-width: 0; }
+.pick__meta { color: var(--ash); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+.pick__price {
+  min-width: 72px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.pick__price--rate { color: var(--ash); }
+.picker__foot {
+  padding: 10px var(--u4);
+  border-top: var(--rule);
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* ── Drop · references arrive anywhere over the app; a hatched frame says where ── */
+
+.drop {
+  position: absolute;
+  inset: var(--u3);
+  z-index: 25;
+  padding: 7px;
+  pointer-events: none;
+  background: repeating-linear-gradient(-45deg, var(--cyan) 0 2px, transparent 2px 5px);
+  animation: scrimIn 90ms steps(2, end) both;
+}
+.drop--no { background: repeating-linear-gradient(-45deg, var(--line) 0 2px, transparent 2px 5px); }
+.drop__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--u3);
+  height: 100%;
+  background: rgba(14, 14, 16, 0.94);
+  box-shadow: 0 0 0 2px var(--page);
+}
+.drop--no .plate-title { color: var(--ash); }
+
+@keyframes scrimIn { from { opacity: 0; } }
+@keyframes scrimOut { to { opacity: 0; } }
+@keyframes wipeIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes wipeOut { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 100% 0 0); } }
+
+@media (max-width: 760px) {
+  .app { height: auto; overflow: visible; grid-template-rows: auto auto; }
+  .topbar { flex-wrap: wrap; }
+  .word { flex: 1 1 100%; padding: 14px var(--u4); border-right: 0; border-bottom: var(--rule); }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .control { overflow: visible; border-right: 0; border-bottom: var(--rule); }
+  .workspace { overflow: visible; }
+  .dock { position: static; }
+  .picker { position: fixed; }
 }

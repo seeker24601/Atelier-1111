@@ -189,7 +189,7 @@ dependencies = [
 
 [[package]]
 name = "atelier-1111"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "serde",
  "serde_json",

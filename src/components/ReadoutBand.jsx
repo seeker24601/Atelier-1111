@@ -1,4 +1,7 @@
 import { perMillion, plural, priceLabel, releaseDate, shortModel, tokens } from '../format.js'
+import { makerOf, modelName } from '../makers.js'
+import Logo from './ui/Logo.jsx'
+import { useScramble } from './ui/useScramble.js'
 
 /**
  * The model heads the workspace, with its facts on the line beneath. Cells
@@ -8,6 +11,9 @@ import { perMillion, plural, priceLabel, releaseDate, shortModel, tokens } from 
  */
 export default function ReadoutBand({ models, model, runs = [], kind = 'image' }) {
   const active = models.find((m) => m.id === model)
+  // The name in the display face; it scrambles into place when the model changes.
+  const name = active ? modelName(active) : model ? shortModel(model) : 'No model'
+  const shown = useScramble(name)
   const pricing = active?.pricing || {}
 
   const measured = runs.filter((r) => r.cost != null)
@@ -71,8 +77,13 @@ export default function ReadoutBand({ models, model, runs = [], kind = 'image' }
   }
 
   return (
-    <div className="readout-band">
-      <span className="plate-title">{model ? shortModel(model) : 'No model'}</span>
+    <div className="readout">
+      <div className="readout__name">
+        <Logo id={makerOf(model)} size="lg" />
+        <h1 className="plate-title" aria-label={name}>
+          {shown}
+        </h1>
+      </div>
 
       <div className="readout-meta">
         {cells.map((c) => (

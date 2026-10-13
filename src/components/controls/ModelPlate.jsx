@@ -1,43 +1,20 @@
+import { ChevronDown } from 'lucide-react'
 import Plate from '../ui/Plate.jsx'
-import { parseModelId } from '../../../server/modelid.js'
+import Logo from '../ui/Logo.jsx'
+import { makerOf, modelName } from '../../makers.js'
 
-/** Just the choice. Price, context and release date read in the band above. */
-export default function ModelPlate({
-  models,
-  model,
-  onModel,
-  refCapFor = () => Infinity,
-  refsAttached = 0,
-}) {
-  // A model that cannot take the references currently attached is not a choice:
-  // it would either ignore them and bill a plain text-to-image result, or refuse
-  // outright. The option says why it is disabled, in place.
-  const blocked = (m) => refsAttached > refCapFor(m.id)
-
-  const why = (m) => {
-    const cap = refCapFor(m.id)
-    return cap === 0 ? ' — no references' : ` — max ${cap} reference${cap === 1 ? '' : 's'}`
-  }
-
+/** Just the choice: the maker's mark and the model's name. The picker does the rest. */
+export default function ModelPlate({ models, model, onOpen }) {
+  const active = models.find((m) => m.id === model)
   return (
-    <Plate id="01 / Model">
-      <label className="select-wrap">
-        <select
-          className="select"
-          value={model}
-          onChange={(e) => onModel(e.target.value)}
-          disabled={models.length === 0}
-        >
-          {models.length === 0 && <option value="">Loading…</option>}
-          {models.map((m) => (
-            <option key={m.id} value={m.id} disabled={blocked(m)}>
-              {/* The picker lists one provider's models, so the prefix says nothing. */}
-              {parseModelId(m.id).model}
-              {blocked(m) ? why(m) : ''}
-            </option>
-          ))}
-        </select>
-      </label>
+    <Plate id="01 / Model" right={models.length ? `${models.length} available` : null}>
+      <button className="model-btn" type="button" aria-haspopup="dialog" onClick={onOpen} disabled={!models.length}>
+        <Logo id={makerOf(model)} size="md" />
+        <span className="model-btn__name">{active ? modelName(active) : models.length ? 'Choose a model' : 'Loading models'}</span>
+        <span className="model-btn__caret" aria-hidden="true">
+          <ChevronDown size={16} />
+        </span>
+      </button>
     </Plate>
   )
 }

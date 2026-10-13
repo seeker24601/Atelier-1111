@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api.js'
+import { Square, SquareCheck, X } from 'lucide-react'
 import { parseModelId } from '../../server/modelid.js'
+import { makerOf, modelName } from '../makers.js'
+import Plate from './ui/Plate.jsx'
+import Logo from './ui/Logo.jsx'
 
 const KINDS = ['image', 'video']
 
@@ -87,10 +91,8 @@ export default function ModelsPanel({ provider, onChange }) {
   }
 
   return (
-    <section className="settings__col">
-      <span className="plate-title">Models</span>
-
-      <div className="seg" role="group" aria-label="Model kind" style={{ marginTop: 20 }}>
+    <Plate id="04 / Models" right={`${models.length - hiddenHere} of ${models.length} shown`}>
+      <div className="seg seg--tabs" role="group" aria-label="Model kind">
         {KINDS.map((k) => (
           <button key={k} className="seg__opt" aria-pressed={kind === k} onClick={() => setKind(k)}>
             {k}
@@ -98,54 +100,48 @@ export default function ModelsPanel({ provider, onChange }) {
         ))}
       </div>
 
-      <input
-        className="field"
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Filter"
-        style={{ marginTop: 8 }}
-      />
+      <label className="sr" htmlFor="modelfilter">
+        Filter models
+      </label>
+      <input id="modelfilter" className="field" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filter" />
 
-      <div className="row row--between" style={{ marginTop: 8 }}>
-        <span className="data data--sm dim">
-          {models.length - hiddenHere} of {models.length} shown
-        </span>
-        <span className="row">
-          <button className="btn btn--sm" onClick={() => setHidden(ids, false)}>
-            Show all
-          </button>
-          <button className="btn btn--sm" onClick={() => setHidden(ids, true)}>
-            Hide all
-          </button>
-        </span>
+      <div className="row">
+        <span className="data dim">Checked models show in the picker.</span>
+        <span className="spacer" />
+        <button className="btn btn--sm" onClick={() => setHidden(ids, false)}>
+          Show all
+        </button>
+        <button className="btn btn--sm" onClick={() => setHidden(ids, true)}>
+          Hide all
+        </button>
       </div>
 
-      <ul className="modellist" style={{ marginTop: 8 }}>
+      <ul className="modellist">
         {shown.map((m) => {
           const off = hidden.has(m.id)
           return (
-            <li key={m.id} className={m.custom ? 'modellist__custom' : undefined}>
+            <li key={m.id}>
               <button
                 className="modellist__row"
                 aria-pressed={!off}
                 onClick={() => setHidden([m.id], !off)}
-                title={m.supersededBy ? `A newer version exists: ${m.supersededBy}` : m.name}
+                title={m.supersededBy ? `A newer version exists: ${m.supersededBy}` : m.id}
               >
-                <span className={`mark ${off ? '' : 'mark--on'}`} />
-                <span className="data truncate">{parseModelId(m.id).model}</span>
-                {m.supersededBy && (
-                  <span className="data data--sm dim">newer: {m.supersededBy.split('/').pop()}</span>
-                )}
-                {m.custom && <span className="data data--sm dim">added</span>}
+                {off ? <Square size={16} aria-hidden="true" /> : <SquareCheck size={16} aria-hidden="true" />}
+                <Logo id={makerOf(m.id)} />
+                <span className="truncate" style={{ flex: 1 }}>
+                  {modelName(m)}
+                </span>
+                {m.supersededBy && <span className="modellist__note">newer: {m.supersededBy.split('/').pop()}</span>}
+                {m.custom && <span className="modellist__note">added</span>}
               </button>
               {m.custom && (
                 <button
-                  className="btn btn--sm"
-                  title={`Remove ${parseModelId(m.id).model}`}
+                  className="btn btn--icon"
+                  aria-label={`Remove ${parseModelId(m.id).model}`}
                   onClick={() => saveCustom(custom.filter((id) => id !== m.id))}
                 >
-                  ×
+                  <X size={12} aria-hidden="true" />
                 </button>
               )}
             </li>
@@ -154,9 +150,9 @@ export default function ModelsPanel({ provider, onChange }) {
       </ul>
 
       {kind === 'image' && provider && (
-        <form onSubmit={addModel} className="row" style={{ gap: 8, marginTop: 12 }}>
+        <form onSubmit={addModel} className="row">
           <input
-            className="field"
+            className="field field--mono"
             value={adding}
             onChange={(e) => setAdding(e.target.value)}
             placeholder={`Add a ${provider.label} model id`}
@@ -164,13 +160,13 @@ export default function ModelsPanel({ provider, onChange }) {
             spellCheck={false}
             autoComplete="off"
           />
-          <button className="btn btn--sm" type="submit" disabled={!adding.trim()}>
+          <button className="btn" type="submit" disabled={!adding.trim()}>
             Add
           </button>
         </form>
       )}
 
-      {error && <p className="banner banner--err" style={{ marginTop: 8 }}>{error}</p>}
-    </section>
+      {error && <p className="banner banner--err">{error}</p>}
+    </Plate>
   )
 }

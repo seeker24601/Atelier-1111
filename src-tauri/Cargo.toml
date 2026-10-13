@@ -1,6 +1,6 @@
 [package]
 name = "atelier-1111"
-version = "0.2.3"
+version = "0.3.0"
 description = "Atelier image and video workbench"
 edition = "2021"
 
