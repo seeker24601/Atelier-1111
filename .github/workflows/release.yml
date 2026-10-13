@@ -77,6 +77,19 @@ jobs:
         run: |
           gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/${{ needs.draft.outputs.id }}" \
             -f tag_name="$GITHUB_REF_NAME" -F draft=false -F prerelease=true -f make_latest=false --silent
+      # Fixed names, so seeker-studio.games/atelier/ can link to
+      # releases/latest/download/<name> and always serve the current release.
+      # releases/latest never resolves to a pre-release, so the site only ever
+      # offers a promoted build.
+      - name: Attach installers under fixed names
+        run: |
+          gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -D dl \
+            -p '*_x64-setup.exe' -p '*_aarch64.dmg' -p '*_x64.dmg'
+          cp dl/*_x64-setup.exe dl/Atelier-1111-windows-x64-setup.exe
+          cp dl/*_aarch64.dmg dl/Atelier-1111-macos-apple-silicon.dmg
+          cp dl/*_x64.dmg dl/Atelier-1111-macos-intel.dmg
+          gh release upload "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --clobber \
+            dl/Atelier-1111-windows-x64-setup.exe dl/Atelier-1111-macos-apple-silicon.dmg dl/Atelier-1111-macos-intel.dmg
       - name: Point the test feed at it
         run: |
           gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -p latest.json -D feed
