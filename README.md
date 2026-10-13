@@ -5,7 +5,7 @@ Google, xAI, fal, Replicate, Black Forest Labs, Luma, ByteDance, Prodia,
 Higgsfield or WaveSpeed. It runs on your machine and saves every result to disk
 with its prompt and, where the provider reports one, its cost.
 
-![Atelier-1111 with FLUX.3 Image selected, the composer docked under its settings, and a gallery of images from eight models](docs/screenshot.webp)
+![Atelier-1111 with FLUX.3 Image selected, the composer docked under its settings, and a gallery of anime and portrait images from eight models](docs/screenshot.webp)
 
 ## Run it
 
