@@ -21,24 +21,23 @@ export default function TopBar({ activeJobs, spend, keyStatus, account, view, vi
   const figure = keyStatus.configured ? keyFigure(account) : null
   return (
     <header className="topbar">
-      <span className="topbar__mark">Atelier—1111</span>
+      {/* The wordmark, with the app icon's one pink pixel. */}
+      <span className="word">
+        Atelier 1111
+        <i aria-hidden="true" />
+      </span>
 
       {/* Two catalogues, two pipelines. The tab is the only place the app is
           told which one it is working in. */}
-      <nav className="tabs">
+      <nav className="tabs" aria-label="Modality">
         {VIEWS.filter((v) => views.includes(v.id)).map((v) => (
-          <button
-            key={v.id}
-            className="tab"
-            aria-pressed={view === v.id}
-            onClick={() => onView(v.id)}
-          >
+          <button key={v.id} className="tab" aria-pressed={view === v.id} onClick={() => onView(v.id)}>
             {v.text}
           </button>
         ))}
       </nav>
 
-      <div className="topbar__spacer" />
+      <div className="spacer" />
 
       {activeJobs.length > 0 && (
         <div className="topbar__cell">

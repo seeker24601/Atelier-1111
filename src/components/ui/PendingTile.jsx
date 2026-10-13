@@ -1,18 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
-import { shortModel } from '../../format.js'
+import Logo from './Logo.jsx'
+import DecodeField from './DecodeField.jsx'
+import { makerOf } from '../../makers.js'
 
 const POLL_MS = 1500
+
+const clock = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+const seedOf = (id) => [...String(id)].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 9973, 7)
 
 /**
  * A tile for work still running, holding the place the result will take.
  *
- * Where a model streams partial frames, this is the real image forming rather
- * than a placeholder — the same bytes it has drawn so far, replaced as newer
- * ones arrive. Models that send no partials simply never resolve a frame and
- * the tile stays a marked-out box, which is still better than the grid
- * silently doing nothing for two minutes.
+ * The decode field runs while nothing is drawn yet, settling as the job nears
+ * this model's usual time. Where a model streams partial frames, the real
+ * image forming replaces it: the same bytes it has drawn so far, swapped as
+ * newer ones arrive.
  */
-export default function PendingTile({ job }) {
+export default function PendingTile({ job, name, usualMs }) {
   const [frame, setFrame] = useState(null)
   const [elapsed, setElapsed] = useState(0)
   const current = useRef(null)
@@ -45,27 +49,28 @@ export default function PendingTile({ job }) {
   }, [job.id])
 
   useEffect(() => {
-    const tick = () => setElapsed(Math.round((Date.now() - job.created_at) / 1000))
+    const tick = () => setElapsed(Math.max(0, Math.round((Date.now() - job.created_at) / 1000)))
     tick()
     const t = setInterval(tick, 1000)
     return () => clearInterval(t)
   }, [job.created_at])
 
+  const queued = job.status === 'queued'
   return (
-    <article className="tile tile--pending crop" title={job.prompt}>
+    <article className="tile tile--pending" title={job.prompt} aria-label={`${name}: ${queued ? 'queued' : 'generating'}`}>
       <div className="tile__frame">
-        {frame ? (
-          <img src={frame} alt="" className="tile__partial" />
-        ) : (
-          <span className="tile__wait" aria-hidden="true" />
-        )}
+        <DecodeField seed={seedOf(job.id)} progress={queued ? 0 : (elapsed * 1000) / usualMs} />
+        {frame && <img src={frame} alt="" className="tile__partial" />}
       </div>
       <div className="tile__meta">
-        <div className="row row--between">
-          <span className="data data--sm">{shortModel(job.model)}</span>
-          <span className="data data--sm live">{job.status === 'queued' ? 'queued' : `${elapsed}s`}</span>
+        <div className="tile__row">
+          <span className="tile__model">
+            <Logo id={makerOf(job.model)} />
+            <span className="label">{name}</span>
+          </span>
+          <span className="data live">{queued ? 'queued' : clock(elapsed)}</span>
         </div>
-        <span className="data data--sm dim truncate">{job.prompt}</span>
+        <span className="tile__prompt">{job.kind === 'video' ? 'Takes minutes. Keeps going if you quit.' : job.prompt}</span>
       </div>
     </article>
   )

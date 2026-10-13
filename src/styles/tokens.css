@@ -1,14 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   ATELIER-1111 — instrument-grade, monochrome, brutal
+   ATELIER-1111 — dark, brutal, a little glitched
 
-   Six colours. Five of them are greys; the sixth is SIGNAL, and it only
-   ever means *live* — a job running, the one action that spends money,
-   the element under the keyboard. Nothing else is coloured. State is
-   spelled out in words, never colour-coded.
+   Dark only. Ink is a soft grey, never white; structure is a 1px dim rule.
+   Two accents, each with one job: cyan marks what you chose (and focus),
+   pink is live (Generate, running work). Ink inverting marks where you are.
+   State is spelled out in words, never colour-coded.
 
-   Zero radius. Everything on a 4px lattice. No shadows, no gradients,
-   no translucency. Structure is drawn with heavy carbon rules; emphasis
-   is inversion, not hue. Motion is stepped, never eased.
+   Zero radius. Hard offsets, never blurred, and hatched rather than solid.
+   Motion is stepped in two or three frames, never eased.
    ═══════════════════════════════════════════════════════════════════════ */
 
 @font-face {
@@ -22,16 +21,27 @@
 }
 
 :root {
-  /* ── The six ────────────────────────────────────────────────────────── */
-  --carbon: #0b0b0b;    /* ink, rules, inverted bars          */
-  --stock: #ecece8;     /* the page                           */
-  --bleach: #ffffff;    /* plates, fields, frames             */
-  --concrete: #d2d2cc;  /* hover fill, dead controls          */
-  --ash: #6b6b66;       /* secondary text, unset marks        */
-  --signal: #ff4d00;    /* live — and nothing else            */
-  /* Text on signal. Never flips, so the live colour reads the same in both themes. */
-  --on-signal: #0b0b0b;
-  color-scheme: light;
+  /* ── Colour ─────────────────────────────────────────────────────────── */
+  --page: #0e0e10;      /* the page, fields                    */
+  --plate: #151518;     /* plates, bars, tiles                 */
+  --raised: #1d1d21;    /* plate heads, the current tab        */
+  --hover: #25252a;     /* hover fill                          */
+  --line: #3a3a42;      /* every rule                          */
+  --ash: #85858d;       /* secondary text · 4.9:1 on plate     */
+  --ink: #d4d4d0;       /* text, where you are · 12:1          */
+  --cyan: #25f4ee;      /* chosen, focus                       */
+  --cyan-wash: #173436; /* behind a chosen option              */
+  --pink: #fe2c55;      /* live: Generate, running work        */
+  --on-accent: #0e0e10; /* text on pink, cyan or ink           */
+
+  /* Focus is the one cyan that is lit: pale to deep across the ring, a faint glow. */
+  --focus-a: #8ffbf6;
+  --focus-b: #19c4d0;
+  --focus-glow: 0 0 14px 1px rgba(37, 244, 238, 0.18);
+  --focus-ring: 0 0 0 2px var(--page), -1px -1px 0 2px var(--focus-a), 0 0 0 3px var(--focus-b), var(--focus-glow);
+
+  --rule: 1px solid var(--line);
+  color-scheme: dark;
 
   /* ── Lattice · nothing sits off 4px ─────────────────────────────────── */
   --u: 4px;
@@ -43,42 +53,19 @@
   --u8: 32px;
   --u12: 48px;
 
-  /* Structure is heavy; subdivision is a hairline of the same ink. */
-  --rule: 2px solid var(--carbon);
-  --rule-ash: 1px solid var(--carbon);
+  /* ── Motion · two hard frames, the house timing ─────────────────────── */
+  --frames: 90ms steps(2, end);
 
-  /* Hover and press are hard swaps. */
-  --step: 80ms steps(1, end);
-
-  /* ── Type · two families ────────────────────────────────────────────── */
-  --display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;
+  /* ── Type · three faces, all bundled ────────────────────────────────── */
+  /* Silkscreen is drawn on an 8px grid: set it at 16 or 32 only. */
+  --display: 'Silkscreen', 'Departure Mono', monospace;
   --sans: 'Archivo Variable', system-ui, -apple-system, sans-serif;
-  /* Fallbacks only show if the bundled font fails to load: Windows, then macOS. */
+  /* Departure Mono is drawn on an 11px grid: every mono size is 11px. */
   --mono: 'Departure Mono', 'Cascadia Mono', Consolas, ui-monospace, Menlo, monospace;
 }
 
-/* ── Dark · the same six, inverted ────────────────────────────────────────
-   Every role keeps its meaning: carbon is still the ink, the rules and the
-   inverted bars, so it becomes the light value. Signal does not move. The
-   ink is a shade off white so the bars do not glare. Applied when the OS is
-   dark and no choice was saved, or when dark was chosen in Settings. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --carbon: #e6e6e1;
-    --stock: #121211;
-    --bleach: #1b1b19;
-    --concrete: #2f2f2c;
-    --ash: #8f8f88;
-    --signal: #ff5a1f;
-    color-scheme: dark;
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --frames: 0s;
   }
-}
-:root[data-theme='dark'] {
-  --carbon: #e6e6e1;
-  --stock: #121211;
-  --bleach: #1b1b19;
-  --concrete: #2f2f2c;
-  --ash: #8f8f88;
-  --signal: #ff5a1f;
-  color-scheme: dark;
 }

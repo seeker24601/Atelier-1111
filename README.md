@@ -5,7 +5,7 @@ Google, xAI, fal, Replicate, Black Forest Labs, Luma, ByteDance, Prodia,
 Higgsfield or WaveSpeed. It runs on your machine and saves every result to disk
 with its prompt and, where the provider reports one, its cost.
 
-![Atelier-1111 with a gallery of images from six models](docs/screenshot.webp)
+![Atelier-1111 with FLUX.3 Image selected, the composer docked under its settings, and a gallery of images from eight models](docs/screenshot.webp)
 
 ## Run it
 
@@ -42,6 +42,9 @@ double-click `Start-Atelier.vbs` instead.
   [openrouter-image-specs](https://github.com/seeker24601/openrouter-image-specs):
   the same model's schema on fal. A transparent background is offered where a
   model has one. Refresh the bundled copy with `node scripts/sync-specs.mjs`.
+  Every setting starts at Auto, which leaves it to the model and sends nothing.
+- Shows a failed job where its image would have been, in plain words, with the
+  one move that fixes it and the provider's own message a click away.
 - Saves results to `data/images` and their details to `data/atelier.db`.
 - Shows what each image cost and, for OpenRouter, what your key has left.
   Other providers report no cost, so none is shown.
@@ -78,5 +81,8 @@ See [desktop build instructions](docs/desktop.md) for packaging and data locatio
 
 ## License
 
-MIT. The bundled fonts, Departure Mono and Archivo, use the SIL Open Font
-License 1.1.
+MIT. The bundled fonts, Departure Mono, Archivo and Silkscreen, use the SIL
+Open Font License 1.1. Icons are [Lucide](https://lucide.dev) (ISC). Provider
+and model makers' marks come from [LobeHub Icons](https://github.com/lobehub/lobe-icons)
+(MIT) and [Simple Icons](https://simpleicons.org) (CC0); they belong to their
+owners and only name the services Atelier works with.

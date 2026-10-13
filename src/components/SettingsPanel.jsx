@@ -1,18 +1,19 @@
 import { useEffect } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import StoragePanel from './StoragePanel.jsx'
 import UpdatePanel from './UpdatePanel.jsx'
 import ModelsPanel from './ModelsPanel.jsx'
 import KeysPanel from './KeysPanel.jsx'
-import { THEMES } from '../theme.js'
 
 /**
- * Keys, storage, appearance, models and updates. Keys are typed in KeysPanel
+ * Settings, as a page in the same system: keys, updates, storage and models.
+ * No appearance section: the app is dark only. Keys are typed in KeysPanel
  * and posted straight to the local API; they never come back over the wire.
  */
 export default function SettingsPanel({ open, onClose, settings, storage, onModelsChange }) {
   useEffect(() => {
     if (!open) return
-    const onKey = (e) => e.key === 'Escape' && onClose()
+    const onKey = (e) => e.key === 'Escape' && !e.target.closest?.('input, textarea') && onClose()
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
@@ -20,49 +21,38 @@ export default function SettingsPanel({ open, onClose, settings, storage, onMode
   if (!open) return null
 
   return (
-    <div className="detail">
-      <header className="detail__head">
-        <span className="plate__id">Settings</span>
-        <button className="btn btn--sm" onClick={onClose} title="Esc">
-          ×
+    <div className="settings-page" role="dialog" aria-label="Settings">
+      <header className="topbar">
+        <span className="word">
+          Atelier 1111
+          <i aria-hidden="true" />
+        </span>
+        <span className="here label">Settings</span>
+        <span className="spacer" />
+        <button className="back label" onClick={onClose} title="Esc">
+          <ArrowLeft size={16} aria-hidden="true" />
+          Back to the studio
         </button>
       </header>
 
-      {/* Two stacks, not one grid: a long model list must not push Updates out of sight. */}
-      <div className="settings">
-        <div className="settings__stack">
-          <KeysPanel settings={settings} />
-
-          <UpdatePanel />
-
-          <section className="settings__col">
-            <span className="plate-title">Appearance</span>
-            <div className="seg" role="group" aria-label="Appearance" style={{ marginTop: 20 }}>
-              {THEMES.map((t) => (
-                <button
-                  key={t}
-                  className="seg__opt"
-                  aria-pressed={settings.theme === t}
-                  onClick={() => settings.setTheme(t)}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </section>
+      <main className="settings">
+        {/* Two stacks, not one grid: a long model list must not push Updates out of sight. */}
+        <div className="settings__cols">
+          <div className="settings__stack">
+            <KeysPanel settings={settings} />
+            <UpdatePanel />
+          </div>
+          <div className="settings__stack">
+            <StoragePanel {...storage} />
+            {/* Remounted per provider: the hide list shows the active provider's models. */}
+            <ModelsPanel
+              key={settings.status.active ?? 'none'}
+              provider={settings.status.providers?.find((p) => p.id === settings.status.active) ?? null}
+              onChange={onModelsChange}
+            />
+          </div>
         </div>
-
-        <div className="settings__stack">
-          <StoragePanel {...storage} />
-
-          {/* Remounted per provider: the hide list shows the active provider's models. */}
-          <ModelsPanel
-            key={settings.status.active ?? 'none'}
-            provider={settings.status.providers?.find((p) => p.id === settings.status.active) ?? null}
-            onChange={onModelsChange}
-          />
-        </div>
-      </div>
+      </main>
     </div>
   )
 }

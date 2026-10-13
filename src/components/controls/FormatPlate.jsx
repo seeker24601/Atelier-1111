@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react'
 import Plate from '../ui/Plate.jsx'
 import Param from '../ui/Param.jsx'
 import FixedParam from '../ui/FixedParam.jsx'
@@ -51,14 +52,13 @@ export default function FormatPlate({
   hidden = new Map(),
   kind = 'image',
   spec = null,
+  number = '03',
 }) {
   // Background exists only where the model publishes it; the rest always show.
   const fields = fieldsFor(kind).filter((f) => !f.publishedOnly || offersBackground(spec))
-  const shown = fields.filter((f) => !hidden.has(f.key))
-  const sent = shown.filter((f) => paramsOn[f.key]).length
 
   return (
-    <Plate id="04 / Format" right={`${sent} sent`}>
+    <Plate id={`${number} / Format`}>
       <div className="stack">
         {fields.map((f) =>
           hidden.has(f.key) ? (
@@ -82,8 +82,9 @@ export default function FormatPlate({
           )
         )}
         {spec?.source && (
-          <a className="data data--sm dim" href={spec.source.url} target="_blank" rel="noreferrer">
-            Options as published for {spec.source.endpoint} on fal ↗
+          <a className="data dim inline-icon" href={spec.source.url} target="_blank" rel="noreferrer">
+            Options as published for {spec.source.endpoint} on fal
+            <ExternalLink size={12} aria-hidden="true" />
           </a>
         )}
       </div>

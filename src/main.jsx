@@ -2,6 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 // Bundled, not fetched: the app makes no request to anyone but OpenRouter.
 import '@fontsource-variable/archivo/wdth.css'
+import '@fontsource/silkscreen/400.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/controls.css'

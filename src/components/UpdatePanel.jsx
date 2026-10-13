@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { ArrowRight, Download, Square, SquareCheck } from 'lucide-react'
+import Plate from './ui/Plate.jsx'
 import { canUpdate, checkForUpdate, installUpdate, wantsTestBuilds, setWantsTestBuilds } from '../updates.js'
 
 /**
@@ -41,52 +43,46 @@ export default function UpdatePanel() {
   }
 
   const { step } = state
+  const busy = step === 'checking' || step === 'installing'
   return (
-    <section className="settings__col">
-      <span className="plate-title">Updates</span>
-
+    <Plate id="02 / Updates">
       {state.current && (
-        <div className="proc" style={{ marginTop: 20 }}>
-          <div className="proc__row">
-            <span className="label label--sm dim">Installed</span>
-            <span className="data">v{state.current}</span>
-          </div>
+        <dl className="facts">
+          <dt>Installed</dt>
+          <dd>v{state.current}</dd>
           {state.available && (
-            <div className="proc__row">
-              <span className="label label--sm dim">Available</span>
-              <span className="data">v{state.available}</span>
-            </div>
+            <>
+              <dt>Available</dt>
+              <dd>v{state.available}</dd>
+            </>
           )}
-        </div>
+        </dl>
       )}
 
-      <div className="stack-sm" style={{ marginTop: 16 }}>
-        {step === 'available' || step === 'installing' ? (
-          <button className="btn" onClick={install} disabled={step === 'installing'}>
-            <span>{step === 'installing' ? 'Installing…' : 'Install and restart'}</span>
-            <span>↓</span>
-          </button>
-        ) : (
-          <button className="btn" onClick={check} disabled={step === 'checking'}>
-            <span>
-              {step === 'checking' ? 'Checking…' : step === 'current' ? 'Up to date · check again' : 'Check for updates'}
-            </span>
-            <span>→</span>
-          </button>
-        )}
-        <button
-          className="send-toggle"
-          aria-pressed={testBuilds}
-          onClick={toggleTestBuilds}
-          disabled={step === 'checking' || step === 'installing'}
-          title="Test builds arrive as soon as they are made, before they are released to everyone."
-        >
-          <span className={`mark ${testBuilds ? 'mark--on' : ''}`} style={{ width: 8, height: 8 }} />
-          include test builds
+      {step === 'available' || step === 'installing' ? (
+        <button className="btn btn--ink btn--wide" onClick={install} disabled={step === 'installing'}>
+          <span>{step === 'installing' ? 'Installing' : 'Install and restart'}</span>
+          {step === 'installing' ? <span className="wait" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
         </button>
-        {state.notes && step === 'available' && <p className="prose prose--sm">{state.notes}</p>}
-        {step === 'error' && <p className="banner banner--err">{state.error}</p>}
-      </div>
-    </section>
+      ) : (
+        <button className="btn btn--wide" onClick={check} disabled={busy}>
+          <span>{step === 'checking' ? 'Checking' : step === 'current' ? 'Up to date · check again' : 'Check for updates'}</span>
+          {step === 'checking' ? <span className="wait" aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}
+        </button>
+      )}
+
+      <button
+        className="toggle"
+        aria-pressed={testBuilds}
+        onClick={toggleTestBuilds}
+        disabled={busy}
+        title="Test builds arrive as soon as they are made, before they are released to everyone."
+      >
+        {testBuilds ? <SquareCheck size={16} aria-hidden="true" /> : <Square size={16} aria-hidden="true" />}
+        Include test builds
+      </button>
+      {state.notes && step === 'available' && <p className="prose prose--sm">{state.notes}</p>}
+      {step === 'error' && <p className="banner banner--err">{state.error}</p>}
+    </Plate>
   )
 }

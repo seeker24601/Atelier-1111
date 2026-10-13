@@ -24,6 +24,10 @@ fn main() {
             let url = format!("http://127.0.0.1:{port}").parse()?;
             WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url))
                 .title("Atelier 1111")
+                // Dark only: the title bar and the first paint match the page,
+                // so the window never flashes white before it loads.
+                .theme(Some(tauri::Theme::Dark))
+                .background_color(tauri::window::Color(14, 14, 16, 255))
                 .inner_size(1440.0, 940.0)
                 .min_inner_size(960.0, 640.0)
                 .on_navigation(|url| url.host_str() == Some("127.0.0.1"))
