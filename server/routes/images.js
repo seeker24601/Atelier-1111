@@ -1,5 +1,8 @@
 import { Router } from 'express'
+import { randomUUID } from 'node:crypto'
 import * as imagesRepo from '../db/images.js'
+import { downloadName } from '../filenames.js'
+import { writeZip, ZIP_LIMIT_BYTES, ZIP_LIMIT_FILES } from '../zip.js'
 import * as jobsRepo from '../db/jobs.js'
 import * as library from '../library.js'
 import { qualify } from '../modelid.js'
@@ -16,6 +19,76 @@ images.get('/images', (req, res) => {
       kind: req.query.kind || null,
     }),
   })
+})
+
+/** A list of ids from a JSON body, or null when it is not one. */
+function idsFrom(body) {
+  const ids = body?.ids
+  if (!Array.isArray(ids) || !ids.length || !ids.every((id) => typeof id === 'string')) return null
+  return [...new Set(ids)]
+}
+
+/**
+ * Several plates at once. A POST with the ids, not DELETE /images with a body:
+ * that path without one clears everything.
+ */
+images.post('/images/remove', async (req, res) => {
+  const ids = idsFrom(req.body)
+  if (!ids) return res.status(400).json({ error: 'Expected { ids: [...] }.' })
+  res.json({ removed: await library.removeMany(ids) })
+})
+
+/**
+ * Several plates as one download. The ids arrive in a POST, which has no
+ * length limit, and come back as a short-lived link the browser downloads
+ * like any single file. A link lasts a few minutes and can be fetched again.
+ */
+const archives = new Map()
+const ARCHIVE_TTL_MS = 5 * 60 * 1000
+
+images.post('/images/archive', async (req, res) => {
+  const ids = idsFrom(req.body)
+  if (!ids) return res.status(400).json({ error: 'Expected { ids: [...] }.' })
+  const rows = await library.filesFor(ids)
+  if (!rows.length) return res.status(404).json({ error: 'None of those files are on disk any more.' })
+  const bytes = rows.reduce((sum, r) => sum + r.size, 0)
+  if (rows.length > ZIP_LIMIT_FILES || bytes > ZIP_LIMIT_BYTES) {
+    return res.status(413).json({ error: 'Too much for one download. Select fewer and try again.' })
+  }
+  const now = Date.now()
+  for (const [token, a] of archives) if (now - a.at > ARCHIVE_TTL_MS) archives.delete(token)
+  const token = randomUUID()
+  archives.set(token, { ids: rows.map((r) => r.id), at: now })
+  res.json({ url: `/api/images/archive/${token}`, count: rows.length })
+})
+
+images.get('/images/archive/:token', async (req, res) => {
+  const archive = archives.get(req.params.token)
+  if (!archive || Date.now() - archive.at > ARCHIVE_TTL_MS) {
+    archives.delete(req.params.token)
+    return res.status(404).json({ error: 'That download has expired. Download again.' })
+  }
+  const rows = await library.filesFor(archive.ids)
+  const d = new Date()
+  const p = (n) => String(n).padStart(2, '0')
+  const name = `atelier-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.zip`
+  res.setHeader('Content-Type', 'application/zip')
+  res.setHeader('Content-Disposition', `attachment; filename="${name}"`)
+  res.setHeader('Cache-Control', 'no-store')
+
+  const taken = new Set()
+  async function* entries() {
+    for (const row of rows) {
+      const data = await library.bytesOf(row)
+      if (!data) continue
+      let file = downloadName(row)
+      for (let n = 2; taken.has(file); n++) file = downloadName(row).replace(/(\.[^.]+)?$/, `-${n}$1`)
+      taken.add(file)
+      yield { name: file, data, mtime: row.created_at }
+    }
+  }
+  await writeZip(res, entries())
+  res.end()
 })
 
 images.delete('/images/:id', async (req, res) => {

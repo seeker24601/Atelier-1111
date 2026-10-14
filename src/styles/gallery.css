@@ -7,7 +7,11 @@
   padding: var(--u6) 30px 36px var(--u6);
   align-content: start;
   isolation: isolate;
+  position: relative;
 }
+/* A drag box is being drawn: no text selection, no hover hatch chasing the pointer. */
+.gallery.is-dragging { user-select: none; }
+.gallery.is-dragging .tile:hover::before { visibility: hidden; }
 
 .tile {
   position: relative;
@@ -96,6 +100,66 @@
   font-size: 11px;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* ── Selecting · a box in the corner, a cyan edge when ticked ──────────── */
+
+.tick {
+  position: absolute;
+  top: var(--u2);
+  left: var(--u2);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--ash);
+  background: var(--page);
+  color: transparent;
+  cursor: pointer;
+  /* Invisible at rest but still there: a quick click on the corner ticks
+     rather than opening the plate, even before hover has drawn the box. */
+  opacity: 0;
+}
+.tick:hover { border-color: var(--ink); }
+.tick:focus-visible { box-shadow: var(--focus-ring); }
+.tile:hover .tick,
+.tick:focus-visible,
+.gallery.is-selecting .tick { opacity: 1; }
+.tick[aria-checked='true'] {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: var(--on-accent);
+  animation: lockIn 90ms steps(2, end);
+}
+.tile.is-selected { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+.tile.is-selected:hover { box-shadow: 0 0 0 1px var(--cyan), 0 0 0 3px var(--page); }
+/* While selecting, a click ticks; the per-plate actions would only get in the way. */
+.gallery.is-selecting .actions { display: none; }
+
+.marquee {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid var(--cyan);
+  background: rgba(37, 244, 238, 0.08);
+  pointer-events: none;
+}
+
+/* The bar for the selection, pinned to the foot of the workspace. */
+.selbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--u3);
+  margin-top: auto;
+  padding: var(--u3) 30px var(--u3) var(--u6);
+  border-top: var(--rule);
+  background: var(--plate);
+  animation: build 90ms steps(2, end) both;
 }
 
 /* ── Hover actions · revealed on hover, reachable by keyboard ─────────── */

@@ -1,15 +1,12 @@
 import { CornerUpLeft, Download, ImagePlus } from 'lucide-react'
 import { urlFor } from '../../store/urls.js'
-import { canBeReference, extensionOf, shortModel } from '../../format.js'
+import { canBeReference, downloadName } from '../../format.js'
 
 /**
  * Per-image actions, revealed on hover and reachable by keyboard. They sit in
  * a tile that opens the viewer on click, so each stops the event reaching it.
  * Deleting lives in the viewer, where it can be armed and seen.
  */
-
-/** Named from the measured format, not from what was asked for. */
-const nameFor = (image) => `${shortModel(image.model).toLowerCase()}-${image.id.slice(0, 8)}.${extensionOf(image)}`
 
 export default function TileActions({ image, onReuse, onUseAsRef }) {
   const asRef = onUseAsRef && image.kind !== 'video' && canBeReference(image.format || image.media_type)
@@ -25,7 +22,7 @@ export default function TileActions({ image, onReuse, onUseAsRef }) {
           <ImagePlus size={16} aria-hidden="true" />
         </button>
       )}
-      <a className="act" href={urlFor(image)} download={nameFor(image)} title={`Save ${nameFor(image)}`} aria-label="Save to disk">
+      <a className="act" href={urlFor(image)} download={downloadName(image)} title={`Save ${downloadName(image)}`} aria-label="Save to disk">
         <Download size={16} aria-hidden="true" />
       </a>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Check } from 'lucide-react'
 import { urlFor } from '../store/urls.js'
 import { dollars } from '../format.js'
 import { makerOf } from '../makers.js'
@@ -14,6 +15,10 @@ const REVEAL_MS = 700
  * The plate grid: work in flight first, where its result will land, then the
  * finished plates and the failed jobs in the order they were made. With
  * nothing at all, the first slot is drawn as an outline.
+ *
+ * Finished plates can be selected: the box in a plate's corner ticks it, and
+ * while anything is ticked a click on a plate ticks it too. Shift extends a
+ * range; Ctrl or Cmd ticks without opening. `box` is the drag box in progress.
  */
 export default function Gallery({
   kind = 'image',
@@ -27,7 +32,12 @@ export default function Gallery({
   onUseAsRef,
   onFix,
   onDismiss,
+  gridRef,
+  box = null,
+  selected = new Set(),
+  onToggle,
 }) {
+  const selecting = selected.size > 0
   // An image whose job was seen running lands through the pixel grid.
   const running = useRef(new Set())
   const [fresh, setFresh] = useState(() => new Set())
@@ -49,7 +59,7 @@ export default function Gallery({
   ].sort((a, b) => b.at - a.at)
 
   return (
-    <div className="gallery">
+    <div className={`gallery${selecting ? ' is-selecting' : ''}`} ref={gridRef}>
       {pending.map((job) => (
         <PendingTile key={job.id} job={job} name={nameFor(job.model)} usualMs={usualFor(job.model, job.kind)} />
       ))}
@@ -70,16 +80,39 @@ export default function Gallery({
           <FailedTile key={`f-${job.id}`} job={job} name={nameFor(job.model)} onFix={onFix} onDismiss={onDismiss} />
         ) : (
           <article
-            className="tile"
+            className={`tile${selected.has(img.id) ? ' is-selected' : ''}`}
             key={img.id}
-            onClick={() => onOpen(img)}
+            data-select-id={img.id}
+            onClick={(e) => {
+              if (e.shiftKey || e.ctrlKey || e.metaKey || selecting) onToggle(img.id, { range: e.shiftKey })
+              else onOpen(img)
+            }}
             role="button"
             tabIndex={0}
             title={img.prompt}
-            aria-label={`Open: ${img.prompt}`}
-            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget && onOpen(img)}
+            aria-label={`${selecting ? 'Select' : 'Open'}: ${img.prompt}`}
+            aria-pressed={selecting ? selected.has(img.id) : undefined}
+            onKeyDown={(e) => {
+              if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+                e.preventDefault()
+                if (selecting) onToggle(img.id, { range: e.shiftKey })
+                else onOpen(img)
+              }
+            }}
           >
             <div className="tile__frame">
+              <button
+                className="tick"
+                role="checkbox"
+                aria-checked={selected.has(img.id)}
+                aria-label="Select"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggle(img.id, { range: e.shiftKey })
+                }}
+              >
+                <Check size={14} aria-hidden="true" />
+              </button>
               {img.kind === 'video' ? (
                 <video
                   src={urlFor(img)}
@@ -94,7 +127,7 @@ export default function Gallery({
                   }}
                 />
               ) : (
-                <img src={urlFor(img)} alt={img.prompt} loading="lazy" decoding="async" />
+                <img src={urlFor(img)} alt={img.prompt} loading="lazy" decoding="async" draggable={false} />
               )}
               {fresh.has(img.id) && <Reveal />}
               <TileActions image={img} onReuse={onReuse} onUseAsRef={onUseAsRef} />
@@ -111,6 +144,10 @@ export default function Gallery({
             </div>
           </article>
         )
+      )}
+
+      {box && (
+        <div className="marquee" aria-hidden="true" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />
       )}
     </div>
   )
