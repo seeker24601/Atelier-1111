@@ -108,7 +108,7 @@
   position: absolute;
   top: var(--u2);
   left: var(--u2);
-  z-index: 1;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -136,8 +136,11 @@
 }
 .tile.is-selected { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
 .tile.is-selected:hover { box-shadow: 0 0 0 1px var(--cyan), 0 0 0 3px var(--page); }
-/* While selecting, a click ticks; the per-plate actions would only get in the way. */
-.gallery.is-selecting .actions { display: none; }
+/* While selecting, a click ticks; a tile's own controls would only get in the way. */
+.gallery.is-selecting .actions,
+.gallery.is-selecting .fail__acts,
+.gallery.is-selecting .why { display: none; }
+.gallery.is-selecting .tile--failed { cursor: pointer; }
 
 .marquee {
   position: absolute;

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Download, X } from 'lucide-react'
+import { Download } from 'lucide-react'
 
 /**
- * What to do with the plates ticked in the gallery. Sits at the foot of the
- * workspace while anything is selected. Delete arms first, as in the viewer.
+ * What to do with what is ticked, at the foot of the workspace for as long as
+ * select mode is on. Download takes the plates (a failed job has no file);
+ * Delete takes plates and failed jobs, and arms first as the viewer's does.
  */
-export default function SelectionBar({ count, total, busy, onSelectAll, onClear, onDownload, onDelete }) {
+export default function SelectionBar({ count, total, files, busy, onSelectAll, onDownload, onDelete }) {
   const [armed, setArmed] = useState(false)
 
   useEffect(() => {
@@ -17,10 +18,7 @@ export default function SelectionBar({ count, total, busy, onSelectAll, onClear,
   useEffect(() => setArmed(false), [count])
 
   return (
-    <div className="selbar" role="toolbar" aria-label="Selected plates">
-      <button className="btn btn--icon" onClick={onClear} title="Clear selection (Esc)" aria-label="Clear selection">
-        <X size={16} aria-hidden="true" />
-      </button>
+    <div className="selbar" role="toolbar" aria-label="Selection">
       <span className="label" aria-live="polite">
         {count} selected
       </span>
@@ -28,17 +26,17 @@ export default function SelectionBar({ count, total, busy, onSelectAll, onClear,
         Select all
       </button>
       <span className="spacer" />
-      <button className="btn" onClick={onDownload} disabled={busy}>
+      <button className="btn" onClick={onDownload} disabled={busy || files === 0}>
         {busy ? <span className="wait" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
         Download
       </button>
       <button
         className={`btn${armed ? ' btn--armed' : ''}`}
         onClick={() => (armed ? onDelete() : setArmed(true))}
-        disabled={busy}
+        disabled={busy || count === 0}
         title={armed ? 'Click again to delete for good' : undefined}
       >
-        {armed ? `Confirm delete` : 'Delete'}
+        {armed ? 'Confirm delete' : 'Delete'}
       </button>
     </div>
   )

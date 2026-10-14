@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check } from 'lucide-react'
 import { urlFor } from '../store/urls.js'
 import { dollars } from '../format.js'
 import { makerOf } from '../makers.js'
@@ -7,6 +6,8 @@ import Logo from './ui/Logo.jsx'
 import TileActions from './ui/TileActions.jsx'
 import PendingTile from './ui/PendingTile.jsx'
 import FailedTile from './ui/FailedTile.jsx'
+import Tick from './ui/Tick.jsx'
+import { plateOrder } from '../selection.js'
 import Reveal from './ui/Reveal.jsx'
 
 const REVEAL_MS = 700
@@ -16,9 +17,10 @@ const REVEAL_MS = 700
  * finished plates and the failed jobs in the order they were made. With
  * nothing at all, the first slot is drawn as an outline.
  *
- * Finished plates can be selected: the box in a plate's corner ticks it, and
- * while anything is ticked a click on a plate ticks it too. Shift extends a
- * range; Ctrl or Cmd ticks without opening. `box` is the drag box in progress.
+ * Finished plates and failed jobs can be selected. In select mode a click
+ * ticks; outside it, the box in a plate's corner, Shift or Ctrl/Cmd-click
+ * tick one and turn the mode on. `box` is the drag box in progress, and
+ * `plates` the shared order of plates and failed jobs.
  */
 export default function Gallery({
   kind = 'image',
@@ -32,12 +34,13 @@ export default function Gallery({
   onUseAsRef,
   onFix,
   onDismiss,
+  plates,
   gridRef,
   box = null,
+  selecting = false,
   selected = new Set(),
   onToggle,
 }) {
-  const selecting = selected.size > 0
   // An image whose job was seen running lands through the pixel grid.
   const running = useRef(new Set())
   const [fresh, setFresh] = useState(() => new Set())
@@ -53,10 +56,9 @@ export default function Gallery({
     return () => clearTimeout(t)
   }, [images])
 
-  const items = [
-    ...images.map((img) => ({ at: img.created_at, img })),
-    ...failures.map((job) => ({ at: job.created_at, job })),
-  ].sort((a, b) => b.at - a.at)
+  const items = plates ?? plateOrder(images, failures)
+  // In select mode any click ticks; outside it, Shift or Ctrl/Cmd-click does.
+  const ticks = (e) => selecting || e.shiftKey || e.ctrlKey || e.metaKey
 
   return (
     <div className={`gallery${selecting ? ' is-selecting' : ''}`} ref={gridRef}>
@@ -75,44 +77,40 @@ export default function Gallery({
         </article>
       )}
 
-      {items.map(({ img, job }) =>
+      {items.map(({ key, img, job }) =>
         job ? (
-          <FailedTile key={`f-${job.id}`} job={job} name={nameFor(job.model)} onFix={onFix} onDismiss={onDismiss} />
+          <FailedTile
+            key={key}
+            job={job}
+            name={nameFor(job.model)}
+            onFix={onFix}
+            onDismiss={onDismiss}
+            selectKey={key}
+            selecting={selecting}
+            selected={selected.has(key)}
+            onToggle={onToggle}
+          />
         ) : (
           <article
-            className={`tile${selected.has(img.id) ? ' is-selected' : ''}`}
-            key={img.id}
-            data-select-id={img.id}
-            onClick={(e) => {
-              if (e.shiftKey || e.ctrlKey || e.metaKey || selecting) onToggle(img.id, { range: e.shiftKey })
-              else onOpen(img)
-            }}
+            className={`tile${selected.has(key) ? ' is-selected' : ''}`}
+            key={key}
+            data-select-id={key}
+            onClick={(e) => (ticks(e) ? onToggle(key, { range: e.shiftKey }) : onOpen(img))}
             role="button"
             tabIndex={0}
             title={img.prompt}
             aria-label={`${selecting ? 'Select' : 'Open'}: ${img.prompt}`}
-            aria-pressed={selecting ? selected.has(img.id) : undefined}
+            aria-pressed={selecting ? selected.has(key) : undefined}
             onKeyDown={(e) => {
               if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
                 e.preventDefault()
-                if (selecting) onToggle(img.id, { range: e.shiftKey })
+                if (selecting) onToggle(key, { range: e.shiftKey })
                 else onOpen(img)
               }
             }}
           >
             <div className="tile__frame">
-              <button
-                className="tick"
-                role="checkbox"
-                aria-checked={selected.has(img.id)}
-                aria-label="Select"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onToggle(img.id, { range: e.shiftKey })
-                }}
-              >
-                <Check size={14} aria-hidden="true" />
-              </button>
+              <Tick checked={selected.has(key)} onToggle={(range) => onToggle(key, { range })} />
               {img.kind === 'video' ? (
                 <video
                   src={urlFor(img)}

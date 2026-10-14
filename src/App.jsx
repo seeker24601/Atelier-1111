@@ -237,10 +237,12 @@ export default function App() {
     await library.remove(image)
   }
 
-  async function removeImages(ids) {
-    for (const id of ids) composer.detachRef(id)
+  // Plates leave the reference tray too, or a commit would cite a missing file.
+  async function removeSelected({ images, jobs }) {
+    for (const id of images) composer.detachRef(id)
     try {
-      await library.removeMany(ids)
+      if (images.length) await library.removeMany(images)
+      if (jobs.length) await library.removeJobs(jobs)
     } catch (e) {
       library.setError(e.message)
     }
@@ -327,7 +329,7 @@ export default function App() {
           runs={runsForModel}
           overlay={Boolean(detail.image) || pickerOpen || settingsOpen}
           onDownloadMany={downloadImages}
-          onDeleteMany={removeImages}
+          onDeleteMany={removeSelected}
           gallery={{
             images: library.images,
             pending: library.activeJobs.filter((j) => (j.kind || 'image') === view),

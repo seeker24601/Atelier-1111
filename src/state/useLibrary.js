@@ -127,6 +127,15 @@ export function useLibrary(kind = 'image', active = null) {
     [readGallery]
   )
 
+  /** Failed jobs picked out in the gallery. */
+  const removeJobs = useCallback(
+    async (ids) => {
+      await api.removeJobs(ids)
+      await refresh()
+    },
+    [refresh]
+  )
+
   /** Every generation on disk, both modalities, and the job log. Not undoable. */
   const clearAll = useCallback(async () => {
     await api.clearImages()
@@ -153,6 +162,7 @@ export function useLibrary(kind = 'image', active = null) {
     refresh,
     remove,
     removeMany,
+    removeJobs,
     clearAll,
     refreshGallery: readGallery,
     reloadModels,

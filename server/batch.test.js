@@ -41,6 +41,11 @@ const png = (n) => Buffer.from(`fake png ${n}`)
 const seed = async (id, model, n) =>
   library.adopt({ id, model, media_type: 'image/png', format: 'png', created_at: Date.now() }, png(n))
 
+test.after(() => {
+  db.close()
+  rmSync(dir, { recursive: true, force: true })
+})
+
 test('several plates download as one zip and delete together', async (t) => {
   const app = express()
   app.use(express.json())
@@ -48,11 +53,7 @@ test('several plates download as one zip and delete together', async (t) => {
   const server = await new Promise((resolve) => {
     const s = app.listen(0, '127.0.0.1', () => resolve(s))
   })
-  t.after(() => {
-    server.close()
-    db.close()
-    rmSync(dir, { recursive: true, force: true })
-  })
+  t.after(() => server.close())
   const base = `http://127.0.0.1:${server.address().port}/api`
   const post = (path, body) =>
     fetch(base + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
@@ -88,4 +89,31 @@ test('several plates download as one zip and delete together', async (t) => {
   assert.deepEqual(left, ['bbbbbbbb-2222'])
 
   assert.equal((await post('/images/remove', {})).status, 400, 'no ids never means everything')
+})
+
+test('failed jobs delete from the gallery; work in flight stays', async (t) => {
+  const jobsRepo = await import('./db/jobs.js')
+  const job = (id, status) => ({ id, created_at: Date.now(), status, model: 'openrouter:openai/gpt-image-2', prompt: 'p', params: {}, refs: [], n: 1, kind: 'image' })
+  jobsRepo.insert(job('failed-1', 'error'))
+  jobsRepo.insert(job('running-1', 'running'))
+
+  const app = express()
+  app.use(express.json())
+  app.use('/api', api)
+  const server = await new Promise((resolve) => {
+    const s = app.listen(0, '127.0.0.1', () => resolve(s))
+  })
+  t.after(() => server.close())
+  const post = (path, body) =>
+    fetch(`http://127.0.0.1:${server.address().port}/api${path}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+  const res = await post('/jobs/remove', { ids: ['failed-1', 'running-1'] })
+  assert.deepEqual(await res.json(), { removed: 1 })
+  assert.equal(jobsRepo.get('failed-1'), undefined)
+  assert.equal(jobsRepo.get('running-1').status, 'running')
+  assert.equal((await post('/jobs/remove', { ids: 'failed-1' })).status, 400)
 })
