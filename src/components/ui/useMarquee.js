@@ -11,7 +11,7 @@ const OWN_GESTURE = 'button, a, input, textarea, select, video, [role="checkbox"
 
 /**
  * Drag a box across the gallery to select what it touches. A press only
- * becomes a drag once it moves, so a click still opens a plate. Near the
+ * becomes a drag once it moves, so a click is still a click on a plate. Near the
  * scroller's edge the drag scrolls, and the box keeps growing with it.
  *
  * Tiles to hit carry `data-select-id`. The box is in the gallery's own
@@ -20,13 +20,14 @@ const OWN_GESTURE = 'button, a, input, textarea, select, video, [role="checkbox"
  * @param {object} opts
  * @param {React.RefObject<HTMLElement>} opts.gallery
  * @param {React.RefObject<HTMLElement>} opts.scroller
+ * @param {boolean} opts.enabled  only while select mode is on
  * @param {(ids: string[], additive: boolean) => void} opts.onSelect  called as the box changes
  * @param {() => void} opts.onStart  called once a press becomes a drag
  */
-export function useMarquee({ gallery, scroller, onSelect, onStart }) {
+export function useMarquee({ gallery, scroller, enabled = true, onSelect, onStart }) {
   const [box, setBox] = useState(null)
-  const live = useRef({ onSelect, onStart })
-  live.current = { onSelect, onStart }
+  const live = useRef({ onSelect, onStart, enabled })
+  live.current = { onSelect, onStart, enabled }
 
   useEffect(() => {
     const el = gallery.current
@@ -82,7 +83,7 @@ export function useMarquee({ gallery, scroller, onSelect, onStart }) {
     }
 
     const down = (e) => {
-      if (e.button !== 0 || e.pointerType === 'touch' || e.target.closest(OWN_GESTURE)) return
+      if (!live.current.enabled || e.button !== 0 || e.pointerType === 'touch' || e.target.closest(OWN_GESTURE)) return
       drag = {
         id: e.pointerId,
         start: local(e.clientX, e.clientY),

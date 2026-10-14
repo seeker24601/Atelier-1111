@@ -8,8 +8,10 @@ import { useScramble } from './ui/useScramble.js'
  * appear only when they carry a fact — an empty reference slot is not
  * information, and what the next commit will do is already stated by the
  * commit button and, once running, by the activity readout.
+ *
+ * Select (Done while it is on) switches the gallery's select mode.
  */
-export default function ReadoutBand({ models, model, runs = [], kind = 'image' }) {
+export default function ReadoutBand({ models, model, runs = [], kind = 'image', selecting = false, canSelect = false, onSelectMode }) {
   const active = models.find((m) => m.id === model)
   // The name in the display face; it scrambles into place when the model changes.
   const name = active ? modelName(active) : model ? shortModel(model) : 'No model'
@@ -83,6 +85,12 @@ export default function ReadoutBand({ models, model, runs = [], kind = 'image' }
         <h1 className="plate-title" aria-label={name}>
           {shown}
         </h1>
+        <span className="spacer" />
+        {(canSelect || selecting) && (
+          <button className="btn btn--sm" aria-pressed={selecting} onClick={onSelectMode}>
+            {selecting ? 'Done' : 'Select'}
+          </button>
+        )}
       </div>
 
       <div className="readout-meta">

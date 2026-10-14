@@ -48,6 +48,14 @@ export function clearFinished() {
   return db.prepare(`DELETE FROM jobs WHERE status IN ('done', 'error')`).run().changes
 }
 
+/** These settled rows, picked out in the gallery. Work in flight is never among them. */
+export function removeFinished(ids) {
+  const remove = db.prepare(`DELETE FROM jobs WHERE id = ? AND status IN ('done', 'error')`)
+  let removed = 0
+  for (const id of ids) removed += remove.run(id).changes
+  return removed
+}
+
 /** Anything the queue was in the middle of when the process stopped. */
 export function unfinished() {
   return db

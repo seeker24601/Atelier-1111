@@ -48,6 +48,7 @@ export const api = {
   generate: (payload) => post('/api/generate', payload),
   remove: (id) => del(`/api/images/${id}`),
   removeMany: (ids) => post('/api/images/remove', { ids }),
+  removeJobs: (ids) => post('/api/jobs/remove', { ids }),
   /** A short-lived link to the selection as one zip. */
   archive: (ids) => post('/api/images/archive', { ids }),
 

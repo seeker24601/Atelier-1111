@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react'
 import Logo from './Logo.jsx'
 import DecodeField from './DecodeField.jsx'
+import Tick from './Tick.jsx'
 import { makerOf } from '../../makers.js'
 import { describeFailure } from '../../failures.js'
 
@@ -10,14 +11,25 @@ const seedOf = (id) => [...String(id)].reduce((n, c) => (n * 31 + c.charCodeAt(0
  * A job that failed, where its image would have been. The field froze where it
  * broke. Said in words: what went wrong and the one move that fixes it; the
  * provider's own message is one click away rather than the headline.
+ *
+ * It can be selected like a plate, to delete it with others. In select mode
+ * the whole tile ticks and its own buttons step aside.
  */
-export default function FailedTile({ job, name, onFix, onDismiss }) {
+export default function FailedTile({ job, name, onFix, onDismiss, selectKey, selecting = false, selected = false, onToggle }) {
   const f = describeFailure(job.error)
   const fixLabel = f.fix === 'ref' ? 'Add a reference' : f.fix === 'settings' ? 'Open Settings' : job.refs?.length ? 'Load it again' : 'Retry'
 
   return (
-    <article className="tile tile--failed" aria-label={`Failed: ${f.title}`}>
+    <article
+      className={`tile tile--failed${selected ? ' is-selected' : ''}`}
+      aria-label={`Failed: ${f.title}`}
+      data-select-id={selectKey}
+      onClick={(e) => {
+        if (selecting || e.shiftKey || e.ctrlKey || e.metaKey) onToggle(selectKey, { range: e.shiftKey })
+      }}
+    >
       <div className="tile__frame">
+        <Tick checked={selected} onToggle={(range) => onToggle(selectKey, { range })} />
         <DecodeField seed={seedOf(job.id)} frozen />
         <div className="fail">
           <p className="fail__title">{f.title}</p>

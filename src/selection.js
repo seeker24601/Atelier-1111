@@ -3,6 +3,28 @@
  * the pointer handling that drives them.
  */
 
+/**
+ * Finished plates and failed jobs as the gallery lays them out: newest first,
+ * each with a key unique across both, since a plate and a job can share an id.
+ */
+export function plateOrder(images, failures = []) {
+  return [
+    ...images.map((img) => ({ key: `img:${img.id}`, at: img.created_at, img })),
+    ...failures.map((job) => ({ key: `job:${job.id}`, at: job.created_at, job })),
+  ].sort((a, b) => b.at - a.at)
+}
+
+/** Selected keys split back into plate ids and job ids. */
+export function splitKeys(keys) {
+  const images = []
+  const jobs = []
+  for (const key of keys) {
+    if (key.startsWith('img:')) images.push(key.slice(4))
+    else if (key.startsWith('job:')) jobs.push(key.slice(4))
+  }
+  return { images, jobs }
+}
+
 /** Every id from `from` to `to` in gallery order, either way round. */
 export function rangeOf(order, from, to) {
   const a = order.indexOf(from)
