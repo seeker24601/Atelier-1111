@@ -46,6 +46,8 @@ double-click `Start-Atelier.vbs` instead.
 - Shows a failed job where its image would have been, in plain words, with the
   one move that fixes it and the provider's own message a click away.
 - Saves results to `data/images` and their details to `data/atelier.db`.
+  Select several in the gallery, by their corner box or by dragging across
+  them, to download them as one zip or delete them together.
 - Shows what each image cost and, for OpenRouter, what your key has left.
   Other providers report no cost, so none is shown.
 - Tracks which settings each model honours, since a published option is not

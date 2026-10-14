@@ -83,15 +83,6 @@ export function priceLabel({ pricing = {}, measuredAvg = null, kind = 'image' } 
   return rate == null ? '——' : `${perMillion(rate)}/M tokens`
 }
 
-/**
- * A usable file extension. `media_type` gives "svg+xml", which is not one, and
- * the measured format is truer than the request in any case.
- */
-const EXT_ALIAS = { jpeg: 'jpg', 'svg+xml': 'svg' }
-export function extensionOf(image) {
-  const sub =
-    image.format || String(image.media_type || '').split('/')[1]?.split(';')[0]?.toLowerCase()
-  return EXT_ALIAS[sub] || String(sub || 'bin').replace(/[^a-z0-9]/g, '') || 'bin'
-}
+export { extensionOf, downloadName } from '../server/filenames.js'
 
 export const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 'S'}`

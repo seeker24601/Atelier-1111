@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { writeFile, unlink, readdir, stat } from 'node:fs/promises'
+import { writeFile, unlink, readdir, readFile, stat } from 'node:fs/promises'
 import { statfsSync } from 'node:fs'
 import { join } from 'node:path'
 import { IMAGE_DIR, DATA_DIR } from './paths.js'
@@ -98,6 +98,28 @@ export async function remove(id) {
   await unlink(join(IMAGE_DIR, row.file)).catch(() => {})
   return true
 }
+
+/** Several at once, each row and file together as in remove. */
+export async function removeMany(ids) {
+  let removed = 0
+  for (const id of ids) if (await remove(id)) removed++
+  return removed
+}
+
+/** Rows for these ids that still exist, in the order given, with their size on disk. */
+export async function filesFor(ids) {
+  const rows = []
+  for (const id of ids) {
+    const row = imagesRepo.get(id)
+    if (!row) continue
+    const { size } = await stat(join(IMAGE_DIR, row.file)).catch(() => ({ size: -1 }))
+    if (size >= 0) rows.push({ ...row, size })
+  }
+  return rows
+}
+
+/** The bytes of a row's file, or null when it has gone. */
+export const bytesOf = (row) => readFile(join(IMAGE_DIR, row.file)).catch(() => null)
 
 export async function clear() {
   for (const row of imagesRepo.all()) {

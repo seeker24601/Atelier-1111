@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, CornerUpLeft, X } from 'lucide-react'
 import { urlFor } from '../store/urls.js'
-import { canBeReference, extensionOf, shortModel } from '../format.js'
+import { canBeReference, downloadName, shortModel } from '../format.js'
 import { makerOf } from '../makers.js'
 import Logo from './ui/Logo.jsx'
 import Reveal from './ui/Reveal.jsx'
@@ -153,7 +153,7 @@ export default function ImageDetail({
             >
               Use as reference
             </button>
-            <a className="btn" href={urlFor(image)} download={`atelier-${image.id.slice(0, 8)}.${extensionOf(image)}`}>
+            <a className="btn" href={urlFor(image)} download={downloadName(image)}>
               Save
             </a>
             <button

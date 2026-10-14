@@ -237,6 +237,30 @@ export default function App() {
     await library.remove(image)
   }
 
+  async function removeImages(ids) {
+    for (const id of ids) composer.detachRef(id)
+    try {
+      await library.removeMany(ids)
+    } catch (e) {
+      library.setError(e.message)
+    }
+  }
+
+  // The selection as one zip, fetched like any single download.
+  async function downloadImages(ids) {
+    try {
+      const { url } = await api.archive(ids)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = ''
+      document.body.append(a)
+      a.click()
+      a.remove()
+    } catch (e) {
+      library.setError(e.message)
+    }
+  }
+
   async function deleteAndClose(image) {
     detail.close()
     await removeImage(image)
@@ -301,6 +325,9 @@ export default function App() {
           models={library.models}
           model={composer.model}
           runs={runsForModel}
+          overlay={Boolean(detail.image) || pickerOpen || settingsOpen}
+          onDownloadMany={downloadImages}
+          onDeleteMany={removeImages}
           gallery={{
             images: library.images,
             pending: library.activeJobs.filter((j) => (j.kind || 'image') === view),
