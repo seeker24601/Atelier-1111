@@ -75,6 +75,9 @@ its key, gallery and hidden models as before.
 
 ## Development
 
+Desktop agents can operate Atelier through [MCP](docs/mcp.md), including
+generation, job tracking, and gallery access.
+
 The Tauri desktop app targets Windows and macOS, including Intel and Apple Silicon.
 See [desktop build instructions](docs/desktop.md) for packaging and data locations.
 

@@ -1,11 +1,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod backend;
+mod mcp;
 mod updates;
 
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 fn main() {
+    if std::env::args().any(|arg| arg == "--mcp") {
+        std::process::exit(mcp::run());
+    }
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             if let Some(window) = app.get_webview_window("main") {

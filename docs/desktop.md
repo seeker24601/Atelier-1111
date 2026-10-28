@@ -35,6 +35,9 @@ Apple signing and notarization; credentials are not included in this repository.
 
 ## Data and lifecycle
 
+The desktop executable also accepts `--mcp` to serve local agents over stdio.
+See [MCP setup](mcp.md) for client configuration and tool access.
+
 The desktop backend uses an OS-assigned free loopback port.
 The app waits for backend readiness before it creates the window.
 Only one desktop instance runs at a time. Closing the app stops its backend.

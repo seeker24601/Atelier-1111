@@ -9,6 +9,7 @@ import { describe } from './keys.js'
 import { db } from './db/index.js'
 import { qualifyModelIds } from './migrations.js'
 import { localOnly } from './localonly.js'
+import { mcpAccess, publishMcpConnection } from './mcp-access.js'
 
 /**
  * Two ways to run:
@@ -28,6 +29,7 @@ app.disable('x-powered-by')
 app.use(localOnly)
 app.use(express.json({ limit: '64mb' })) // reference images arrive as data URLs
 app.use('/api', api)
+app.use('/mcp-api', mcpAccess, api)
 // Vector models return SVG, which is script-capable when opened directly (an
 // <img> tag is inert, a browser tab is not). Served locked down and never
 // content-sniffed, so the extension written by the queue is the only authority.
@@ -88,6 +90,7 @@ reconcileOrphans()
 
 const listener = app.listen(PORT, '127.0.0.1', () => {
   const port = listener.address().port
+  publishMcpConnection(port)
   if (process.env.ATELIER_DESKTOP) console.log(`ATELIER_READY:${port}`)
   const { configured, active, source } = describe()
   console.log(`[atelier-1111] ${APP ? 'app' : 'api'} on http://127.0.0.1:${port}`)

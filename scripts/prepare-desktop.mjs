@@ -7,8 +7,11 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const backend = join(root, 'src-tauri', 'backend')
 rmSync(backend, { recursive: true, force: true })
 mkdirSync(join(backend, 'runtime'), { recursive: true })
-for (const path of ['server', 'dist', 'package.json', 'package-lock.json']) {
-  cpSync(join(root, path), join(backend, path), { recursive: true })
+for (const path of ['server', 'mcp', 'dist', 'package.json', 'package-lock.json']) {
+  cpSync(join(root, path), join(backend, path), {
+    recursive: true,
+    filter: source => path !== 'mcp' || (!source.endsWith('.test.js') && !source.includes(`${join('mcp', 'fixtures')}`)),
+  })
 }
 mkdirSync(join(backend, 'scripts'), { recursive: true })
 copyFileSync(join(root, 'scripts/desktop-entry.mjs'), join(backend, 'scripts/desktop-entry.mjs'))

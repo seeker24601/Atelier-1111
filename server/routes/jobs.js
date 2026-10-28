@@ -1,10 +1,18 @@
 import { Router } from 'express'
 import * as jobsRepo from '../db/jobs.js'
+import * as imagesRepo from '../db/images.js'
 
 export const jobs = Router()
 
 jobs.get('/jobs', (_req, res) => {
   res.json({ jobs: jobsRepo.recent(40) })
+})
+
+jobs.get('/jobs/:id', (req, res) => {
+  const job = jobsRepo.get(req.params.id)
+  if (!job) return res.status(404).json({ error: 'Job not found.' })
+  const { refs, ...details } = job
+  res.json({ job: details, images: imagesRepo.forJob(job.id) })
 })
 
 /**

@@ -73,6 +73,11 @@ export function get(id) {
   return hydrate(db.prepare(`SELECT * FROM images WHERE id = ?`).get(id), 'params', 'refs')
 }
 
+export function forJob(jobId) {
+  return db.prepare('SELECT * FROM images WHERE job_id = ? ORDER BY seq ASC')
+    .all(jobId).map((r) => hydrate(r, 'params', 'refs'))
+}
+
 export function remove(id) {
   db.prepare(`DELETE FROM images WHERE id = ?`).run(id)
 }

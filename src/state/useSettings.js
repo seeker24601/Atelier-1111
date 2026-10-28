@@ -38,6 +38,13 @@ export function useSettings() {
 
   useEffect(() => {
     read()
+    const refreshVisible = () => { if (!document.hidden) read() }
+    const timer = setInterval(refreshVisible, 2000)
+    window.addEventListener('focus', refreshVisible)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('focus', refreshVisible)
+    }
   }, [read])
 
   // Spend and limit are OpenRouter's to report; other providers have no such endpoint.
