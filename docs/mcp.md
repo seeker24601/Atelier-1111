@@ -91,9 +91,12 @@ absolute Node executable path and an absolute path to `mcp/index.js`:
 }
 ```
 
-The desktop data directory is checked first by default, followed by the source
-checkout's `data` directory. `ATELIER_DATA_DIR` selects a specific instance.
-Run the backend and bridge as the same OS user.
+On first use, the bridge checks for a running desktop backend, then the source
+checkout's `data` directory. It authenticates the connection before selecting it.
+The session stays attached to that data directory, including after a restart.
+Closing the selected app produces an error instead of switching to another
+gallery or provider account. `ATELIER_DATA_DIR` selects a specific instance
+without fallback. Run the backend and bridge as the same OS user.
 
 ## Tools
 
@@ -112,7 +115,8 @@ Run the backend and bridge as the same OS user.
 
 Generation accepts the qualified model ID returned by `atelier_list_models`.
 It supports saved image IDs and absolute paths to local PNG, JPEG, or WebP
-references. Parameter options depend on the model; inspect its published
+references. A missing gallery reference fails the job before a provider request.
+Parameter options depend on the model; inspect its published
 options and observed capabilities. A local file reference is sent to the
 selected provider as part of the generation request.
 
@@ -132,12 +136,23 @@ providers. They exercise queueing, storage, references, image previews, videos,
 provider selection, errors, deletion, authentication, and stopped-app handling.
 They make no provider requests. Native Mac launcher checks remain required.
 
-Verified on Windows on 2026-10-28: all 123 tests pass, including the same
-stdio integration suite through the bundled executable's `--mcp` launcher.
+Verified on Windows on 2026-10-28: all 125 tests pass. The native launcher check
+runs the stdio integration suite through the bundled executable's `--mcp`
+launcher and the packaged backend, with fixture provider responses.
 The suite confirms an existing MCP session discovers a restarted backend.
 Disabling token validation makes the authentication test fail.
 The visible app was also checked after an MCP provider change. Its settings
 and model controls update through the shared backend without a page reload.
+
+The review of `0ceb036` reproduced three defects: missing gallery references
+were dropped before generation, stale desktop descriptors masked a running
+source backend, and opening another app could redirect an existing session to
+its gallery and keys. Missing-reference behavior also existed in the baseline
+`c260b1d`. Reference resolution now fails before a provider call.
+Connection discovery checks liveness and keeps the chosen data directory.
+Tests also cover the queue limit, disconnection, and remote-descriptor rejection
+before any network request. Nine deliberate defects were detected in an isolated
+copy, then restored. Native Mac MCP checks and live provider calls remain untested.
 
 System: MCP adapter. It owns protocol schemas, connection discovery, and the
 stdio launcher. It delegates generation, provider selection, and gallery

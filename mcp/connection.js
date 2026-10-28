@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const id = 'com.seeker24601.atelier1111'
+let selectedFile = null
 
 export function connectionFiles(env = process.env, platform = process.platform, home = homedir()) {
   const desktop = platform === 'win32' ? join(env.APPDATA || join(home, 'AppData/Roaming'), id)
@@ -13,8 +14,8 @@ export function connectionFiles(env = process.env, platform = process.platform, 
     : [join(desktop, 'mcp-connection.json'), join(dirname(fileURLToPath(import.meta.url)), '../data/mcp-connection.json')]
 }
 
-function discover() {
-  for (const file of connectionFiles()) {
+async function discover() {
+  for (const file of selectedFile ? [selectedFile] : connectionFiles()) {
     try {
       const connection = JSON.parse(readFileSync(file, 'utf8'))
       const url = new URL(connection.url)
@@ -22,16 +23,26 @@ function discover() {
           url.pathname !== '/' || url.search || url.hash || !/^[a-f0-9]{64}$/.test(connection.token)) {
         throw new Error('Invalid Atelier connection descriptor.')
       }
+      try {
+        const health = await fetch(`${url.origin}/mcp-api/health`, {
+          headers: { 'x-atelier-mcp-token': connection.token },
+          redirect: 'error', signal: AbortSignal.timeout(1000),
+        })
+        if (!health.ok || !(await health.json()).ok) continue
+      } catch { continue }
+      selectedFile = file
       return { url: url.origin, token: connection.token }
     } catch (error) {
       if (error.code !== 'ENOENT') throw error
     }
   }
-  throw new Error('Open Atelier before using its MCP tools. For a source install, run npm start.')
+  throw new Error(selectedFile
+    ? 'The selected Atelier app is unavailable. Reopen it to use the same gallery and provider keys.'
+    : 'Open Atelier before using its MCP tools. For a source install, run npm start.')
 }
 
 export async function request(path, { method = 'GET', body, binary = false } = {}) {
-  const connection = discover()
+  const connection = await discover()
   let response
   try {
     response = await fetch(`${connection.url}/mcp-api${path}`, {

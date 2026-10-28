@@ -15,7 +15,8 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 
 test('stdio agents share the real queue and gallery with the running backend', { timeout: 30000 }, async t => {
   const data = mkdtempSync(join(tmpdir(), 'atelier-mcp-'))
-  const env = { ...process.env, ATELIER_DATA_DIR: data, ATELIER_DESKTOP: '1', APP_PORT: '0' }
+  const env = { ...process.env, ATELIER_DATA_DIR: data, ATELIER_DESKTOP: '1', APP_PORT: '0',
+    NODE_OPTIONS: `--import=${new URL('fixtures/loopback-only.mjs', import.meta.url).href}` }
   let backend = spawn(process.execPath, ['mcp/fixtures/backend.mjs'], { cwd: root, env, stdio: ['pipe', 'pipe', 'pipe'] })
   let exited = once(backend, 'exit')
   backend.stderr.resume()
@@ -68,6 +69,14 @@ test('stdio agents share the real queue and gallery with the running backend', {
     }
     throw new Error('Fixture job did not settle.')
   }
+  const missing = await value('atelier_generate', {
+    model: 'openrouter:fixture-image', prompt: 'A missing reference must not spend credits',
+    reference_image_ids: ['c1d86976-2551-49a1-850c-721692d7b6ac'],
+  })
+  const rejected = await completed(missing.jobIds[0])
+  assert.equal(rejected.job.status, 'error')
+  assert.match(rejected.job.error, /Reference #1.*not found/)
+  assert.equal(existsSync(join(data, 'provider-calls.log')), false, 'Missing references must fail before the provider is called')
   const { jobIds } = await value('atelier_generate', { model: 'openrouter:fixture-image', prompt: 'Fixture image' })
   const result = await completed(jobIds[0])
   assert.equal(result.job.status, 'done')
@@ -89,7 +98,7 @@ test('stdio agents share the real queue and gallery with the running backend', {
   assert.equal(clip.images[0].kind, 'video')
   const failed = await value('atelier_generate', { model: 'openrouter:fixture-image', prompt: 'fixture failure' })
   assert.equal((await completed(failed.jobIds[0])).job.error, 'Fixture provider refused the prompt.')
-  assert.equal((await value('atelier_list_jobs')).jobs.length, 5)
+  assert.equal((await value('atelier_list_jobs')).jobs.length, 6)
   assert.equal((await call('atelier_generate', { model: 'openrouter:fixture-image', prompt: ' ' })).isError, true)
   assert.equal((await call('atelier_select_provider', { provider: 'nonexistent' })).isError, true)
   assert.equal((await value('atelier_select_provider', { provider: 'google' })).active, 'google')
@@ -108,6 +117,7 @@ test('stdio agents share the real queue and gallery with the running backend', {
   assert.equal((await call('atelier_status')).isError, true, 'Old instance tokens must be rejected')
   writeFileSync(descriptorPath, JSON.stringify({ ...descriptor, url: 'https://example.com' }))
   assert.equal((await call('atelier_status')).isError, true, 'Discovery must reject remote hosts')
+  assert.equal(existsSync(join(data, 'blocked-mcp-network.log')), false, 'Remote descriptors must be rejected before an HTTP request is attempted')
   writeFileSync(descriptorPath, JSON.stringify(descriptor))
   backend.stdin.end()
   await exited

@@ -62,7 +62,9 @@ export async function resolveReferences(refs) {
       out.push({ url: ref.url, ...(readImageMeta(Buffer.from(base64, 'base64')) || {}) })
     } else if (ref.kind === 'image' && ref.id) {
       const row = imagesRepo.get(ref.id)
-      if (!row) continue
+      if (!row) {
+        throw Object.assign(new Error(`Reference ${label} was not found in the gallery.`), { status: 400 })
+      }
       assertRaster(row.media_type, label)
       const buf = await readFile(join(IMAGE_DIR, row.file))
       out.push({
