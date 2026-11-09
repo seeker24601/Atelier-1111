@@ -1,9 +1,9 @@
 {
   "$comment": "What each model declares on the host that publishes its schema. It is what the model can do, not proof that OpenRouter forwards every option: check results. null means the host offers no such setting.",
-  "generated_at": "2026-10-11T01:51:10.357Z",
+  "generated_at": "2026-11-09T01:38:21.940Z",
   "models": {
     "black-forest-labs/flux-3-image": {
-      "name": "Black Forest Labs: FLUX.3 Image",
+      "name": "Black Forest Labs: FLUX 3 Image",
       "aspect_ratios": [
         "21:9",
         "2:1",
@@ -22,9 +22,9 @@
       ],
       "any_ratio": false,
       "resolutions": [
-        "512sq",
         "768sq",
         "1K",
+        "1.5K",
         "2K",
         "4K"
       ],
@@ -56,9 +56,9 @@
           "1:2"
         ],
         "resolution": [
-          "512sq",
           "768sq",
           "1k",
+          "1.5k",
           "2k",
           "4k"
         ],
@@ -73,6 +73,52 @@
           "endpoint": "blackforestlabs/flux-3/text-to-image",
           "edit_endpoint": "blackforestlabs/flux-3/edit-image",
           "url": "https://fal.ai/models/blackforestlabs/flux-3/text-to-image/api"
+        }
+      ]
+    },
+    "black-forest-labs/flux-3-image-klein": {
+      "name": "Black Forest Labs: FLUX 3 Image Klein",
+      "aspect_ratios": [
+        "1:1",
+        "3:4",
+        "9:16",
+        "4:3",
+        "16:9"
+      ],
+      "any_ratio": true,
+      "resolutions": null,
+      "output_formats": [
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "backgrounds": null,
+      "references": {
+        "accepted": true,
+        "max": 10
+      },
+      "declared": {
+        "image_size": [
+          "square_hd",
+          "square",
+          "portrait_4_3",
+          "portrait_16_9",
+          "landscape_4_3",
+          "landscape_16_9",
+          "<custom>"
+        ],
+        "output_format": [
+          "jpeg",
+          "png",
+          "webp"
+        ]
+      },
+      "sources": [
+        {
+          "provider": "fal",
+          "endpoint": "blackforestlabs/flux-3/klein/text-to-image",
+          "edit_endpoint": "blackforestlabs/flux-3/klein/edit-image",
+          "url": "https://fal.ai/models/blackforestlabs/flux-3/klein/text-to-image/api"
         }
       ]
     },
@@ -327,6 +373,7 @@
           "landscape_4_3",
           "landscape_16_9",
           "auto_1K",
+          "auto_1.5K",
           "auto_2K",
           "<custom>"
         ],
@@ -358,7 +405,10 @@
         "2K",
         "4K"
       ],
-      "output_formats": null,
+      "output_formats": [
+        "jpeg",
+        "png"
+      ],
       "backgrounds": null,
       "references": {
         "accepted": true,
@@ -376,6 +426,10 @@
           "auto_3K",
           "auto_4K",
           "<custom>"
+        ],
+        "output_format": [
+          "jpeg",
+          "png"
         ]
       },
       "sources": [
@@ -418,6 +472,7 @@
           "landscape_4_3",
           "landscape_16_9",
           "auto_1K",
+          "auto_1.5K",
           "auto_2K",
           "<custom>"
         ],
@@ -501,7 +556,11 @@
         "4:5",
         "3:4",
         "2:3",
-        "9:16"
+        "9:16",
+        "4:1",
+        "1:4",
+        "8:1",
+        "1:8"
       ],
       "any_ratio": false,
       "resolutions": [
@@ -531,7 +590,11 @@
           "4:5",
           "3:4",
           "2:3",
-          "9:16"
+          "9:16",
+          "4:1",
+          "1:4",
+          "8:1",
+          "1:8"
         ],
         "resolution": [
           "1K",
@@ -565,7 +628,11 @@
         "4:5",
         "3:4",
         "2:3",
-        "9:16"
+        "9:16",
+        "4:1",
+        "1:4",
+        "8:1",
+        "1:8"
       ],
       "any_ratio": false,
       "resolutions": [
@@ -595,7 +662,11 @@
           "4:5",
           "3:4",
           "2:3",
-          "9:16"
+          "9:16",
+          "4:1",
+          "1:4",
+          "8:1",
+          "1:8"
         ],
         "resolution": [
           "1K",
@@ -899,6 +970,51 @@
         }
       ]
     },
+    "krea/k3-edit": {
+      "name": "Krea: K3 Edit",
+      "aspect_ratios": [
+        "1:1",
+        "3:4",
+        "9:16",
+        "4:3",
+        "16:9"
+      ],
+      "any_ratio": true,
+      "resolutions": null,
+      "output_formats": [
+        "png",
+        "jpeg"
+      ],
+      "backgrounds": null,
+      "references": {
+        "accepted": true,
+        "max": 8
+      },
+      "declared": {
+        "image_size": [
+          "square_hd",
+          "square",
+          "portrait_4_3",
+          "portrait_16_9",
+          "landscape_4_3",
+          "landscape_16_9",
+          "auto",
+          "<custom>"
+        ],
+        "output_format": [
+          "png",
+          "jpeg"
+        ]
+      },
+      "sources": [
+        {
+          "provider": "fal",
+          "endpoint": "krea/v3/edit",
+          "edit_endpoint": "krea/v3/edit",
+          "url": "https://fal.ai/models/krea/v3/edit/api"
+        }
+      ]
+    },
     "meta/muse-image": {
       "name": "Meta: Muse Image",
       "aspect_ratios": [],
@@ -1028,56 +1144,6 @@
           "endpoint": "microsoft/mai-image-2.5-pro",
           "edit_endpoint": "microsoft/mai-image-2.5-pro/edit",
           "url": "https://fal.ai/models/microsoft/mai-image-2.5-pro/api"
-        }
-      ]
-    },
-    "openai/gpt-image-1": {
-      "name": "OpenAI: GPT Image 1",
-      "aspect_ratios": [
-        "1:1",
-        "3:2",
-        "2:3"
-      ],
-      "any_ratio": false,
-      "resolutions": null,
-      "output_formats": [
-        "jpeg",
-        "png",
-        "webp"
-      ],
-      "backgrounds": [
-        "auto",
-        "transparent",
-        "opaque"
-      ],
-      "references": {
-        "accepted": true,
-        "max": null
-      },
-      "declared": {
-        "image_size": [
-          "auto",
-          "1024x1024",
-          "1536x1024",
-          "1024x1536"
-        ],
-        "output_format": [
-          "jpeg",
-          "png",
-          "webp"
-        ],
-        "background": [
-          "auto",
-          "transparent",
-          "opaque"
-        ]
-      },
-      "sources": [
-        {
-          "provider": "fal",
-          "endpoint": "fal-ai/gpt-image-1/text-to-image",
-          "edit_endpoint": "fal-ai/gpt-image-1/edit-image",
-          "url": "https://fal.ai/models/fal-ai/gpt-image-1/text-to-image/api"
         }
       ]
     },
@@ -1296,6 +1362,126 @@
           "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
           "edit_endpoint": "openai/gpt-image-2.5/sunburst/edit",
           "url": "https://fal.ai/models/openai/gpt-image-2.5/sunburst/text-to-image/api"
+        }
+      ]
+    },
+    "openai/gpt-image-2.6-flare": {
+      "name": "OpenAI: GPT Image 2.6 Flare",
+      "aspect_ratios": [
+        "1:1",
+        "3:4",
+        "9:16",
+        "4:3",
+        "16:9"
+      ],
+      "any_ratio": true,
+      "resolutions": null,
+      "output_formats": [
+        "jpeg",
+        "png",
+        "webp",
+        "gif",
+        "svg"
+      ],
+      "backgrounds": [
+        "auto",
+        "transparent",
+        "opaque"
+      ],
+      "references": {
+        "accepted": true,
+        "max": 16
+      },
+      "declared": {
+        "image_size": [
+          "square_hd",
+          "square",
+          "portrait_4_3",
+          "portrait_16_9",
+          "landscape_4_3",
+          "landscape_16_9",
+          "auto",
+          "<custom>"
+        ],
+        "output_format": [
+          "jpeg",
+          "png",
+          "webp",
+          "gif",
+          "svg"
+        ],
+        "background": [
+          "auto",
+          "transparent",
+          "opaque"
+        ]
+      },
+      "sources": [
+        {
+          "provider": "fal",
+          "endpoint": "openai/gpt-image-2.6/flare/text-to-image",
+          "edit_endpoint": "openai/gpt-image-2.6/flare/edit",
+          "url": "https://fal.ai/models/openai/gpt-image-2.6/flare/text-to-image/api"
+        }
+      ]
+    },
+    "openai/gpt-image-2.6-sunburst": {
+      "name": "OpenAI: GPT Image 2.6 Sunburst",
+      "aspect_ratios": [
+        "1:1",
+        "3:4",
+        "9:16",
+        "4:3",
+        "16:9"
+      ],
+      "any_ratio": true,
+      "resolutions": null,
+      "output_formats": [
+        "jpeg",
+        "png",
+        "webp",
+        "gif",
+        "svg"
+      ],
+      "backgrounds": [
+        "auto",
+        "transparent",
+        "opaque"
+      ],
+      "references": {
+        "accepted": true,
+        "max": 16
+      },
+      "declared": {
+        "image_size": [
+          "square_hd",
+          "square",
+          "portrait_4_3",
+          "portrait_16_9",
+          "landscape_4_3",
+          "landscape_16_9",
+          "auto",
+          "<custom>"
+        ],
+        "output_format": [
+          "jpeg",
+          "png",
+          "webp",
+          "gif",
+          "svg"
+        ],
+        "background": [
+          "auto",
+          "transparent",
+          "opaque"
+        ]
+      },
+      "sources": [
+        {
+          "provider": "fal",
+          "endpoint": "openai/gpt-image-2.6/sunburst/text-to-image",
+          "edit_endpoint": "openai/gpt-image-2.6/sunburst/edit",
+          "url": "https://fal.ai/models/openai/gpt-image-2.6/sunburst/text-to-image/api"
         }
       ]
     },
@@ -1901,11 +2087,14 @@
         "9:16",
         "9:19.5",
         "9:20",
-        "1:2"
+        "1:2",
+        "21:9",
+        "5:2"
       ],
       "any_ratio": false,
       "resolutions": [
         "1K",
+        "1.5K",
         "2K"
       ],
       "output_formats": [
@@ -1932,10 +2121,14 @@
           "9:16",
           "9:19.5",
           "9:20",
-          "1:2"
+          "1:2",
+          "auto",
+          "21:9",
+          "5:2"
         ],
         "resolution": [
           "1k",
+          "1.5k",
           "2k"
         ],
         "output_format": [
@@ -1952,81 +2145,17 @@
           "url": "https://fal.ai/models/xai/grok-imagine-image/v2.0/text-to-image/api"
         }
       ]
-    },
-    "x-ai/grok-imagine-image-quality": {
-      "name": "SpaceXAI: Grok Imagine Image Quality",
-      "aspect_ratios": [
-        "2:1",
-        "20:9",
-        "19.5:9",
-        "16:9",
-        "4:3",
-        "3:2",
-        "1:1",
-        "2:3",
-        "3:4",
-        "9:16",
-        "9:19.5",
-        "9:20",
-        "1:2"
-      ],
-      "any_ratio": false,
-      "resolutions": [
-        "1K",
-        "2K"
-      ],
-      "output_formats": [
-        "jpeg",
-        "png",
-        "webp"
-      ],
-      "backgrounds": null,
-      "references": {
-        "accepted": true,
-        "max": null
-      },
-      "declared": {
-        "aspect_ratio": [
-          "2:1",
-          "20:9",
-          "19.5:9",
-          "16:9",
-          "4:3",
-          "3:2",
-          "1:1",
-          "2:3",
-          "3:4",
-          "9:16",
-          "9:19.5",
-          "9:20",
-          "1:2"
-        ],
-        "resolution": [
-          "1k",
-          "2k"
-        ],
-        "output_format": [
-          "jpeg",
-          "png",
-          "webp"
-        ]
-      },
-      "sources": [
-        {
-          "provider": "fal",
-          "endpoint": "xai/grok-imagine-image/quality/text-to-image",
-          "edit_endpoint": "xai/grok-imagine-image/quality/edit",
-          "url": "https://fal.ai/models/xai/grok-imagine-image/quality/text-to-image/api"
-        }
-      ]
     }
   },
   "unmatched": {
+    "openai/gpt-image-1": "Not on fal (fal removed it).",
     "openai/gpt-5-image": "A chat model that draws through an image tool; its options are not the image model's.",
     "openai/gpt-5-image-mini": "A chat model that draws through an image tool; its options are not the image model's.",
     "openai/gpt-5.4-image-2": "A chat model that draws through an image tool; its options are not the image model's.",
     "recraft/recraft-v4.1-flash": "Not on fal.",
     "qwen/qwen-image-3-pro": "Not on fal.",
+    "qwen/qwen-image-2.1-pro": "Not on fal (fal has Qwen Image 2).",
+    "qwen/qwen-image-2.1-turbo": "Not on fal (fal has Qwen Image 2).",
     "microsoft/mai-image-2.6": "Not on fal (fal has 2.5).",
     "microsoft/mai-image-2.6-flash": "Not on fal (fal has 2.5).",
     "krea/krea-2-large": "Not on fal (fal has Krea 2 Turbo only).",
@@ -2036,10 +2165,12 @@
     "sourceful/riverflow-v2-pro": "Not on fal.",
     "sourceful/riverflow-v2.5-fast": "Not on fal.",
     "sourceful/riverflow-v2.5-pro": "Not on fal.",
+    "sourceful/riverflow-v2.6-pro": "Not on fal.",
     "tencent/hy-image-v3.5-preview": "Not on fal (fal has Hunyuan Image 3.0).",
     "inclusionai/ming-image-0.1-design": "Not on fal.",
     "inclusionai/ming-image-0.1-design-layer": "Not on fal.",
     "openrouter/auto": "A router, not a model.",
-    "openrouter/auto-beta": "A router, not a model."
+    "openrouter/auto-beta": "A router, not a model.",
+    "openrouter/auto-code": "A router, not a model."
   }
 }
